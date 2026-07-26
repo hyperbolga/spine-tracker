@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ось</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCWYyy19WDJf1Ki026fKHdrZQTIVKazMuI",
+  authDomain: "spine-tracker-96e55.firebaseapp.com",
+  projectId: "spine-tracker-96e55",
+  storageBucket: "spine-tracker-96e55.firebasestorage.app",
+  messagingSenderId: "451481913810",
+  appId: "1:451481913810:web:f55ac32d330322aa94200b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let userId = null;
+let entries = [];
+let cycleSettings = { cycleLength: 28, periodDays: 5 };
+let cycleEvents = []; // actual period start dates
+
+// AUTH
+signInAnonymously(auth).then(cred => {
+  userId = cred.user.uid;
+  loadAll();
+}).catch(e => {
+  console.error('Auth error', e);
+  showToast('Ошибка авторизации', true);
+});
+
+async function loadAll() {
+  await loadSettings();
+  await loadEntries();
+  await loadCycleEvents();
+  renderAll();
+  hideLoader();
+}
+
+async function loadSettings() {
+  try {
+    const d = await getDoc(doc(db, 'users', userId, 'meta', 'settings'));
+    if (d.exists()) cycleSettings = { ...cycleSettings, ...d.data() };
+  } catch(e) {}
+}
+
+async function saveSettings() {
+  await setDoc(doc(db, 'users', userId, 'meta', 'settings'), cycleSettings);
+}
+
+async function loadEntries() {
+  try {
+    const q = query(collection(db, 'users', userId, 'entries'), orderBy('ts', 'desc'));
+    const snap = await getDocs(q);
+    entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) { console.error(e); }
+}
+
+async function loadCycleEvents() {
+  try {
+    const q = query(collection(db, 'users', userId, 'cycle'), orderBy('date', 'desc'));
+    const snap = await getDocs(q);
+    cycleEvents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) {}
+}
+
+// SAVE ENTRY
+window.saveEntry = async function() {
+  const btn = document.getElementById('save-btn');
+  btn.textContent = 'Сохраняю...';
+  btn.disabled = true;
+
+  const painLevel = window._selectedPain;
+  const sleepH = document.getElementById('sleep-hours').value;
+  const sleepM = document.getElementById('sleep-minutes').value;
+  const sleepBefore23 = document.getElementById('sleep-before23').checked;
+  const sleepQuality = document.querySelector('.sleep-quality-btn.selected')?.dataset.q || null;
+  const painLocation = [...document.querySelectorAll('#location-tags .tag.selected')].map(t => t.textContent);
+  const painChar = [...document.querySelectorAll('#char-tags .tag.selected:not(.add-tag)')].map(t => t.textContent);
+  const isCycle = document.querySelector('#cycle-tag.selected') !== null;
+  const medTaken = document.querySelector('#med-yes.selected') !== null;
+  const medName = document.getElementById('med-name')?.value?.trim() || '';
+  const medDose = document.getElementById('med-dose')?.value || '';
+  const note = document.getElementById('entry-note').value.trim();
+  const activity = [...document.querySelectorAll('#activity-tags .tag.selected')].map(t => t.textContent);
+
+  const entry = {
+    ts: new Date().toISOString(),
+    sleep: sleepH ? { hours: parseInt(sleepH), minutes: parseInt(sleepM||0), before23: sleepBefore23, quality: sleepQuality } : null,
+    pain: painLevel ? { level: painLevel, location: painLocation, character: painChar, isCycle } : null,
+    med: medTaken && medName ? { name: medName, dose: medDose } : null,
+    activity: activity.length ? activity : null,
+    note: note || null
+  };
+
+  try {
+    const ref = await addDoc(collection(db, 'users', userId, 'entries'), entry);
+    entries.unshift({ id: ref.id, ...entry });
+    showToast('Сохранено');
+    resetForm();
+    renderAll();
+  } catch(e) {
+    showToast('Ошибка сохранения', true);
+  }
+  btn.textContent = 'Сохранить';
+  btn.disabled = false;
+};
+
+// SAVE CYCLE EVENT (period start)
+window.saveCycleStart = async function() {
+  const dateVal = document.getElementById('cycle-start-date').value;
+  if (!dateVal) return;
+  try {
+    const ref = await addDoc(collection(db, 'users', userId, 'cycle'), { date: dateVal, type: 'start' });
+    cycleEvents.unshift({ id: ref.id, date: dateVal, type: 'start' });
+    cycleEvents.sort((a,b) => b.date.localeCompare(a.date));
+    renderCycleCalendar();
+    showToast('Начало цикла отмечено');
+  } catch(e) { showToast('Ошибка', true); }
+};
+
+// SETTINGS SAVE
+window.saveSettingsForm = async function() {
+  cycleSettings.cycleLength = parseInt(document.getElementById('cycle-length').value) || 28;
+  cycleSettings.periodDays = parseInt(document.getElementById('period-days').value) || 5;
+  await saveSettings();
+  renderCycleCalendar();
+  showToast('Настройки сохранены');
+};
+
+// EXPORT
+window.exportJSON = function() {
+  const data = { version: 2, exported: new Date().toISOString(), cycleSettings, cycleEvents, entries };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `spine-tracker_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  showToast('Файл скачан');
+};
+
+window.exportCSV = function() {
+  const rows = [['Дата','Сон(ч)','Мин','До23','Качество сна','Боль','Локация','Характер','Цикл','Препарат','Доза','Активность','Заметка']];
+  entries.forEach(e => {
+    rows.push([
+      e.ts?.split('T')[0],
+      e.sleep?.hours ?? '',
+      e.sleep?.minutes ?? '',
+      e.sleep?.before23 ? 'да' : 'нет',
+      e.sleep?.quality ?? '',
+      e.pain?.level ?? '',
+      (e.pain?.location||[]).join(';'),
+      (e.pain?.character||[]).join(';'),
+      e.pain?.isCycle ? 'да' : '',
+      e.med?.name ?? '',
+      e.med?.dose ?? '',
+      (e.activity||[]).join(';'),
+      e.note ?? ''
+    ]);
+  });
+  const csv = '\uFEFF' + rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `spine-tracker_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+};
+
+window.importJSON = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.entries) throw new Error('Неверный формат');
+      const existingIds = new Set(entries.map(e => e.id));
+      let added = 0;
+      for (const entry of data.entries) {
+        if (!existingIds.has(entry.id)) {
+          const { id, ...rest } = entry;
+          const ref = await addDoc(collection(db, 'users', userId, 'entries'), rest);
+          entries.push({ id: ref.id, ...rest });
+          added++;
+        }
+      }
+      entries.sort((a,b) => b.ts.localeCompare(a.ts));
+      renderAll();
+      showToast(`Добавлено ${added} записей`);
+    } catch(err) {
+      showToast('Ошибка импорта', true);
+    }
+  };
+  reader.readAsText(file);
+};
+
+// RENDER
+function renderAll() {
+  renderHistory();
+  renderCharts();
+  renderCycleCalendar();
+  updateDataStats();
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  if (!entries.length) {
+    container.innerHTML = '<p class="empty-state">Записей пока нет.<br>Добавь первую запись.</p>';
+    return;
+  }
+
+  // group by date
+  const groups = {};
+  entries.forEach(e => {
+    const date = e.ts?.split('T')[0] || 'unknown';
+    if (!groups[date]) groups[date] = [];
+    groups[date].push(e);
+  });
+
+  const today = new Date().toISOString().split('T')[0];
+  const yesterday = new Date(Date.now()-86400000).toISOString().split('T')[0];
+
+  let html = '';
+  Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date => {
+    let label = date;
+    if (date === today) label = 'Сегодня';
+    else if (date === yesterday) label = 'Вчера';
+    else label = new Date(date).toLocaleDateString('ru-RU', { day:'numeric', month:'long' });
+
+    html += `<div class="history-date-label">${label}</div>`;
+    groups[date].forEach(e => {
+      const painColor = e.pain?.level >= 8 ? 'rose' : e.pain?.level >= 5 ? 'amber' : 'sage';
+      html += `<div class="history-item">
+        <div class="history-left">
+          ${e.pain ? `<div class="history-pain-badge ${painColor}">${e.pain.level}</div>` : '<div class="history-pain-badge none">—</div>'}
+        </div>
+        <div class="history-body">
+          ${e.sleep ? `<div class="h-row"><span class="h-icon">🌙</span> ${e.sleep.hours}ч ${e.sleep.minutes||0}м · ${e.sleep.quality||''} ${e.sleep.before23 ? '· до 23:00' : ''}</div>` : ''}
+          ${e.pain ? `<div class="h-row"><span class="h-icon">⚡</span> ${e.pain.location?.join(', ')||''} ${e.pain.character?.length ? '· '+e.pain.character.join(', ') : ''} ${e.pain.isCycle ? '· цикл' : ''}</div>` : ''}
+          ${e.med ? `<div class="h-row"><span class="h-icon">💊</span> ${e.med.name} ${e.med.dose ? e.med.dose+'мг' : ''}</div>` : ''}
+          ${e.activity?.length ? `<div class="h-row"><span class="h-icon">🏃</span> ${e.activity.join(', ')}</div>` : ''}
+          ${e.note ? `<div class="h-row h-note">${e.note}</div>` : ''}
+        </div>
+        <div class="history-time">${new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>`;
+    });
+  });
+  container.innerHTML = html;
+}
+
+function renderCharts() {
+  const period = window._chartPeriod || 14;
+  const now = new Date();
+  const cutoff = new Date(now - period * 86400000);
+
+  const filtered = entries.filter(e => new Date(e.ts) >= cutoff);
+
+  // Build days array
+  const days = [];
+  for (let i = period-1; i >= 0; i--) {
+    const d = new Date(now - i*86400000);
+    days.push(d.toISOString().split('T')[0]);
+  }
+
+  // Pain per day
+  const painByDay = {};
+  const medByDay = {};
+  days.forEach(d => { painByDay[d] = []; medByDay[d] = 0; });
+  filtered.forEach(e => {
+    const d = e.ts.split('T')[0];
+    if (painByDay[d] !== undefined) {
+      if (e.pain?.level) painByDay[d].push(e.pain.level);
+      if (e.med) medByDay[d]++;
+    }
+  });
+
+  const avgPain = days.map(d => painByDay[d].length ? painByDay[d].reduce((a,b)=>a+b,0)/painByDay[d].length : null);
+  const medCount = days.map(d => medByDay[d]);
+
+  drawPainChart(days, avgPain);
+  drawMedChart(days, medCount);
+  drawCycleOverlay(days, avgPain);
+
+  // Stats
+  const painEntries = filtered.filter(e => e.pain?.level);
+  const medEntries = filtered.filter(e => e.med);
+  const avgPainVal = painEntries.length ? (painEntries.reduce((s,e)=>s+e.pain.level,0)/painEntries.length).toFixed(1) : '—';
+  const maxPain = painEntries.length ? Math.max(...painEntries.map(e=>e.pain.level)) : '—';
+
+  document.getElementById('stat-pills').innerHTML = `
+    <div class="stat-pill"><div class="stat-num lavender">${medEntries.length}</div><div class="stat-desc">таблеток</div></div>
+    <div class="stat-pill"><div class="stat-num sage">${avgPainVal}</div><div class="stat-desc">ср. боль</div></div>
+    <div class="stat-pill"><div class="stat-num rose">${maxPain}</div><div class="stat-desc">макс. боль</div></div>
+  `;
+}
+
+function drawPainChart(days, avgPain) {
+  const canvas = document.getElementById('pain-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const pad = { l:24, r:8, t:10, b:24 };
+  const cW = W - pad.l - pad.r;
+  const cH = H - pad.t - pad.b;
+
+  // grid
+  ctx.strokeStyle = '#E8E6E3';
+  ctx.lineWidth = 1;
+  [2,4,6,8,10].forEach(v => {
+    const y = pad.t + cH - (v/10)*cH;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle = '#AAA'; ctx.font = '9px Manrope'; ctx.textAlign = 'right';
+    ctx.fillText(v, pad.l-3, y+3);
+  });
+
+  const points = avgPain.map((v,i) => {
+    if (v === null) return null;
+    return { x: pad.l + (i/(days.length-1||1))*cW, y: pad.t + cH - (v/10)*cH };
+  }).filter(Boolean);
+
+  if (points.length < 2) return;
+
+  // fill
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, pad.t+cH);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length-1].x, pad.t+cH);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(196,122,122,0.3)');
+  grad.addColorStop(1,'rgba(196,122,122,0)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // line
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.strokeStyle = '#C47A7A';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // dots
+  points.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+    ctx.fillStyle = '#C47A7A';
+    ctx.fill();
+  });
+
+  // x labels - show every Nth
+  const step = Math.ceil(days.length / 7);
+  ctx.fillStyle = '#AAA'; ctx.font = '9px Manrope'; ctx.textAlign = 'center';
+  days.forEach((d, i) => {
+    if (i % step === 0 || i === days.length-1) {
+      const x = pad.l + (i/(days.length-1||1))*cW;
+      const label = new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'numeric'});
+      ctx.fillText(label, x, H-4);
+    }
+  });
+}
+
+function drawMedChart(days, medCount) {
+  const canvas = document.getElementById('med-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  const pad = { l:24, r:8, t:10, b:24 };
+  const cW = W - pad.l - pad.r;
+  const cH = H - pad.t - pad.b;
+  const maxVal = Math.max(...medCount, 1);
+  const barW = Math.max(2, cW/days.length - 3);
+
+  // grid
+  ctx.strokeStyle = '#E8E6E3'; ctx.lineWidth = 1;
+  [1,2,3].forEach(v => {
+    if (v > maxVal) return;
+    const y = pad.t + cH - (v/maxVal)*cH;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(W-pad.r,y); ctx.stroke();
+    ctx.fillStyle='#AAA'; ctx.font='9px Manrope'; ctx.textAlign='right';
+    ctx.fillText(v, pad.l-3, y+3);
+  });
+
+  days.forEach((d, i) => {
+    const x = pad.l + (i/(days.length||1))*cW;
+    const v = medCount[i];
+    if (!v) return;
+    const barH = (v/maxVal)*cH;
+    ctx.fillStyle = '#9B8EC4';
+    ctx.beginPath();
+    ctx.roundRect(x, pad.t+cH-barH, barW, barH, [3,3,0,0]);
+    ctx.fill();
+  });
+
+  const step = Math.ceil(days.length/7);
+  ctx.fillStyle='#AAA'; ctx.font='9px Manrope'; ctx.textAlign='center';
+  days.forEach((d,i) => {
+    if (i % step === 0 || i === days.length-1) {
+      const x = pad.l + (i/(days.length-1||1))*cW;
+      ctx.fillText(new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'numeric'}), x, H-4);
+    }
+  });
+}
+
+function drawCycleOverlay(days, avgPain) {
+  const canvas = document.getElementById('cycle-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+  if (!cycleEvents.length) return;
+
+  const pad = { l:24, r:8, t:10, b:24 };
+  const cW = W - pad.l - pad.r;
+  const cH = H - pad.t - pad.b;
+
+  // For each day, compute cycle phase
+  const lastStart = cycleEvents[0]?.date;
+  if (!lastStart) return;
+
+  days.forEach((d, i) => {
+    const diff = Math.floor((new Date(d) - new Date(lastStart)) / 86400000);
+    const dayInCycle = ((diff % cycleSettings.cycleLength) + cycleSettings.cycleLength) % cycleSettings.cycleLength;
+    const x = pad.l + (i/(days.length||1))*cW;
+
+    let color = null;
+    if (dayInCycle < cycleSettings.periodDays) color = 'rgba(196,122,122,0.25)'; // menstruation
+    else if (dayInCycle < 14) color = 'rgba(154,198,135,0.15)'; // follicular
+    else if (dayInCycle < 17) color = 'rgba(90,160,200,0.2)'; // ovulation
+    else color = 'rgba(180,160,210,0.15)'; // luteal
+
+    if (color) {
+      ctx.fillStyle = color;
+      const barW = cW/(days.length||1);
+      ctx.fillRect(x, pad.t, barW, cH);
+    }
+  });
+
+  // legend
+  const legend = [
+    { color:'rgba(196,122,122,0.5)', label:'Менструация' },
+    { color:'rgba(154,198,135,0.5)', label:'Фолликулярная' },
+    { color:'rgba(90,160,200,0.5)', label:'Овуляция' },
+    { color:'rgba(180,160,210,0.5)', label:'Лютеиновая' },
+  ];
+  let lx = pad.l;
+  ctx.font = '8px Manrope';
+  legend.forEach(l => {
+    ctx.fillStyle = l.color;
+    ctx.fillRect(lx, 2, 8, 8);
+    ctx.fillStyle = '#888';
+    ctx.fillText(l.label, lx+10, 10);
+    lx += ctx.measureText(l.label).width + 20;
+  });
+
+  // pain line on top
+  const points = avgPain.map((v,i) => {
+    if (v===null) return null;
+    return { x: pad.l+(i/(days.length-1||1))*cW, y: pad.t+cH-(v/10)*cH };
+  }).filter(Boolean);
+  if (points.length >= 2) {
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    points.forEach(p => ctx.lineTo(p.x,p.y));
+    ctx.strokeStyle='#C47A7A'; ctx.lineWidth=2; ctx.lineJoin='round';
+    ctx.stroke();
+  }
+}
+
+function renderCycleCalendar() {
+  const container = document.getElementById('cycle-calendar');
+  if (!container) return;
+
+  const lastStart = cycleEvents[0]?.date;
+  const today = new Date().toISOString().split('T')[0];
+
+  let html = '';
+
+  if (lastStart) {
+    const diff = Math.floor((new Date(today) - new Date(lastStart)) / 86400000);
+    const dayInCycle = ((diff % cycleSettings.cycleLength) + cycleSettings.cycleLength) % cycleSettings.cycleLength + 1;
+    const daysLeft = cycleSettings.cycleLength - dayInCycle + 1;
+
+    let phase = '';
+    if (dayInCycle <= cycleSettings.periodDays) phase = 'Менструация';
+    else if (dayInCycle <= 14) phase = 'Фолликулярная фаза';
+    else if (dayInCycle <= 17) phase = 'Овуляция';
+    else phase = 'Лютеиновая фаза';
+
+    // Next period
+    const nextPeriodDate = new Date(lastStart);
+    nextPeriodDate.setDate(nextPeriodDate.getDate() + cycleSettings.cycleLength);
+    const daysToNext = Math.ceil((nextPeriodDate - new Date()) / 86400000);
+
+    html += `
+      <div class="cycle-status">
+        <div class="cycle-day-num">${dayInCycle}</div>
+        <div class="cycle-day-label">день цикла</div>
+        <div class="cycle-phase">${phase}</div>
+        <div class="cycle-next">${daysToNext > 0 ? `следующие через ${daysToNext} дн.` : 'ожидается сегодня'}</div>
+      </div>
+    `;
+  } else {
+    html += `<div class="empty-state">Отметь начало цикла чтобы видеть фазы</div>`;
+  }
+
+  // Mini calendar - last 3 cycles
+  html += `<div class="cycle-events-list">`;
+  cycleEvents.slice(0,6).forEach(ev => {
+    html += `<div class="cycle-event-item">
+      <div class="cycle-dot"></div>
+      <div>${new Date(ev.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  container.innerHTML = html;
+}
+
+function updateDataStats() {
+  const el = document.getElementById('data-stats');
+  if (!el) return;
+  const sorted = [...entries].sort((a,b)=>a.ts.localeCompare(b.ts));
+  const fmt = d => new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+  el.innerHTML = `
+    <div class="stat-row-item"><span>Всего записей</span><span class="stat-val lavender">${entries.length}</span></div>
+    <div class="stat-row-item"><span>Первая запись</span><span class="stat-val">${sorted[0] ? fmt(sorted[0].ts) : '—'}</span></div>
+    <div class="stat-row-item"><span>Последняя запись</span><span class="stat-val">${sorted[sorted.length-1] ? fmt(sorted[sorted.length-1].ts) : '—'}</span></div>
+    <div class="stat-row-item"><span>Записей о боли</span><span class="stat-val rose">${entries.filter(e=>e.pain).length}</span></div>
+    <div class="stat-row-item"><span>Приёмов таблеток</span><span class="stat-val">${entries.filter(e=>e.med).length}</span></div>
+  `;
+}
+
+function hideLoader() {
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = (isError ? '✗ ' : '✓ ') + msg;
+  t.style.background = isError ? 'var(--rose)' : 'var(--graphite)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function resetForm() {
+  window._selectedPain = null;
+  document.querySelectorAll('.pain-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.tag.selected').forEach(t => t.classList.remove('selected'));
+  document.getElementById('sleep-hours').value = '';
+  document.getElementById('sleep-minutes').value = '';
+  document.getElementById('sleep-before23').checked = false;
+  document.querySelectorAll('.sleep-quality-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('entry-note').value = '';
+  document.getElementById('med-section').style.display = 'none';
+  if(document.getElementById('med-name')) document.getElementById('med-name').value = '';
+  if(document.getElementById('med-dose')) document.getElementById('med-dose').value = '';
+  document.getElementById('med-yes').classList.remove('selected');
+}
+
+// Expose DB functions to window for settings
+window._db = db;
+window._userId = () => userId;
+window._renderCycleCalendar = renderCycleCalendar;
+window._renderCharts = renderCharts;
+window._entries = () => entries;
+
+</script>
+
+<style>
+:root {
+  --bg: #F5F3F0;
+  --surface: #FAFAF8;
+  --graphite: #2A2A2A;
+  --graphite-50: #969390;
+  --graphite-15: #ECEAE7;
+  --lavender: #9B8EC4;
+  --lavender-light: #EDEAF7;
+  --sage: #7A9E87;
+  --sage-light: #E3EEE7;
+  --rose: #C47A7A;
+  --rose-light: #F5E6E6;
+  --amber: #C4A05A;
+  --amber-light: #F5EDDA;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; background:var(--bg); font-family:'Manrope',sans-serif; color:var(--graphite); font-size:14px; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+
+/* LOADER */
+#loader { display:flex; align-items:center; justify-content:center; height:100vh; flex-direction:column; gap:12px; }
+.loader-title { font-family:'Cormorant Garamond',serif; font-size:32px; color:var(--graphite); letter-spacing:0.05em; }
+.loader-dot { width:6px; height:6px; border-radius:50%; background:var(--lavender); animation:pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+
+#app { display:none; }
+
+/* SCREENS */
+.screen { display:none; padding:20px 16px 90px; animation:fadeUp 0.2s ease; }
+.screen.active { display:block; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* NAV */
+.nav { position:fixed; bottom:0; left:0; right:0; background:var(--surface); border-top:1px solid var(--graphite-15); display:flex; z-index:100; padding-bottom:env(safe-area-inset-bottom); }
+.nav-item { flex:1; display:flex; flex-direction:column; align-items:center; padding:10px 0 8px; gap:3px; cursor:pointer; color:var(--graphite-50); font-size:10px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase; border:none; background:none; transition:color 0.2s; }
+.nav-item.active { color:var(--lavender); }
+.nav-item svg { width:20px; height:20px; }
+
+/* TYPOGRAPHY */
+.page-title { font-family:'Cormorant Garamond',serif; font-size:30px; font-weight:400; letter-spacing:0.02em; margin-bottom:2px; }
+.page-sub { font-size:11px; color:var(--graphite-50); letter-spacing:0.07em; text-transform:uppercase; margin-bottom:22px; }
+
+/* CARDS */
+.card { background:var(--surface); border:1px solid var(--graphite-15); border-radius:14px; padding:16px; margin-bottom:10px; }
+.card-label { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--graphite-50); margin-bottom:12px; font-weight:600; }
+
+/* PAIN SCALE */
+.pain-scale { display:flex; gap:5px; flex-wrap:wrap; }
+.pain-btn { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--graphite-15); background:none; font-family:'Manrope',sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:all 0.15s; color:var(--graphite); }
+.pain-btn:hover { border-color:var(--lavender); }
+.pain-btn.selected { background:var(--lavender); border-color:var(--lavender); color:white; }
+.pain-btn[data-level="8"],.pain-btn[data-level="9"],.pain-btn[data-level="10"] { border-color:#e8c8c8; color:var(--rose); }
+.pain-btn[data-level="8"].selected,.pain-btn[data-level="9"].selected,.pain-btn[data-level="10"].selected { background:var(--rose); border-color:var(--rose); color:white; }
+
+/* TAGS */
+.tags { display:flex; flex-wrap:wrap; gap:7px; }
+.tag { padding:6px 13px; border-radius:100px; border:1.5px solid var(--graphite-15); font-size:12px; cursor:pointer; transition:all 0.15s; background:none; color:var(--graphite); font-family:'Manrope',sans-serif; }
+.tag.selected { background:var(--sage-light); border-color:var(--sage); color:var(--sage); }
+.tag.add-tag { border-style:dashed; color:var(--lavender); border-color:var(--lavender-light); }
+
+/* SLEEP QUALITY */
+.sleep-quality-row { display:flex; gap:6px; }
+.sleep-quality-btn { flex:1; padding:8px 4px; border-radius:8px; border:1.5px solid var(--graphite-15); background:none; font-size:11px; font-family:'Manrope',sans-serif; cursor:pointer; text-align:center; transition:all 0.15s; color:var(--graphite); }
+.sleep-quality-btn.selected { background:var(--lavender-light); border-color:var(--lavender); color:var(--lavender); font-weight:600; }
+
+/* INPUTS */
+.input-field { width:100%; border:1.5px solid var(--graphite-15); border-radius:10px; padding:10px 12px; font-family:'Manrope',sans-serif; font-size:13px; color:var(--graphite); background:var(--surface); outline:none; transition:border-color 0.15s; }
+.input-field:focus { border-color:var(--lavender); }
+.input-field::placeholder { color:var(--graphite-50); }
+.input-row { display:flex; gap:8px; }
+.input-row .input-field { flex:1; }
+.input-label { font-size:11px; color:var(--graphite-50); margin-bottom:5px; }
+
+/* BUTTONS */
+.btn-primary { width:100%; padding:14px; background:var(--graphite); color:white; border:none; border-radius:12px; font-family:'Manrope',sans-serif; font-size:12px; letter-spacing:0.07em; text-transform:uppercase; cursor:pointer; transition:background 0.2s; font-weight:600; }
+.btn-primary:hover { background:var(--lavender); }
+.btn-primary:disabled { background:var(--graphite-50); cursor:not-allowed; }
+.btn-primary.sage { background:var(--sage); }
+.btn-primary.lavender { background:var(--lavender); }
+.btn-small { padding:8px 16px; background:var(--graphite); color:white; border:none; border-radius:8px; font-family:'Manrope',sans-serif; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap; transition:background 0.15s; letter-spacing:0.04em; }
+.btn-small:hover { background:var(--lavender); }
+.mt8 { margin-top:8px; }
+.mt12 { margin-top:12px; }
+
+/* PERIOD SELECTOR */
+.period-row { display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
+.period-btn { padding:6px 14px; border-radius:100px; border:1.5px solid var(--graphite-15); background:none; font-family:'Manrope',sans-serif; font-size:11px; color:var(--graphite-50); cursor:pointer; transition:all 0.15s; font-weight:500; letter-spacing:0.03em; }
+.period-btn.active { background:var(--graphite); border-color:var(--graphite); color:white; }
+
+/* STAT PILLS */
+.stat-pills { display:flex; gap:8px; margin-bottom:16px; }
+.stat-pill { flex:1; background:var(--surface); border:1px solid var(--graphite-15); border-radius:12px; padding:14px 8px; text-align:center; }
+.stat-num { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:500; line-height:1; margin-bottom:3px; }
+.stat-num.lavender { color:var(--lavender); }
+.stat-num.sage { color:var(--sage); }
+.stat-num.rose { color:var(--rose); }
+.stat-desc { font-size:9px; text-transform:uppercase; letter-spacing:0.08em; color:var(--graphite-50); font-weight:600; }
+
+/* CHART WRAP */
+.chart-wrap { background:var(--surface); border:1px solid var(--graphite-15); border-radius:14px; padding:16px; margin-bottom:10px; }
+.chart-title { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--graphite-50); margin-bottom:12px; font-weight:600; }
+canvas { width:100% !important; display:block; }
+
+/* HISTORY */
+.history-date-label { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--graphite-50); margin:16px 0 6px; font-weight:600; }
+.history-date-label:first-child { margin-top:0; }
+.history-item { display:flex; gap:10px; align-items:flex-start; background:var(--surface); border:1px solid var(--graphite-15); border-radius:12px; padding:12px; margin-bottom:6px; }
+.history-left { flex-shrink:0; }
+.history-pain-badge { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:500; }
+.history-pain-badge.rose { background:var(--rose-light); color:var(--rose); }
+.history-pain-badge.amber { background:var(--amber-light); color:var(--amber); }
+.history-pain-badge.sage { background:var(--sage-light); color:var(--sage); }
+.history-pain-badge.none { background:var(--graphite-15); color:var(--graphite-50); font-size:14px; }
+.history-body { flex:1; display:flex; flex-direction:column; gap:3px; }
+.h-row { font-size:12px; color:var(--graphite); line-height:1.4; }
+.h-icon { font-size:11px; }
+.h-note { color:var(--graphite-50); font-style:italic; margin-top:2px; }
+.history-time { font-size:11px; color:var(--graphite-50); flex-shrink:0; }
+
+/* CYCLE */
+.cycle-status { background:var(--surface); border:1px solid var(--graphite-15); border-radius:14px; padding:20px; text-align:center; margin-bottom:10px; }
+.cycle-day-num { font-family:'Cormorant Garamond',serif; font-size:64px; font-weight:300; line-height:1; color:var(--lavender); }
+.cycle-day-label { font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--graphite-50); font-weight:600; margin-bottom:8px; }
+.cycle-phase { font-size:14px; font-weight:500; margin-bottom:4px; }
+.cycle-next { font-size:12px; color:var(--graphite-50); }
+.cycle-events-list { background:var(--surface); border:1px solid var(--graphite-15); border-radius:14px; padding:16px; }
+.cycle-event-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--graphite-15); font-size:13px; }
+.cycle-event-item:last-child { border-bottom:none; }
+.cycle-dot { width:8px; height:8px; border-radius:50%; background:var(--rose); flex-shrink:0; }
+
+/* DATA SCREEN */
+.stat-row-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--graphite-15); font-size:13px; }
+.stat-row-item:last-child { border-bottom:none; }
+.stat-val { font-weight:600; }
+.stat-val.lavender { color:var(--lavender); }
+.stat-val.rose { color:var(--rose); }
+
+/* TOAST */
+#toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(--graphite); color:white; padding:10px 20px; border-radius:100px; font-size:12px; letter-spacing:0.04em; transition:transform 0.3s ease; z-index:200; white-space:nowrap; font-weight:500; }
+#toast.show { transform:translateX(-50%) translateY(0); }
+
+/* EMPTY */
+.empty-state { text-align:center; color:var(--graphite-50); font-size:13px; padding:30px 16px; line-height:1.7; }
+
+/* DIVIDER */
+.divider { height:1px; background:var(--graphite-15); margin:4px 0 12px; }
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-title">Ось</div>
+  <div class="loader-dot"></div>
+</div>
+
+<div id="toast"></div>
+
+<div id="app">
+
+<!-- SCREEN: LOG -->
+<div class="screen active" id="screen-log">
+  <p class="page-title">Запись</p>
+  <p class="page-sub">Как ты сейчас?</p>
+
+  <!-- SLEEP -->
+  <div class="card">
+    <div class="card-label">Сон</div>
+    <div class="input-row" style="margin-bottom:10px;">
+      <div style="flex:1">
+        <div class="input-label">Часы</div>
+        <input class="input-field" id="sleep-hours" type="number" min="0" max="24" placeholder="7">
+      </div>
+      <div style="flex:1">
+        <div class="input-label">Минуты</div>
+        <input class="input-field" id="sleep-minutes" type="number" min="0" max="59" placeholder="30">
+      </div>
+      <div style="flex:1.2; display:flex; flex-direction:column; justify-content:flex-end;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:10px 0;">
+          <input type="checkbox" id="sleep-before23" style="width:16px;height:16px;accent-color:var(--lavender);"> до 23:00
+        </label>
+      </div>
+    </div>
+    <div class="sleep-quality-row">
+      <button class="sleep-quality-btn" data-q="отлично" onclick="selectQuality(this)">Отлично</button>
+      <button class="sleep-quality-btn" data-q="хорошо" onclick="selectQuality(this)">Хорошо</button>
+      <button class="sleep-quality-btn" data-q="средне" onclick="selectQuality(this)">Средне</button>
+      <button class="sleep-quality-btn" data-q="плохо" onclick="selectQuality(this)">Плохо</button>
+    </div>
+  </div>
+
+  <!-- PAIN -->
+  <div class="card">
+    <div class="card-label">Боль</div>
+    <div class="pain-scale" style="margin-bottom:12px;">
+      <button class="pain-btn" data-level="1" onclick="selectPain(1)">1</button>
+      <button class="pain-btn" data-level="2" onclick="selectPain(2)">2</button>
+      <button class="pain-btn" data-level="3" onclick="selectPain(3)">3</button>
+      <button class="pain-btn" data-level="4" onclick="selectPain(4)">4</button>
+      <button class="pain-btn" data-level="5" onclick="selectPain(5)">5</button>
+      <button class="pain-btn" data-level="6" onclick="selectPain(6)">6</button>
+      <button class="pain-btn" data-level="7" onclick="selectPain(7)">7</button>
+      <button class="pain-btn" data-level="8" onclick="selectPain(8)">8</button>
+      <button class="pain-btn" data-level="9" onclick="selectPain(9)">9</button>
+      <button class="pain-btn" data-level="10" onclick="selectPain(10)">10</button>
+    </div>
+    <div class="divider"></div>
+    <div class="card-label">Где болит</div>
+    <div class="tags" id="location-tags" style="margin-bottom:12px;">
+      <button class="tag" onclick="toggleTag(this)">Голова</button>
+      <button class="tag" onclick="toggleTag(this)">Шея</button>
+      <button class="tag" onclick="toggleTag(this)">Спина</button>
+      <button class="tag" onclick="toggleTag(this)">Поясница</button>
+      <button class="tag" onclick="toggleTag(this)">Живот</button>
+      <button class="tag" onclick="toggleTag(this)">Суставы</button>
+    </div>
+    <div class="divider"></div>
+    <div class="card-label">Характер боли</div>
+    <div class="tags" id="char-tags" style="margin-bottom:12px;">
+      <button class="tag" onclick="toggleTag(this)">Острая</button>
+      <button class="tag" onclick="toggleTag(this)">Тупая</button>
+      <button class="tag" onclick="toggleTag(this)">Пульсирующая</button>
+      <button class="tag" onclick="toggleTag(this)">Давящая</button>
+      <button class="tag" onclick="toggleTag(this)">Жгучая</button>
+      <button class="tag add-tag" onclick="showAddCharTag()">+ Свой</button>
+    </div>
+    <div id="add-char-input" style="display:none;">
+      <div class="input-row">
+        <input class="input-field" id="new-char-text" type="text" placeholder="Название..." onkeydown="if(event.key==='Enter')confirmCharTag()">
+        <button class="btn-small" onclick="confirmCharTag()">+</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+      <input type="checkbox" id="cycle-tag" style="width:16px;height:16px;accent-color:var(--rose);"> Связано с менструальным циклом
+    </label>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div class="card">
+    <div class="card-label">Активность</div>
+    <div class="tags" id="activity-tags">
+      <button class="tag" onclick="toggleTag(this)">ЛФК</button>
+      <button class="tag" onclick="toggleTag(this)">Бассейн</button>
+      <button class="tag" onclick="toggleTag(this)">Массаж ШВЗ</button>
+      <button class="tag" onclick="toggleTag(this)">Массаж полный</button>
+      <button class="tag" onclick="toggleTag(this)">СПА</button>
+      <button class="tag add-tag" onclick="showAddActivityTag()">+ Свой</button>
+    </div>
+    <div id="add-activity-input" style="display:none; margin-top:8px;">
+      <div class="input-row">
+        <input class="input-field" id="new-activity-text" type="text" placeholder="Вид активности..." onkeydown="if(event.key==='Enter')confirmActivityTag()">
+        <button class="btn-small" onclick="confirmActivityTag()">+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MED -->
+  <div class="card">
+    <div class="card-label">Препарат</div>
+    <div class="tags" style="margin-bottom:10px;">
+      <button class="tag" id="med-yes" onclick="toggleMed(true)">Принимала</button>
+      <button class="tag selected" id="med-no" onclick="toggleMed(false)">Не принимала</button>
+    </div>
+    <div id="med-section" style="display:none;">
+      <div class="input-row">
+        <input class="input-field" id="med-name" type="text" placeholder="Препарат (ибупрофен...)">
+        <input class="input-field" id="med-dose" type="number" placeholder="мг" style="max-width:80px;">
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <div class="card">
+    <div class="card-label">Заметка</div>
+    <textarea class="input-field" id="entry-note" rows="3" placeholder="Что предшествовало? Долго сидела, плохо спала, стресс...&#10;Любой контекст который покажется важным."></textarea>
+  </div>
+
+  <button class="btn-primary" id="save-btn" onclick="saveEntry()">Сохранить запись</button>
+</div>
+
+<!-- SCREEN: CHARTS -->
+<div class="screen" id="screen-charts">
+  <p class="page-title">Графики</p>
+
+  <div class="period-row">
+    <button class="period-btn active" onclick="setPeriod(this,7)">7 дн</button>
+    <button class="period-btn active-default" onclick="setPeriod(this,14)">2 нед</button>
+    <button class="period-btn" onclick="setPeriod(this,30)">Месяц</button>
+    <button class="period-btn" onclick="setPeriod(this,90)">3 мес</button>
+    <button class="period-btn" onclick="setPeriod(this,365)">Год</button>
+  </div>
+  <p class="page-sub" id="period-label" style="margin-top:6px;">7 дней</p>
+
+  <div id="stat-pills" class="stat-pills"></div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Уровень боли</div>
+    <canvas id="pain-canvas" height="110"></canvas>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Приёмы таблеток</div>
+    <canvas id="med-canvas" height="90"></canvas>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Боль и цикл</div>
+    <canvas id="cycle-canvas" height="110"></canvas>
+  </div>
+</div>
+
+<!-- SCREEN: CYCLE -->
+<div class="screen" id="screen-cycle">
+  <p class="page-title">Цикл</p>
+  <p class="page-sub">Менструальный календарь</p>
+
+  <div id="cycle-calendar"></div>
+
+  <div class="card mt12">
+    <div class="card-label">Отметить начало цикла</div>
+    <div class="input-row">
+      <input class="input-field" id="cycle-start-date" type="date">
+      <button class="btn-small" onclick="saveCycleStart()">Отметить</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Настройки цикла</div>
+    <div style="margin-bottom:10px;">
+      <div class="input-label">Длина цикла (дней)</div>
+      <input class="input-field" id="cycle-length" type="number" min="21" max="45" value="28">
+    </div>
+    <div style="margin-bottom:12px;">
+      <div class="input-label">Дней выделений</div>
+      <input class="input-field" id="period-days" type="number" min="1" max="10" value="5">
+    </div>
+    <button class="btn-primary" onclick="saveSettingsForm()">Сохранить настройки</button>
+  </div>
+</div>
+
+<!-- SCREEN: HISTORY -->
+<div class="screen" id="screen-history">
+  <p class="page-title">История</p>
+  <p class="page-sub">Все записи</p>
+  <div id="history-list"></div>
+</div>
+
+<!-- SCREEN: DATA -->
+<div class="screen" id="screen-data">
+  <p class="page-title">Данные</p>
+  <p class="page-sub">Экспорт и импорт</p>
+
+  <div class="card">
+    <div id="data-stats"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Скачать</div>
+    <button class="btn-primary mt8" onclick="exportJSON()">↓ JSON — для переноса в новую версию</button>
+    <button class="btn-primary sage mt8" onclick="exportCSV()">↓ CSV — для таблиц и врача</button>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Загрузить данные</div>
+    <p style="font-size:12px;color:var(--graphite-50);margin-bottom:12px;line-height:1.6;">Загрузи ранее скачанный JSON. Дубли не создадутся.</p>
+    <label class="btn-primary lavender" style="display:block;text-align:center;cursor:pointer;padding:14px;border-radius:12px;">
+      ↑ Выбрать файл
+      <input type="file" accept=".json" style="display:none;" onchange="importJSON(this)">
+    </label>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-item active" onclick="showScreen('log')" id="nav-log">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    Запись
+  </button>
+  <button class="nav-item" onclick="showScreen('charts')" id="nav-charts">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,17 8,12 13,14 21,7"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+    Графики
+  </button>
+  <button class="nav-item" onclick="showScreen('cycle')" id="nav-cycle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+    Цикл
+  </button>
+  <button class="nav-item" onclick="showScreen('history')" id="nav-history">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
+    История
+  </button>
+  <button class="nav-item" onclick="showScreen('data')" id="nav-data">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6"/></svg>
+    Данные
+  </button>
+</nav>
+
+</div><!-- /app -->
+
+<script>
+window._selectedPain = null;
+window._chartPeriod = 7;
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  if (name === 'charts') { resizeCanvases(); if(window._renderCharts) window._renderCharts(); }
+  if (name === 'cycle') { if(window._renderCycleCalendar) window._renderCycleCalendar(); }
+  if (name === 'data') { if(window.updateDataStats) {} }
+}
+
+function resizeCanvases() {
+  ['pain-canvas','med-canvas','cycle-canvas'].forEach(id => {
+    const c = document.getElementById(id);
+    if (c) { c.width = c.parentElement.clientWidth - 32; }
+  });
+}
+
+function selectPain(level) {
+  window._selectedPain = level;
+  document.querySelectorAll('.pain-btn').forEach(b => b.classList.toggle('selected', parseInt(b.dataset.level)===level));
+}
+
+function selectQuality(btn) {
+  document.querySelectorAll('.sleep-quality-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function toggleTag(el) {
+  if (el.classList.contains('add-tag')) return;
+  el.classList.toggle('selected');
+}
+
+function toggleMed(yes) {
+  document.getElementById('med-yes').classList.toggle('selected', yes);
+  document.getElementById('med-no').classList.toggle('selected', !yes);
+  document.getElementById('med-section').style.display = yes ? 'block' : 'none';
+}
+
+function showAddCharTag() {
+  const box = document.getElementById('add-char-input');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if (box.style.display === 'block') document.getElementById('new-char-text').focus();
+}
+
+function confirmCharTag() {
+  const val = document.getElementById('new-char-text').value.trim();
+  if (!val) return;
+  const tags = document.getElementById('char-tags');
+  const btn = document.createElement('button');
+  btn.className = 'tag selected';
+  btn.textContent = val;
+  btn.onclick = () => toggleTag(btn);
+  tags.insertBefore(btn, tags.querySelector('.add-tag'));
+  document.getElementById('new-char-text').value = '';
+  document.getElementById('add-char-input').style.display = 'none';
+}
+
+function showAddActivityTag() {
+  const box = document.getElementById('add-activity-input');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  if (box.style.display === 'block') document.getElementById('new-activity-text').focus();
+}
+
+function confirmActivityTag() {
+  const val = document.getElementById('new-activity-text').value.trim();
+  if (!val) return;
+  const tags = document.getElementById('activity-tags');
+  const btn = document.createElement('button');
+  btn.className = 'tag selected';
+  btn.textContent = val;
+  btn.onclick = () => toggleTag(btn);
+  tags.insertBefore(btn, tags.querySelector('.add-tag'));
+  document.getElementById('new-activity-text').value = '';
+  document.getElementById('add-activity-input').style.display = 'none';
+}
+
+function setPeriod(btn, days) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  window._chartPeriod = days;
+  const labels = {7:'7 дней',14:'2 недели',30:'Месяц',90:'3 месяца',365:'Год'};
+  document.getElementById('period-label').textContent = labels[days] || days+' дней';
+  resizeCanvases();
+  if (window._renderCharts) window._renderCharts();
+}
+
+// Set today as default cycle start date
+document.getElementById('cycle-start-date').value = new Date().toISOString().split('T')[0];
+
+// Init canvas sizes on load
+window.addEventListener('load', () => { setTimeout(resizeCanvases, 100); });
+window.addEventListener('resize', resizeCanvases);
+</script>
+</body>
+</html>
