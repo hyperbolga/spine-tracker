@@ -6,27 +6,22 @@
 <title>Фон</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #F4F2EF;
-  --surface: #FAFAF8;
-  --g: #272522;
-  --g40: #A09D99;
-  --g15: #ECEAE7;
-  --lav: #9B8EC4;
-  --lav-l: #EDEAF7;
-  --sage: #7A9E87;
-  --sage-l: #E3EEE7;
-  --rose: #C47A7A;
-  --rose-l: #F5E6E6;
-  --amb: #C4A05A;
-  --amb-l: #F5EDDA;
-  --teal: #5A9EA0;
-  --teal-l: #E0F0F1;
+:root{
+  --bg:#F4F2EF;--surface:#FAFAF8;--g:#272522;--g40:#A09D99;--g15:#ECEAE7;
+  --lav:#7B6BB0;--lav-l:#E8E4F5;
+  --sage:#4E8C5F;--sage-l:#D6EBD9;
+  --rose:#B85555;--rose-l:#F5DADA;
+  --amb:#B8882A;--amb-l:#F5E8C8;
+  --teal:#2E8A8C;--teal-l:#C8E8E8;
+  --cycle1:rgba(184,85,85,0.22);
+  --cycle2:rgba(78,140,95,0.14);
+  --cycle3:rgba(46,138,140,0.18);
+  --cycle4:rgba(123,107,176,0.14);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;color:var(--g);font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 #loader{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}
-.loader-name{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;letter-spacing:0.1em;color:var(--g)}
+.loader-name{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;letter-spacing:0.1em}
 .loader-sub{font-size:11px;color:var(--g40);letter-spacing:0.12em;text-transform:uppercase}
 #app{display:none}
 .screen{display:none;padding:20px 16px 96px;animation:fu .22s ease}
@@ -42,9 +37,8 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .cl{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin-bottom:11px;font-weight:600}
 .pain-row{display:flex;gap:5px;flex-wrap:wrap}
 .pb{width:33px;height:33px;border-radius:50%;border:1.5px solid var(--g15);background:none;font-family:'Manrope',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .14s;color:var(--g)}
-.pb:hover{border-color:var(--lav)}
 .pb.sel{background:var(--lav);border-color:var(--lav);color:#fff}
-.pb[data-l="8"],.pb[data-l="9"],.pb[data-l="10"]{border-color:#e8c8c8;color:var(--rose)}
+.pb[data-l="8"],.pb[data-l="9"],.pb[data-l="10"]{border-color:#ddb0b0;color:var(--rose)}
 .pb[data-l="8"].sel,.pb[data-l="9"].sel,.pb[data-l="10"].sel{background:var(--rose);border-color:var(--rose);color:#fff}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag{padding:6px 12px;border-radius:100px;border:1.5px solid var(--g15);font-size:12px;cursor:pointer;transition:all .14s;background:none;color:var(--g);font-family:'Manrope',sans-serif}
@@ -62,13 +56,10 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .btn{width:100%;padding:13px;background:var(--g);color:#fff;border:none;border-radius:11px;font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:background .18s;font-weight:600}
 .btn:hover{background:var(--lav)}
 .btn:disabled{background:var(--g40);cursor:not-allowed}
-.btn.sage{background:var(--sage)}
-.btn.lav{background:var(--lav)}
-.btn.rose{background:var(--rose)}
+.btn.sage{background:var(--sage)}.btn.lav{background:var(--lav)}.btn.rose{background:var(--rose)}
 .bsm{padding:8px 14px;background:var(--g);color:#fff;border:none;border-radius:8px;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .14s}
 .bsm:hover{background:var(--lav)}
-.mt8{margin-top:8px}
-.mt12{margin-top:12px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}
 .divider{height:1px;background:var(--g15);margin:12px 0}
 #toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--g);color:#fff;padding:10px 20px;border-radius:100px;font-size:12px;letter-spacing:0.04em;transition:transform .28s ease;z-index:200;white-space:nowrap;font-weight:500}
 #toast.show{transform:translateX(-50%) translateY(0)}
@@ -77,26 +68,26 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .hdlabel{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin:14px 0 6px;font-weight:600}
 .hitem{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--g15);border-radius:12px;padding:12px;margin-bottom:6px}
 .hbadge{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;flex-shrink:0}
-.hbadge.rose{background:var(--rose-l);color:var(--rose)}
-.hbadge.amb{background:var(--amb-l);color:var(--amb)}
-.hbadge.sage{background:var(--sage-l);color:var(--sage)}
-.hbadge.none{background:var(--g15);color:var(--g40);font-size:13px}
-.hbadge.sleep{background:var(--lav-l);color:var(--lav);font-size:12px}
-.hbadge.act{background:var(--teal-l);color:var(--teal);font-size:12px}
+.hbadge.rose{background:var(--rose-l);color:var(--rose)}.hbadge.amb{background:var(--amb-l);color:var(--amb)}.hbadge.sage{background:var(--sage-l);color:var(--sage)}.hbadge.none{background:var(--g15);color:var(--g40);font-size:13px}.hbadge.sleep{background:var(--lav-l);color:var(--lav);font-size:12px}.hbadge.act{background:var(--teal-l);color:var(--teal);font-size:12px}
 .hbody{flex:1;display:flex;flex-direction:column;gap:3px}
 .hrow{font-size:12px;color:var(--g);line-height:1.4}
 .hnote{color:var(--g40);font-style:italic;margin-top:2px;font-size:11px}
 .htime{font-size:11px;color:var(--g40);flex-shrink:0;text-align:right}
-.hdel{background:none;border:none;color:var(--g40);cursor:pointer;font-size:16px;padding:2px 4px;flex-shrink:0;transition:color .14s}
+.hdel{background:none;border:none;color:var(--g40);cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;transition:color .14s;line-height:1}
 .hdel:hover{color:var(--rose)}
 /* CYCLE */
 .cstatus{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:20px 16px;margin-bottom:10px}
-.cdaynum{font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:300;line-height:1;color:var(--lav);text-align:center}
+.cdaynum{font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:300;line-height:1;text-align:center}
 .cdaylabel{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);font-weight:600;text-align:center;margin-bottom:6px}
-.cphase{font-size:15px;font-weight:600;text-align:center;margin-bottom:6px}
-.cnext{font-size:12px;color:var(--g40);text-align:center;margin-bottom:14px}
-.crec{background:var(--lav-l);border-radius:10px;padding:12px;font-size:12px;line-height:1.6;color:var(--g)}
-.crec strong{color:var(--lav);font-weight:600}
+.cphase{font-size:15px;font-weight:600;text-align:center;margin-bottom:4px}
+.cnext{font-size:12px;color:var(--g40);text-align:center;margin-bottom:16px;line-height:1.6}
+/* phase info card */
+.phase-card{border-radius:12px;padding:14px;margin-bottom:0}
+.phase-card .pc-title{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
+.phase-row{margin-bottom:8px}
+.phase-row:last-child{margin-bottom:0}
+.phase-row-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;opacity:0.65;margin-bottom:3px}
+.phase-row-text{font-size:12px;line-height:1.6}
 .cevlist{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:16px}
 .cev{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g15);font-size:13px}
 .cev:last-child{border-bottom:none}
@@ -113,9 +104,9 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .cwrap{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:16px;margin-bottom:10px}
 .ctitle{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin-bottom:10px;font-weight:600}
 .layers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.layer-toggle{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border-radius:100px;border:1.5px solid var(--g15);background:none;font-family:'Manrope',sans-serif;transition:all .14s;color:var(--g40)}
-.layer-toggle.on{border-color:currentColor}
-.layer-toggle .dot{width:8px;height:8px;border-radius:50%}
+.lt{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border-radius:100px;border:1.5px solid var(--g15);background:none;font-family:'Manrope',sans-serif;transition:all .14s;color:var(--g40);font-weight:500}
+.lt.on{border-color:currentColor;font-weight:600}
+.lt .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 canvas{width:100%!important;display:block}
 /* DATA */
 .drow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--g15);font-size:13px}
@@ -125,10 +116,7 @@ canvas{width:100%!important;display:block}
 </style>
 </head>
 <body>
-<div id="loader">
-  <div class="loader-name">Фон</div>
-  <div class="loader-sub">загрузка</div>
-</div>
+<div id="loader"><div class="loader-name">Фон</div><div class="loader-sub">загрузка</div></div>
 <div id="toast"></div>
 <div id="app">
 
@@ -156,6 +144,27 @@ canvas{width:100%!important;display:block}
     </div>
   </div>
   <div class="card">
+    <div class="cl">Причина боли</div>
+    <div class="tags" id="reason-tags">
+      <button class="tag" onclick="togTag(this)">Долго сидела</button>
+      <button class="tag" onclick="togTag(this)">Плохо спала</button>
+      <button class="tag" onclick="togTag(this)">Перегрузка</button>
+      <button class="tag" onclick="togTag(this)">Стресс</button>
+      <button class="tag" onclick="togTag(this)">Месячные</button>
+      <button class="tag" onclick="togTag(this)">Травма</button>
+      <button class="tag" onclick="togTag(this)">Долго стояла</button>
+      <button class="tag" onclick="togTag(this)">Неудобная поза</button>
+      <button class="tag" onclick="togTag(this)">Неудачный сон</button>
+      <button class="tag add" onclick="showAddTag('reason-tags','reason-add')">+ Своя</button>
+    </div>
+    <div id="reason-add" style="display:none;margin-top:8px">
+      <div class="irow">
+        <input class="ifield" id="reason-inp" placeholder="Причина..." onkeydown="if(event.key==='Enter')addTag('reason-tags','reason-inp','reason-add')">
+        <button class="bsm" onclick="addTag('reason-tags','reason-inp','reason-add')">+</button>
+      </div>
+    </div>
+  </div>
+  <div class="card">
     <div class="cl">Где болит</div>
     <div class="tags" id="loc-tags">
       <button class="tag" onclick="togTag(this)">Голова</button>
@@ -164,6 +173,15 @@ canvas{width:100%!important;display:block}
       <button class="tag" onclick="togTag(this)">Поясница</button>
       <button class="tag" onclick="togTag(this)">Живот</button>
       <button class="tag" onclick="togTag(this)">Суставы</button>
+      <button class="tag" onclick="togTag(this)">Руки</button>
+      <button class="tag" onclick="togTag(this)">Ноги</button>
+      <button class="tag add" onclick="showAddTag('loc-tags','loc-add')">+ Своё</button>
+    </div>
+    <div id="loc-add" style="display:none;margin-top:8px">
+      <div class="irow">
+        <input class="ifield" id="loc-inp" placeholder="Где болит..." onkeydown="if(event.key==='Enter')addTag('loc-tags','loc-inp','loc-add')">
+        <button class="bsm" onclick="addTag('loc-tags','loc-inp','loc-add')">+</button>
+      </div>
     </div>
   </div>
   <div class="card">
@@ -174,11 +192,12 @@ canvas{width:100%!important;display:block}
       <button class="tag" onclick="togTag(this)">Пульсирующая</button>
       <button class="tag" onclick="togTag(this)">Давящая</button>
       <button class="tag" onclick="togTag(this)">Жгучая</button>
+      <button class="tag" onclick="togTag(this)">Простреливающая</button>
       <button class="tag add" onclick="showAddTag('char-tags','char-add')">+ Свой</button>
     </div>
     <div id="char-add" style="display:none;margin-top:8px">
       <div class="irow">
-        <input class="ifield" id="char-inp" placeholder="Название..." onkeydown="if(event.key==='Enter')addTag('char-tags','char-inp','char-add')">
+        <input class="ifield" id="char-inp" placeholder="Характер..." onkeydown="if(event.key==='Enter')addTag('char-tags','char-inp','char-add')">
         <button class="bsm" onclick="addTag('char-tags','char-inp','char-add')">+</button>
       </div>
     </div>
@@ -203,7 +222,6 @@ canvas{width:100%!important;display:block}
 <div class="screen" id="s-rec">
   <p class="pt">Восстановление</p>
   <p class="ps">Сон и активность</p>
-  <!-- СОН -->
   <div class="card">
     <div class="cl">Сон</div>
     <div class="irow" style="margin-bottom:10px">
@@ -226,7 +244,6 @@ canvas{width:100%!important;display:block}
     </div>
     <button class="btn mt12" onclick="saveSleep()">Сохранить сон</button>
   </div>
-  <!-- АКТИВНОСТЬ -->
   <div class="card">
     <div class="cl">Активность</div>
     <div class="irow" style="margin-bottom:10px">
@@ -279,7 +296,7 @@ canvas{width:100%!important;display:block}
   </div>
   <div class="card" id="cycle-hist-card" style="display:none">
     <div class="cl">История циклов</div>
-    <div class="cevlist" id="cycle-hist"></div>
+    <div id="cycle-hist"></div>
   </div>
 </div>
 
@@ -298,14 +315,21 @@ canvas{width:100%!important;display:block}
   <div class="cwrap">
     <div class="ctitle">Показатели</div>
     <div class="layers" id="layer-toggles">
-      <button class="layer-toggle on" data-layer="pain" style="color:var(--rose)" onclick="togLayer(this)"><div class="dot" style="background:var(--rose)"></div>Боль</button>
-      <button class="layer-toggle on" data-layer="med" style="color:var(--lav)" onclick="togLayer(this)"><div class="dot" style="background:var(--lav)"></div>Таблетки</button>
-      <button class="layer-toggle on" data-layer="sleep" style="color:var(--teal)" onclick="togLayer(this)"><div class="dot" style="background:var(--teal)"></div>Сон</button>
-      <button class="layer-toggle on" data-layer="act" style="color:var(--sage)" onclick="togLayer(this)"><div class="dot" style="background:var(--sage)"></div>Активность</button>
-      <button class="layer-toggle on" data-layer="cycle" style="color:var(--amb)" onclick="togLayer(this)"><div class="dot" style="background:var(--amb)"></div>Цикл</button>
+      <button class="lt on" data-layer="pain" style="color:var(--rose)" onclick="togLayer(this)"><div class="dot" style="background:var(--rose)"></div>Боль</button>
+      <button class="lt on" data-layer="med" style="color:var(--lav)" onclick="togLayer(this)"><div class="dot" style="background:var(--lav)"></div>Таблетки</button>
+      <button class="lt on" data-layer="sleep" style="color:var(--teal)" onclick="togLayer(this)"><div class="dot" style="background:var(--teal)"></div>Сон</button>
+      <button class="lt on" data-layer="act" style="color:var(--sage)" onclick="togLayer(this)"><div class="dot" style="background:var(--sage)"></div>Активность</button>
+      <button class="lt on" data-layer="cycle" style="color:var(--amb)" onclick="togLayer(this)"><div class="dot" style="background:var(--amb)"></div>Цикл</button>
     </div>
-    <canvas id="main-canvas" height="140"></canvas>
-    <div id="canvas-xlabels" style="display:flex;justify-content:space-between;margin-top:4px;padding:0 2px"></div>
+    <canvas id="main-canvas" height="150"></canvas>
+    <div id="canvas-xlabels" style="display:flex;justify-content:space-between;margin-top:6px;padding:0 2px"></div>
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--g40)">
+      <span>▬ Боль (линия)</span>
+      <span>● Таблетки (низ)</span>
+      <span>█ Сон (столбики)</span>
+      <span>● Активность (верх)</span>
+      <span>█ Цикл (фон)</span>
+    </div>
   </div>
 </div>
 
@@ -363,8 +387,8 @@ canvas{width:100%!important;display:block}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore,collection,addDoc,getDocs,query,orderBy,doc,setDoc,getDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth,signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyCWYyy19WDJf1Ki026fKHdrZQTIVKazMuI",
@@ -374,210 +398,146 @@ const app = initializeApp({
   messagingSenderId:"451481913810",
   appId:"1:451481913810:web:f55ac32d330322aa94200b"
 });
-const db = getFirestore(app);
-const auth = getAuth(app);
+const db=getFirestore(app);
+const auth=getAuth(app);
 
-let uid = null;
-let events = []; // pain + med records
-let sleeps = []; // sleep records
-let acts = [];   // activity records
-let cycleEvts = [];
-let cycleSettings = { len: 28, days: 5 };
-window._period = 14;
-window._layers = { pain:true, med:true, sleep:true, act:true, cycle:true };
+let uid=null,events=[],sleeps=[],acts=[],cycleEvts=[];
+let cycleSettings={len:28,days:5};
+window._period=14;
+window._layers={pain:true,med:true,sleep:true,act:true,cycle:true};
 
-signInAnonymously(auth).then(c => {
-  uid = c.user.uid;
-  loadAll();
-}).catch(e => toast('Ошибка авторизации', true));
+signInAnonymously(auth).then(c=>{uid=c.user.uid;loadAll();}).catch(()=>toast('Ошибка авторизации',true));
 
-async function loadAll() {
-  await Promise.all([loadSettings(), loadEvents(), loadSleeps(), loadActs(), loadCycle()]);
+async function loadAll(){
+  await Promise.all([loadSettings(),loadEvents(),loadSleeps(),loadActs(),loadCycle()]);
   renderAll();
-  document.getElementById('loader').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+  document.getElementById('loader').style.display='none';
+  document.getElementById('app').style.display='block';
+}
+async function loadSettings(){
+  try{const d=await getDoc(doc(db,'users',uid,'meta','settings'));if(d.exists()){cycleSettings={...cycleSettings,...d.data()};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}}catch(e){}
+}
+async function loadEvents(){
+  try{const q=query(collection(db,'users',uid,'events'),orderBy('date','desc'));const s=await getDocs(q);events=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
+}
+async function loadSleeps(){
+  try{const q=query(collection(db,'users',uid,'sleeps'),orderBy('date','desc'));const s=await getDocs(q);sleeps=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
+}
+async function loadActs(){
+  try{const q=query(collection(db,'users',uid,'acts'),orderBy('date','desc'));const s=await getDocs(q);acts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
+}
+async function loadCycle(){
+  try{const q=query(collection(db,'users',uid,'cycle'),orderBy('date','desc'));const s=await getDocs(q);cycleEvts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
 }
 
-async function loadSettings() {
-  try {
-    const d = await getDoc(doc(db,'users',uid,'meta','settings'));
-    if (d.exists()) cycleSettings = { ...cycleSettings, ...d.data() };
-    document.getElementById('cyc-len').value = cycleSettings.len;
-    document.getElementById('cyc-days').value = cycleSettings.days;
-  } catch(e){}
-}
+function renderAll(){renderHistory();renderCharts();renderCycle();updateDataStats();}
 
-async function loadEvents() {
-  try {
-    const q = query(collection(db,'users',uid,'events'), orderBy('date','desc'));
-    const s = await getDocs(q);
-    events = s.docs.map(d => ({ id:d.id, ...d.data() }));
-  } catch(e){}
-}
-
-async function loadSleeps() {
-  try {
-    const q = query(collection(db,'users',uid,'sleeps'), orderBy('date','desc'));
-    const s = await getDocs(q);
-    sleeps = s.docs.map(d => ({ id:d.id, ...d.data() }));
-  } catch(e){}
-}
-
-async function loadActs() {
-  try {
-    const q = query(collection(db,'users',uid,'acts'), orderBy('date','desc'));
-    const s = await getDocs(q);
-    acts = s.docs.map(d => ({ id:d.id, ...d.data() }));
-  } catch(e){}
-}
-
-async function loadCycle() {
-  try {
-    const q = query(collection(db,'users',uid,'cycle'), orderBy('date','desc'));
-    const s = await getDocs(q);
-    cycleEvts = s.docs.map(d => ({ id:d.id, ...d.data() }));
-  } catch(e){}
-}
-
-function renderAll() {
-  renderHistory();
-  renderCharts();
-  renderCycle();
-  updateDataStats();
-}
-
-// SAVE LOAD (pain/med)
-window.saveLoad = async function() {
-  const btn = document.getElementById('load-save');
-  btn.textContent = 'Сохраняю...'; btn.disabled = true;
-  const date = document.getElementById('load-date').value;
-  if (!date) { toast('Укажи дату', true); btn.textContent='Сохранить'; btn.disabled=false; return; }
-  const pain = window._selPain;
-  const loc = [...document.querySelectorAll('#loc-tags .tag.sel')].map(t=>t.textContent);
-  const chr = [...document.querySelectorAll('#char-tags .tag.sel:not(.add)')].map(t=>t.textContent);
-  const medY = document.getElementById('med-y').classList.contains('sel');
-  const medName = document.getElementById('med-name').value.trim();
-  const medDose = document.getElementById('med-dose').value;
-  const rec = { type:'pain', date, ts: new Date().toISOString(),
-    pain: pain ? { level: pain, location: loc, character: chr } : null,
-    med: medY && medName ? { name: medName, dose: medDose } : null
+window.saveLoad=async function(){
+  const btn=document.getElementById('load-save');
+  btn.textContent='Сохраняю...';btn.disabled=true;
+  const date=document.getElementById('load-date').value;
+  if(!date){toast('Укажи дату',true);btn.textContent='Сохранить';btn.disabled=false;return;}
+  const pain=window._selPain;
+  const reasons=[...document.querySelectorAll('#reason-tags .tag.sel')].map(t=>t.textContent);
+  const loc=[...document.querySelectorAll('#loc-tags .tag.sel')].map(t=>t.textContent);
+  const chr=[...document.querySelectorAll('#char-tags .tag.sel:not(.add)')].map(t=>t.textContent);
+  const medY=document.getElementById('med-y').classList.contains('sel');
+  const medName=document.getElementById('med-name').value.trim();
+  const medDose=document.getElementById('med-dose').value;
+  const rec={type:'pain',date,ts:new Date().toISOString(),
+    pain:pain?{level:pain,reasons,location:loc,character:chr}:null,
+    med:medY&&medName?{name:medName,dose:medDose}:null
   };
-  try {
-    const ref = await addDoc(collection(db,'users',uid,'events'), rec);
-    events.unshift({ id:ref.id, ...rec });
-    toast('Сохранено');
-    resetLoad();
-    renderAll();
-  } catch(e) { toast('Ошибка', true); }
-  btn.textContent='Сохранить'; btn.disabled=false;
+  try{
+    const ref=await addDoc(collection(db,'users',uid,'events'),rec);
+    events.unshift({id:ref.id,...rec});
+    toast('Сохранено');resetLoad();renderAll();
+  }catch(e){toast('Ошибка',true);}
+  btn.textContent='Сохранить';btn.disabled=false;
 };
 
-// SAVE SLEEP
-window.saveSleep = async function() {
-  const date = document.getElementById('sleep-date').value;
-  const h = document.getElementById('sleep-h').value;
-  const m = document.getElementById('sleep-m').value;
-  const b23 = document.getElementById('sleep-23').checked;
-  const q = document.querySelector('.sq.sel')?.dataset.q || null;
-  if (!date || !h) { toast('Укажи дату и часы', true); return; }
-  const rec = { date, ts: new Date().toISOString(), hours: parseInt(h), minutes: parseInt(m||0), before23: b23, quality: q };
-  try {
-    // upsert by date
-    const existing = sleeps.find(s=>s.date===date);
-    if (existing) {
-      await setDoc(doc(db,'users',uid,'sleeps',existing.id), rec);
-      const idx = sleeps.findIndex(s=>s.id===existing.id);
-      sleeps[idx] = { id:existing.id, ...rec };
-    } else {
-      const ref = await addDoc(collection(db,'users',uid,'sleeps'), rec);
-      sleeps.unshift({ id:ref.id, ...rec });
-    }
-    toast('Сон сохранён');
-    resetSleep();
-    renderAll();
-  } catch(e) { toast('Ошибка', true); }
+window.saveSleep=async function(){
+  const date=document.getElementById('sleep-date').value;
+  const h=document.getElementById('sleep-h').value;
+  const m=document.getElementById('sleep-m').value;
+  const b23=document.getElementById('sleep-23').checked;
+  const q=document.querySelector('.sq.sel')?.dataset.q||null;
+  if(!date||!h){toast('Укажи дату и часы',true);return;}
+  const rec={date,ts:new Date().toISOString(),hours:parseInt(h),minutes:parseInt(m||0),before23:b23,quality:q};
+  try{
+    const existing=sleeps.find(s=>s.date===date);
+    if(existing){await setDoc(doc(db,'users',uid,'sleeps',existing.id),rec);const idx=sleeps.findIndex(s=>s.id===existing.id);sleeps[idx]={id:existing.id,...rec};}
+    else{const ref=await addDoc(collection(db,'users',uid,'sleeps'),rec);sleeps.unshift({id:ref.id,...rec});}
+    toast('Сон сохранён');resetSleep();renderAll();
+  }catch(e){toast('Ошибка',true);}
 };
 
-// SAVE ACT
-window.saveAct = async function() {
-  const date = document.getElementById('act-date').value;
-  const kind = window._selAct;
-  const sub = [...document.querySelectorAll('#sub-tags .tag.sel')].map(t=>t.textContent);
-  if (!date || !kind) { toast('Укажи дату и вид', true); return; }
-  const rec = { type:'act', date, ts: new Date().toISOString(), kind, sub };
-  try {
-    const ref = await addDoc(collection(db,'users',uid,'acts'), rec);
-    acts.unshift({ id:ref.id, ...rec });
-    toast('Активность сохранена');
-    resetAct();
-    renderAll();
-  } catch(e) { toast('Ошибка', true); }
+window.saveAct=async function(){
+  const date=document.getElementById('act-date').value;
+  const kind=window._selAct;
+  const sub=[...document.querySelectorAll('#sub-tags .tag.sel')].map(t=>t.textContent);
+  if(!date||!kind){toast('Укажи дату и вид',true);return;}
+  const rec={type:'act',date,ts:new Date().toISOString(),kind,sub};
+  try{
+    const ref=await addDoc(collection(db,'users',uid,'acts'),rec);
+    acts.unshift({id:ref.id,...rec});
+    toast('Активность сохранена');resetAct();renderAll();
+  }catch(e){toast('Ошибка',true);}
 };
 
-// SAVE CYCLE START
-window.saveCycleStart = async function() {
-  const date = document.getElementById('cycle-date').value;
-  if (!date) { toast('Укажи дату', true); return; }
-  try {
-    const ref = await addDoc(collection(db,'users',uid,'cycle'), { date, ts: new Date().toISOString() });
-    cycleEvts.unshift({ id:ref.id, date });
-    cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));
-    toast('Начало цикла отмечено');
-    renderCycle();
-  } catch(e) { toast('Ошибка', true); }
+window.saveCycleStart=async function(){
+  const date=document.getElementById('cycle-date').value;
+  if(!date){toast('Укажи дату',true);return;}
+  try{
+    const ref=await addDoc(collection(db,'users',uid,'cycle'),{date,ts:new Date().toISOString()});
+    cycleEvts.unshift({id:ref.id,date});cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));
+    toast('Начало цикла отмечено');renderCycle();
+  }catch(e){toast('Ошибка',true);}
 };
 
-window.saveCycleSettings = async function() {
-  cycleSettings.len = parseInt(document.getElementById('cyc-len').value)||28;
-  cycleSettings.days = parseInt(document.getElementById('cyc-days').value)||5;
-  try {
-    await setDoc(doc(db,'users',uid,'meta','settings'), cycleSettings);
-    toast('Настройки сохранены');
-    renderCycle();
-  } catch(e) { toast('Ошибка', true); }
+window.saveCycleSettings=async function(){
+  cycleSettings.len=parseInt(document.getElementById('cyc-len').value)||28;
+  cycleSettings.days=parseInt(document.getElementById('cyc-days').value)||5;
+  try{await setDoc(doc(db,'users',uid,'meta','settings'),cycleSettings);toast('Настройки сохранены');renderCycle();}
+  catch(e){toast('Ошибка',true);}
 };
 
-// DELETE
-window.delEntry = async function(id, coll) {
-  if (!confirm('Удалить запись?')) return;
-  try {
+window.delEntry=async function(id,coll){
+  if(!confirm('Удалить запись?'))return;
+  try{
     await deleteDoc(doc(db,'users',uid,coll,id));
-    if (coll==='events') events = events.filter(e=>e.id!==id);
-    if (coll==='sleeps') sleeps = sleeps.filter(e=>e.id!==id);
-    if (coll==='acts') acts = acts.filter(e=>e.id!==id);
-    toast('Удалено');
-    renderAll();
-  } catch(e) { toast('Ошибка', true); }
+    if(coll==='events')events=events.filter(e=>e.id!==id);
+    if(coll==='sleeps')sleeps=sleeps.filter(e=>e.id!==id);
+    if(coll==='acts')acts=acts.filter(e=>e.id!==id);
+    toast('Удалено');renderAll();
+  }catch(e){toast('Ошибка',true);}
 };
 
-// RENDER HISTORY
-function renderHistory() {
-  const el = document.getElementById('hist-list');
-  const all = [
-    ...events.map(e=>({...e, _coll:'events', _sortDate: e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),
-    ...sleeps.map(e=>({...e, _coll:'sleeps', _sortDate: e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),
-    ...acts.map(e=>({...e, _coll:'acts', _sortDate: e.date+'T'+(e.ts?.split('T')[1]||'00:00')}))
-  ].sort((a,b)=>b._sortDate.localeCompare(a._sortDate));
-
-  if (!all.length) { el.innerHTML='<div class="empty">Записей пока нет</div>'; return; }
-
-  const groups = {};
-  all.forEach(e => { const d=e.date; if(!groups[d])groups[d]=[]; groups[d].push(e); });
-  const today = new Date().toISOString().split('T')[0];
-  const yest = new Date(Date.now()-86400000).toISOString().split('T')[0];
-
-  let html = '';
-  Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date => {
-    let lbl = date===today?'Сегодня':date===yest?'Вчера':new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-    html += `<div class="hdlabel">${lbl}</div>`;
-    groups[date].forEach(e => {
-      if (e._coll==='events') {
-        const pl = e.pain?.level;
-        const bc = pl>=8?'rose':pl>=5?'amb':'sage';
-        html += `<div class="hitem">
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  const all=[
+    ...events.map(e=>({...e,_coll:'events',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),
+    ...sleeps.map(e=>({...e,_coll:'sleeps',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),
+    ...acts.map(e=>({...e,_coll:'acts',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')}))
+  ].sort((a,b)=>b._sd.localeCompare(a._sd));
+  if(!all.length){el.innerHTML='<div class="empty">Записей пока нет</div>';return;}
+  const groups={};
+  all.forEach(e=>{const d=e.date;if(!groups[d])groups[d]=[];groups[d].push(e);});
+  const today=new Date().toISOString().split('T')[0];
+  const yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  let html='';
+  Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date=>{
+    let lbl=date===today?'Сегодня':date===yest?'Вчера':new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+    html+=`<div class="hdlabel">${lbl}</div>`;
+    groups[date].forEach(e=>{
+      if(e._coll==='events'){
+        const pl=e.pain?.level;
+        const bc=pl>=8?'rose':pl>=5?'amb':'sage';
+        html+=`<div class="hitem">
           <div class="hbadge ${pl?bc:'none'}">${pl||'—'}</div>
           <div class="hbody">
-            ${e.pain?`<div class="hrow">📍 ${e.pain.location?.join(', ')||''} ${e.pain.character?.length?'· '+e.pain.character.join(', '):''}</div>`:''}
+            ${e.pain?.reasons?.length?`<div class="hrow">💬 ${e.pain.reasons.join(', ')}</div>`:''}
+            ${e.pain?.location?.length?`<div class="hrow">📍 ${e.pain.location.join(', ')}${e.pain.character?.length?' · '+e.pain.character.join(', '):''}</div>`:''}
             ${e.med?`<div class="hrow">💊 ${e.med.name}${e.med.dose?' '+e.med.dose+'мг':''}</div>`:''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -585,11 +545,11 @@ function renderHistory() {
             <button class="hdel" onclick="delEntry('${e.id}','events')">×</button>
           </div>
         </div>`;
-      } else if (e._coll==='sleeps') {
-        html += `<div class="hitem">
+      }else if(e._coll==='sleeps'){
+        html+=`<div class="hitem">
           <div class="hbadge sleep">🌙</div>
           <div class="hbody">
-            <div class="hrow">${e.hours}ч ${e.minutes||0}м ${e.before23?'· до 23:00':''}</div>
+            <div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>
             ${e.quality?`<div class="hrow" style="color:var(--g40)">${e.quality}</div>`:''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
@@ -597,8 +557,8 @@ function renderHistory() {
             <button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button>
           </div>
         </div>`;
-      } else if (e._coll==='acts') {
-        html += `<div class="hitem">
+      }else if(e._coll==='acts'){
+        html+=`<div class="hitem">
           <div class="hbadge act">🏃</div>
           <div class="hbody">
             <div class="hrow">${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}</div>
@@ -611,111 +571,133 @@ function renderHistory() {
       }
     });
   });
-  el.innerHTML = html;
+  el.innerHTML=html;
 }
 
-// RENDER CYCLE
-function renderCycle() {
-  const el = document.getElementById('cycle-status');
-  const lastStart = cycleEvts[0]?.date;
-  if (!lastStart) { el.innerHTML='<div class="empty">Отметь начало цикла</div>'; return; }
-
-  const today = new Date().toISOString().split('T')[0];
-  const diff = Math.floor((new Date(today)-new Date(lastStart))/86400000);
-  const dayInCycle = ((diff % cycleSettings.len)+cycleSettings.len)%cycleSettings.len+1;
-
-  let phase='', rec='', phaseColor='var(--lav)';
-  if (dayInCycle<=cycleSettings.days) {
-    phase='Менструация'; phaseColor='var(--rose)';
-    rec='<strong>Нагрузка:</strong> минимальная, только лёгкая прогулка или стретчинг.<br><strong>Восстановление:</strong> тепло, отдых, больше сна. Массаж — осторожно.';
-  } else if (dayInCycle<=13) {
-    phase='Фолликулярная фаза'; phaseColor='var(--sage)';
-    rec='<strong>Нагрузка:</strong> тело хорошо восстанавливается — хорошее время для ЛФК.<br><strong>Восстановление:</strong> активность поддерживает энергию. Бассейн отлично.';
-  } else if (dayInCycle<=16) {
-    phase='Овуляция'; phaseColor='var(--teal)';
-    rec='<strong>Нагрузка:</strong> пик сил, суставы чуть уязвимее — не перегружай.<br><strong>Восстановление:</strong> хорошо переносится любая активность. Массаж — да.';
-  } else {
-    phase='Лютеиновая фаза'; phaseColor='var(--lav)';
-    rec='<strong>Нагрузка:</strong> может нарастать напряжение в спине. Следи за болью.<br><strong>Восстановление:</strong> ЛФК умеренно, массаж ШВЗ хорошо. Сон важен.';
+// Полные данные по фазам цикла
+const phaseData = {
+  menstruation: {
+    name:'Менструация',
+    color:'#B85555',
+    bg:'rgba(184,85,85,0.1)',
+    hormones:'Эстроген и прогестерон на минимуме. Эндометрий отторгается. Простагландины вызывают сокращения матки — отсюда боль и спазмы.',
+    body:'Энергия снижена. Болевой порог может быть понижен. Возможны головные боли, боли в пояснице, отёчность, перепады настроения.',
+    load:'Минимальная. Лёгкая прогулка, медленная растяжка, дыхательные практики. Избегай нагрузки на пресс и поясницу.',
+    recovery:'Тепло на живот и поясницу. Больше сна. Массаж — мягкий, не на живот. Бассейн — по самочувствию.',
+  },
+  follicular: {
+    name:'Фолликулярная фаза',
+    color:'#4E8C5F',
+    bg:'rgba(78,140,95,0.1)',
+    hormones:'Растёт ФСГ — стимулирует созревание фолликула. Эстроген постепенно повышается. Организм готовится к овуляции.',
+    body:'Энергия нарастает. Настроение улучшается. Лучше переносится физическая нагрузка. Мышцы восстанавливаются быстрее. Болевой порог повышается.',
+    load:'Хорошее время для ЛФК, бассейна, активных тренировок. Тело хорошо отзывается на нагрузку и быстро восстанавливается.',
+    recovery:'Активность поддерживает энергию. Массаж переносится хорошо. Сон более качественный — используй это время.',
+  },
+  ovulation: {
+    name:'Овуляция',
+    color:'#2E8A8C',
+    bg:'rgba(46,138,140,0.1)',
+    hormones:'Пик эстрогена → выброс ЛГ → выход яйцеклетки. Кратковременный рост тестостерона даёт прилив сил и либидо.',
+    body:'Пик физической силы и выносливости. Но: связки и суставы чуть мягче из-за эстрогена — риск травм выше. Возможна лёгкая боль внизу живота (миттельшмерц).',
+    load:'Можно много, но осторожно с ударными нагрузками и резкими движениями — суставы уязвимее. ЛФК и плавание — отлично.',
+    recovery:'Массаж переносится хорошо. Следи за болью в суставах. Не перегружай шею и поясницу.',
+  },
+  luteal: {
+    name:'Лютеиновая фаза',
+    color:'#7B6BB0',
+    bg:'rgba(123,107,176,0.1)',
+    hormones:'Жёлтое тело выделяет прогестерон. Если оплодотворения нет — к концу фазы оба гормона падают. Возможен ПМС: задержка жидкости, раздражительность, усталость.',
+    body:'В начале — нормально. К концу — нарастает напряжение в теле, возможны боли в спине и пояснице, отёчность, тяжесть, снижение концентрации. Болевой порог снижается.',
+    load:'Умеренная. ЛФК — да, но прислушивайся к телу. В последние дни перед менструацией снижай интенсивность.',
+    recovery:'Массаж ШВЗ очень кстати — снимает накопившееся напряжение. Больше сна. Тепловые процедуры. Следи за болью в спине — она может нарастать.',
   }
+};
 
-  const nextDate = new Date(lastStart);
+function renderCycle(){
+  const el=document.getElementById('cycle-status');
+  const lastStart=cycleEvts[0]?.date;
+  if(!lastStart){el.innerHTML='<div class="empty">Отметь начало цикла чтобы видеть фазы</div>';return;}
+  const today=new Date().toISOString().split('T')[0];
+  const diff=Math.floor((new Date(today)-new Date(lastStart))/86400000);
+  const dayInCycle=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len+1;
+
+  let phaseKey='luteal';
+  if(dayInCycle<=cycleSettings.days)phaseKey='menstruation';
+  else if(dayInCycle<=13)phaseKey='follicular';
+  else if(dayInCycle<=16)phaseKey='ovulation';
+
+  const pd=phaseData[phaseKey];
+  const nextDate=new Date(lastStart);
   nextDate.setDate(nextDate.getDate()+cycleSettings.len);
-  const daysTo = Math.ceil((nextDate-new Date())/86400000);
-  const nextStr = nextDate.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const nextDay = nextDate.toLocaleDateString('ru-RU',{weekday:'long'});
-  // range ±3 days
-  const early = new Date(nextDate); early.setDate(early.getDate()-3);
-  const late = new Date(nextDate); late.setDate(late.getDate()+3);
-  const rangeStr = early.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' — '+late.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+  const daysTo=Math.ceil((nextDate-new Date())/86400000);
+  const nextStr=nextDate.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+  const nextDay=nextDate.toLocaleDateString('ru-RU',{weekday:'long'});
+  const early=new Date(nextDate);early.setDate(early.getDate()-3);
+  const late=new Date(nextDate);late.setDate(late.getDate()+3);
+  const rangeStr=early.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' — '+late.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
 
-  el.innerHTML = `<div class="cstatus">
-    <div class="cdaynum" style="color:${phaseColor}">${dayInCycle}</div>
+  el.innerHTML=`<div class="cstatus">
+    <div class="cdaynum" style="color:${pd.color}">${dayInCycle}</div>
     <div class="cdaylabel">день цикла из ${cycleSettings.len}</div>
-    <div class="cphase" style="color:${phaseColor}">${phase}</div>
+    <div class="cphase" style="color:${pd.color}">${pd.name}</div>
     <div class="cnext">${daysTo>0?`Следующие через ${daysTo} дн.`:'Ожидаются сегодня'}<br>${nextStr} (${nextDay})<br><span style="font-size:11px">Диапазон: ${rangeStr}</span></div>
-    <div class="crec">${rec}</div>
+    <div class="phase-card" style="background:${pd.bg};border:1px solid ${pd.color}22">
+      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Что происходит</div><div class="phase-row-text">${pd.hormones}</div></div>
+      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Как ощущается</div><div class="phase-row-text">${pd.body}</div></div>
+      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Физ. нагрузка</div><div class="phase-row-text">${pd.load}</div></div>
+      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Восстановление</div><div class="phase-row-text">${pd.recovery}</div></div>
+    </div>
   </div>`;
 
-  const histEl = document.getElementById('cycle-hist');
-  const histCard = document.getElementById('cycle-hist-card');
-  if (cycleEvts.length) {
+  const histEl=document.getElementById('cycle-hist');
+  const histCard=document.getElementById('cycle-hist-card');
+  if(cycleEvts.length){
     histCard.style.display='block';
-    histEl.innerHTML = cycleEvts.slice(0,8).map(e=>`
-      <div class="cev"><div class="cdot"></div><div>${new Date(e.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div></div>
-    `).join('');
+    histEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:0">
+      ${cycleEvts.slice(0,8).map(e=>`<div class="cev"><div class="cdot"></div><div>${new Date(e.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('')}
+    </div>`;
   }
 }
 
-// RENDER CHARTS
-function renderCharts() {
-  const period = window._period;
-  const now = new Date();
-  const cutoff = new Date(now - period*86400000);
-  const days = [];
-  for (let i=period-1;i>=0;i--) {
-    const d = new Date(now-i*86400000);
-    days.push(d.toISOString().split('T')[0]);
-  }
+function renderCharts(){
+  const period=window._period;
+  const now=new Date();
+  const cutoff=new Date(now-period*86400000);
+  const days=[];
+  for(let i=period-1;i>=0;i--){const d=new Date(now-i*86400000);days.push(d.toISOString().split('T')[0]);}
 
-  const painByDay={}, medByDay={}, sleepByDay={}, actByDay={};
-  days.forEach(d=>{ painByDay[d]=[]; medByDay[d]=0; sleepByDay[d]=null; actByDay[d]=0; });
-
+  const painByDay={},medByDay={},sleepByDay={},actByDay={};
+  days.forEach(d=>{painByDay[d]=[];medByDay[d]=0;sleepByDay[d]=null;actByDay[d]=0;});
   events.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{
     const d=e.date;
-    if(painByDay[d]!==undefined){
-      if(e.pain?.level) painByDay[d].push(e.pain.level);
-      if(e.med) medByDay[d]++;
-    }
+    if(painByDay[d]!==undefined){if(e.pain?.level)painByDay[d].push(e.pain.level);if(e.med)medByDay[d]++;}
   });
-  sleeps.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{ if(sleepByDay[e.date]!==undefined) sleepByDay[e.date]=e.hours+(e.minutes||0)/60; });
-  acts.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{ if(actByDay[e.date]!==undefined) actByDay[e.date]++; });
+  sleeps.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(sleepByDay[e.date]!==undefined)sleepByDay[e.date]=e.hours+(e.minutes||0)/60;});
+  acts.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(actByDay[e.date]!==undefined)actByDay[e.date]++;});
 
-  const avgPain = days.map(d=>painByDay[d].length?painByDay[d].reduce((a,b)=>a+b,0)/painByDay[d].length:null);
-  const medC = days.map(d=>medByDay[d]);
-  const sleepH = days.map(d=>sleepByDay[d]);
-  const actC = days.map(d=>actByDay[d]>0?1:0);
+  const avgPain=days.map(d=>painByDay[d].length?painByDay[d].reduce((a,b)=>a+b,0)/painByDay[d].length:null);
+  const medC=days.map(d=>medByDay[d]);
+  const sleepH=days.map(d=>sleepByDay[d]);
+  const actC=days.map(d=>actByDay[d]>0?1:0);
 
-  // stats
-  const pE = events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level);
-  const mE = events.filter(e=>new Date(e.date)>=cutoff&&e.med);
-  const avgP = pE.length?(pE.reduce((s,e)=>s+e.pain.level,0)/pE.length).toFixed(1):'—';
-  const maxP = pE.length?Math.max(...pE.map(e=>e.pain.level)):'—';
+  const pE=events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level);
+  const mE=events.filter(e=>new Date(e.date)>=cutoff&&e.med);
+  const avgP=pE.length?(pE.reduce((s,e)=>s+e.pain.level,0)/pE.length).toFixed(1):'—';
+  const maxP=pE.length?Math.max(...pE.map(e=>e.pain.level)):'—';
   document.getElementById('stat-pills').innerHTML=`
     <div class="spill"><div class="snum lav">${mE.length}</div><div class="sdesc">таблеток</div></div>
     <div class="spill"><div class="snum sage">${avgP}</div><div class="sdesc">ср. боль</div></div>
     <div class="spill"><div class="snum rose">${maxP}</div><div class="sdesc">макс. боль</div></div>
   `;
+  drawMain(days,avgPain,medC,sleepH,actC);
 
-  drawMain(days, avgPain, medC, sleepH, actC);
-
-  // x labels
-  const step = Math.ceil(days.length/6);
-  const lblEl = document.getElementById('canvas-xlabels');
-  lblEl.innerHTML = '';
+  const step=Math.ceil(days.length/6);
+  const lblEl=document.getElementById('canvas-xlabels');
+  lblEl.innerHTML='';
   days.forEach((d,i)=>{
     if(i%step===0||i===days.length-1){
-      const s = document.createElement('span');
+      const s=document.createElement('span');
       s.style.cssText='font-size:9px;color:var(--g40)';
       s.textContent=new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'numeric'});
       lblEl.appendChild(s);
@@ -723,23 +705,22 @@ function renderCharts() {
   });
 }
 
-function drawMain(days, avgPain, medC, sleepH, actC) {
-  const canvas = document.getElementById('main-canvas');
-  if(!canvas) return;
-  const W = canvas.parentElement.clientWidth-32;
-  canvas.width = W; canvas.height = 140;
-  const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,W,140);
+function drawMain(days,avgPain,medC,sleepH,actC){
+  const canvas=document.getElementById('main-canvas');if(!canvas)return;
+  const W=canvas.parentElement.clientWidth-32;
+  canvas.width=W;canvas.height=150;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,150);
   const L=window._layers;
-  const pad={l:8,r:8,t:10,b:10};
-  const cW=W-pad.l-pad.r, cH=140-pad.t-pad.b;
+  const pad={l:6,r:6,t:14,b:14};
+  const cW=W-pad.l-pad.r,cH=150-pad.t-pad.b;
   const n=days.length;
   const x=i=>pad.l+(i/(n-1||1))*cW;
 
-  // cycle background
-  if(L.cycle && cycleEvts.length) {
+  // cycle background - contrasted
+  if(L.cycle&&cycleEvts.length){
     const lastStart=cycleEvts[0].date;
-    const phaseColors=['rgba(196,122,122,0.18)','rgba(122,158,135,0.12)','rgba(90,158,160,0.15)','rgba(180,160,210,0.12)'];
+    const colors=['rgba(184,85,85,0.28)','rgba(78,140,95,0.2)','rgba(46,138,140,0.25)','rgba(123,107,176,0.2)'];
     days.forEach((d,i)=>{
       const diff=Math.floor((new Date(d)-new Date(lastStart))/86400000);
       const dc=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len;
@@ -747,117 +728,106 @@ function drawMain(days, avgPain, medC, sleepH, actC) {
       if(dc<cycleSettings.days)fi=0;
       else if(dc<13)fi=1;
       else if(dc<16)fi=2;
-      ctx.fillStyle=phaseColors[fi];
+      ctx.fillStyle=colors[fi];
       const bw=cW/n;
-      ctx.fillRect(pad.l+i*bw,pad.t,bw,cH);
+      ctx.fillRect(pad.l+i*bw,pad.t,bw+1,cH);
     });
   }
 
-  // grid
-  ctx.strokeStyle='rgba(0,0,0,0.06)'; ctx.lineWidth=1;
-  [0.25,0.5,0.75].forEach(v=>{ ctx.beginPath();ctx.moveTo(pad.l,pad.t+cH*v);ctx.lineTo(W-pad.r,pad.t+cH*v);ctx.stroke(); });
+  // grid lines
+  ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;
+  [0.25,0.5,0.75].forEach(v=>{ctx.beginPath();ctx.moveTo(pad.l,pad.t+cH*v);ctx.lineTo(W-pad.r,pad.t+cH*v);ctx.stroke();});
 
-  // sleep bars (background)
-  if(L.sleep) {
-    const maxSleep=10;
+  // sleep bars - more opaque
+  if(L.sleep){
+    const maxS=10;
+    const bw=Math.max(3,cW/n-3);
     sleepH.forEach((v,i)=>{
       if(v===null)return;
-      const bh=(v/maxSleep)*cH;
-      ctx.fillStyle='rgba(90,158,160,0.18)';
-      const bw=Math.max(2,cW/n-2);
-      ctx.fillRect(x(i)-bw/2,pad.t+cH-bh,bw,bh);
+      const bh=(Math.min(v,maxS)/maxS)*cH;
+      ctx.fillStyle='rgba(46,138,140,0.35)';
+      ctx.beginPath();
+      if(ctx.roundRect)ctx.roundRect(x(i)-bw/2,pad.t+cH-bh,bw,bh,[2,2,0,0]);
+      else ctx.rect(x(i)-bw/2,pad.t+cH-bh,bw,bh);
+      ctx.fill();
     });
   }
 
-  // med dots
-  if(L.med) {
-    medC.forEach((v,i)=>{
-      if(!v)return;
-      ctx.beginPath();ctx.arc(x(i),pad.t+cH,4,0,Math.PI*2);
-      ctx.fillStyle='var(--lav)';ctx.fill();
-      if(v>1){ctx.fillStyle='var(--lav)';ctx.font='8px Manrope';ctx.textAlign='center';ctx.fillText(v,x(i),pad.t+cH-7);}
-    });
-  }
-
-  // act dots
-  if(L.act) {
+  // activity dots - top, bigger
+  if(L.act){
     actC.forEach((v,i)=>{
       if(!v)return;
-      ctx.beginPath();ctx.arc(x(i),pad.t+8,4,0,Math.PI*2);
-      ctx.fillStyle='var(--sage)';ctx.fill();
+      ctx.beginPath();ctx.arc(x(i),pad.t+6,5,0,Math.PI*2);
+      ctx.fillStyle='#4E8C5F';ctx.fill();
     });
   }
 
-  // pain line
-  if(L.pain) {
+  // med dots - bottom, bigger
+  if(L.med){
+    medC.forEach((v,i)=>{
+      if(!v)return;
+      ctx.beginPath();ctx.arc(x(i),pad.t+cH-6,5,0,Math.PI*2);
+      ctx.fillStyle='#7B6BB0';ctx.fill();
+      if(v>1){ctx.fillStyle='#7B6BB0';ctx.font='bold 9px Manrope';ctx.textAlign='center';ctx.fillText(v,x(i),pad.t+cH-13);}
+    });
+  }
+
+  // pain fill + line - bold
+  if(L.pain){
     const pts=avgPain.map((v,i)=>v!==null?{x:x(i),y:pad.t+cH-(v/10)*cH}:null).filter(Boolean);
     if(pts.length>=2){
-      // fill
       ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);
       pts.forEach(p=>ctx.lineTo(p.x,p.y));
-      ctx.lineTo(pts[pts.length-1].x,pad.t+cH);
-      ctx.closePath();
-      const g=ctx.createLinearGradient(0,0,0,140);
-      g.addColorStop(0,'rgba(196,122,122,0.3)');g.addColorStop(1,'rgba(196,122,122,0)');
+      ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();
+      const g=ctx.createLinearGradient(0,0,0,150);
+      g.addColorStop(0,'rgba(184,85,85,0.45)');g.addColorStop(1,'rgba(184,85,85,0.05)');
       ctx.fillStyle=g;ctx.fill();
-      // line
       ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
       pts.forEach(p=>ctx.lineTo(p.x,p.y));
-      ctx.strokeStyle='#C47A7A';ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke();
-      pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#C47A7A';ctx.fill();});
+      ctx.strokeStyle='#B85555';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+      pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle='#B85555';ctx.fill();});
     }
   }
 }
 
-// EXPORT
-window.expJSON = function() {
-  const data={ version:3, exported:new Date().toISOString(), cycleSettings, cycleEvents:cycleEvts, events, sleeps, acts };
+window.expJSON=function(){
+  const data={version:3,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};
   const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download=`fon_${new Date().toISOString().split('T')[0]}.json`;a.click();
-  toast('Файл скачан');
+  a.download=`fon_${new Date().toISOString().split('T')[0]}.json`;a.click();toast('Файл скачан');
 };
 
-window.expCSV = function() {
-  const rows=[['Тип','Дата','Боль','Локация','Характер','Препарат','Доза','Сон ч','Сон мин','До 23','Качество сна','Активность','Подвид']];
-  events.forEach(e=>rows.push(['боль/таблетка',e.date,e.pain?.level||'',
-    (e.pain?.location||[]).join(';'),(e.pain?.character||[]).join(';'),
-    e.med?.name||'',e.med?.dose||'','','','','','','']));
-  sleeps.forEach(e=>rows.push(['сон',e.date,'','','','','',e.hours,e.minutes||0,e.before23?'да':'нет',e.quality||'','','']));
-  acts.forEach(e=>rows.push(['активность',e.date,'','','','','','','','','',e.kind,(e.sub||[]).join(';')]));
+window.expCSV=function(){
+  const rows=[['Тип','Дата','Боль','Причина','Локация','Характер','Препарат','Доза','Сон ч','Сон мин','До 23','Качество сна','Активность','Подвид']];
+  events.forEach(e=>rows.push(['боль',e.date,e.pain?.level||'',(e.pain?.reasons||[]).join(';'),(e.pain?.location||[]).join(';'),(e.pain?.character||[]).join(';'),e.med?.name||'',e.med?.dose||'','','','','','','']));
+  sleeps.forEach(e=>rows.push(['сон',e.date,'','','','','','',e.hours,e.minutes||0,e.before23?'да':'нет',e.quality||'','','']));
+  acts.forEach(e=>rows.push(['активность',e.date,'','','','','','','','','','',e.kind,(e.sub||[]).join(';')]));
   const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const b=new Blob([csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);
   a.download=`fon_${new Date().toISOString().split('T')[0]}.csv`;a.click();
 };
 
-window.impJSON = function(input) {
-  const file=input.files[0]; if(!file)return;
+window.impJSON=function(input){
+  const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async e=>{
-    try {
-      const data=JSON.parse(e.target.result);
-      let added=0;
-      const addNew = async (arr, localArr, coll) => {
+    try{
+      const data=JSON.parse(e.target.result);let added=0;
+      const addNew=async(arr,localArr,coll)=>{
         const ids=new Set(localArr.map(x=>x.id));
-        for(const item of (arr||[])) {
-          if(!ids.has(item.id)){
-            const {id,...rest}=item;
-            const ref=await addDoc(collection(db,'users',uid,coll),rest);
-            localArr.unshift({id:ref.id,...rest}); added++;
-          }
-        }
+        for(const item of(arr||[])){if(!ids.has(item.id)){const{id,...rest}=item;const ref=await addDoc(collection(db,'users',uid,coll),rest);localArr.unshift({id:ref.id,...rest});added++;}}
       };
       await addNew(data.events,events,'events');
       await addNew(data.sleeps,sleeps,'sleeps');
       await addNew(data.acts,acts,'acts');
-      renderAll(); toast(`Добавлено ${added} записей`);
-    } catch(err){ toast('Ошибка импорта',true); }
+      renderAll();toast(`Добавлено ${added} записей`);
+    }catch(err){toast('Ошибка импорта',true);}
   };
   reader.readAsText(file);
 };
 
-function updateDataStats() {
+function updateDataStats(){
   const all=[...events,...sleeps,...acts];
   const sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date));
   const fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
@@ -870,160 +840,132 @@ function updateDataStats() {
   `;
 }
 
-// expose for UI
 window._renderCharts=renderCharts;
 window._renderCycle=renderCycle;
 </script>
 
 <script>
-// UI helpers
-window._selPain = null;
-window._selAct = null;
+window._selPain=null;window._selAct=null;
 
-function toast(msg, err=false) {
+function toast(msg,err=false){
   const t=document.getElementById('toast');
   t.textContent=(err?'✗ ':'✓ ')+msg;
   t.style.background=err?'var(--rose)':'var(--g)';
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function showS(name) {
+function showS(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('s-'+name).classList.add('active');
   document.getElementById('n-'+name).classList.add('active');
-  if(name==='charts'){ setTimeout(()=>{ if(window._renderCharts)window._renderCharts(); },50); }
-  if(name==='cycle'){ if(window._renderCycle)window._renderCycle(); }
+  if(name==='charts')setTimeout(()=>{if(window._renderCharts)window._renderCharts();},50);
+  if(name==='cycle'){if(window._renderCycle)window._renderCycle();}
 }
 
-function selPain(l) {
+function selPain(l){
   window._selPain=l;
   document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('sel',parseInt(b.dataset.l)===l));
 }
 
-function togTag(el) { if(!el.classList.contains('add'))el.classList.toggle('sel'); }
+function togTag(el){if(!el.classList.contains('add'))el.classList.toggle('sel');}
 
-function selQ(btn) { document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); }
+function selQ(btn){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
 
-function togMed(yes) {
+function togMed(yes){
   document.getElementById('med-y').classList.toggle('sel',yes);
   document.getElementById('med-n').classList.toggle('sel',!yes);
   document.getElementById('med-sec').style.display=yes?'block':'none';
 }
 
-const subOptions = {
-  'ЛФК':['На спину','На шею','Общая','Стретчинг'],
-  'Массаж':['ШВЗ','Полный','СПА'],
-  'Бассейн':[]
-};
+const subOptions={'ЛФК':['На спину','На шею','Общая','Стретчинг'],'Массаж':['ШВЗ','Полный','СПА'],'Бассейн':[]};
 
-function selAct(btn, kind) {
+function selAct(btn,kind){
   document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  window._selAct = kind;
-  const subs = subOptions[kind]||[];
-  const sw = document.getElementById('sub-wrap');
-  const st = document.getElementById('sub-tags');
-  if(subs.length || !subOptions[kind]) {
-    sw.style.display='block';
-    st.innerHTML = subs.map(s=>`<button class="tag" onclick="togTag(this)">${s}</button>`).join('')+
-      '<button class="tag add" onclick="showAddSubTag()">+ Свой</button>';
-  } else { sw.style.display='none'; }
+  btn.classList.add('sel');window._selAct=kind;
+  const subs=subOptions[kind]||[];
+  const sw=document.getElementById('sub-wrap');
+  const st=document.getElementById('sub-tags');
+  sw.style.display='block';
+  st.innerHTML=subs.map(s=>`<button class="tag" onclick="togTag(this)">${s}</button>`).join('')+
+    '<button class="tag add" onclick="showAddSubTag()">+ Свой</button>';
 }
 
-function showAddSubTag() {
-  const inp = document.getElementById('sub-inp');
-  inp.parentElement.style.display='block';
-  inp.focus();
-}
+function showAddSubTag(){document.getElementById('sub-inp').parentElement.style.display='block';document.getElementById('sub-inp').focus();}
 
-function addSubTag() {
-  const val=document.getElementById('sub-inp').value.trim(); if(!val)return;
+function addSubTag(){
+  const val=document.getElementById('sub-inp').value.trim();if(!val)return;
   const tags=document.getElementById('sub-tags');
-  const btn=document.createElement('button');
-  btn.className='tag sel'; btn.textContent=val; btn.onclick=()=>togTag(btn);
-  tags.appendChild(btn);
-  document.getElementById('sub-inp').value='';
+  const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);
+  tags.appendChild(btn);document.getElementById('sub-inp').value='';
 }
 
-function showAddTag(containerId, inputId) {
-  const box=document.getElementById(inputId);
+function showAddTag(cid,boxId){
+  const box=document.getElementById(boxId);
   box.style.display=box.style.display==='none'?'block':'none';
-  if(box.style.display==='block') box.querySelector('input').focus();
+  if(box.style.display==='block')box.querySelector('input').focus();
 }
 
-function addTag(containerId, inputId, boxId) {
-  const val=document.getElementById(inputId).value.trim(); if(!val)return;
-  const tags=document.getElementById(containerId);
-  const btn=document.createElement('button');
-  btn.className='tag sel'; btn.textContent=val; btn.onclick=()=>togTag(btn);
-  tags.insertBefore(btn, tags.querySelector('.add'));
-  document.getElementById(inputId).value='';
-  document.getElementById(boxId).style.display='none';
+function addTag(cid,inpId,boxId){
+  const val=document.getElementById(inpId).value.trim();if(!val)return;
+  const tags=document.getElementById(cid);
+  const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);
+  tags.insertBefore(btn,tags.querySelector('.add'));
+  document.getElementById(inpId).value='';document.getElementById(boxId).style.display='none';
 }
 
-function addActTag() {
-  const val=document.getElementById('act-inp').value.trim(); if(!val)return;
+function addActTag(){
+  const val=document.getElementById('act-inp').value.trim();if(!val)return;
   const tags=document.getElementById('act-tags');
-  const btn=document.createElement('button');
-  btn.className='tag'; btn.textContent=val;
-  if(!subOptions[val]) subOptions[val]=[];
+  const btn=document.createElement('button');btn.className='tag';btn.textContent=val;
+  if(!subOptions[val])subOptions[val]=[];
   btn.onclick=()=>selAct(btn,val);
-  tags.insertBefore(btn, tags.querySelector('.add'));
-  document.getElementById('act-inp').value='';
-  document.getElementById('act-add').style.display='none';
+  tags.insertBefore(btn,tags.querySelector('.add'));
+  document.getElementById('act-inp').value='';document.getElementById('act-add').style.display='none';
   selAct(btn,val);
 }
 
-function setPeriod(btn, days) {
+function setPeriod(btn,days){
   document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  window._period=days;
+  btn.classList.add('active');window._period=days;
   const lm={14:'2 недели',30:'Месяц',90:'3 месяца',180:'6 месяцев',365:'Год'};
   document.getElementById('period-lbl').textContent=lm[days]||days+' дней';
-  if(window._renderCharts) window._renderCharts();
+  if(window._renderCharts)window._renderCharts();
 }
 
-function togLayer(btn) {
+function togLayer(btn){
   btn.classList.toggle('on');
   window._layers[btn.dataset.layer]=btn.classList.contains('on');
-  if(window._renderCharts) window._renderCharts();
+  if(window._renderCharts)window._renderCharts();
 }
 
-function resetLoad() {
+function resetLoad(){
   window._selPain=null;
   document.querySelectorAll('.pb').forEach(b=>b.classList.remove('sel'));
-  document.querySelectorAll('#loc-tags .tag, #char-tags .tag').forEach(t=>t.classList.remove('sel'));
+  document.querySelectorAll('#reason-tags .tag, #loc-tags .tag, #char-tags .tag').forEach(t=>t.classList.remove('sel'));
   document.getElementById('med-y').classList.remove('sel');
   document.getElementById('med-n').classList.add('sel');
   document.getElementById('med-sec').style.display='none';
-  document.getElementById('med-name').value='';
-  document.getElementById('med-dose').value='';
+  if(document.getElementById('med-name'))document.getElementById('med-name').value='';
+  if(document.getElementById('med-dose'))document.getElementById('med-dose').value='';
 }
 
-function resetSleep() {
+function resetSleep(){
   document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));
   document.getElementById('sleep-h').value='';
   document.getElementById('sleep-m').value='';
   document.getElementById('sleep-23').checked=false;
 }
 
-function resetAct() {
+function resetAct(){
   window._selAct=null;
   document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));
   document.querySelectorAll('#sub-tags .tag').forEach(b=>b.classList.remove('sel'));
   document.getElementById('sub-wrap').style.display='none';
 }
 
-// set today as default dates
-function setDefaultDates() {
-  const today=new Date().toISOString().split('T')[0];
-  ['load-date','sleep-date','act-date','cycle-date'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value=today;
-  });
-}
-setDefaultDates();
+const today=new Date().toISOString().split('T')[0];
+['load-date','sleep-date','act-date','cycle-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
 </script>
 </body>
 </html>
