@@ -13,10 +13,6 @@
   --rose:#B85555;--rose-l:#F5DADA;
   --amb:#B8882A;--amb-l:#F5E8C8;
   --teal:#2E8A8C;--teal-l:#C8E8E8;
-  --cycle1:rgba(184,85,85,0.22);
-  --cycle2:rgba(78,140,95,0.14);
-  --cycle3:rgba(46,138,140,0.18);
-  --cycle4:rgba(123,107,176,0.14);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;color:var(--g);font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -64,6 +60,20 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 #toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--g);color:#fff;padding:10px 20px;border-radius:100px;font-size:12px;letter-spacing:0.04em;transition:transform .28s ease;z-index:200;white-space:nowrap;font-weight:500}
 #toast.show{transform:translateX(-50%) translateY(0)}
 .empty{text-align:center;color:var(--g40);font-size:13px;padding:28px 16px;line-height:1.7}
+/* BODY MAP */
+.body-map-wrap{display:flex;gap:12px;justify-content:center;align-items:flex-start}
+.body-view{flex:1;text-align:center}
+.body-view-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--g40);font-weight:600;margin-bottom:6px}
+.body-zone{cursor:pointer;transition:all .18s;fill:var(--g15);stroke:var(--g40);stroke-width:0.5}
+.body-zone:hover{fill:#d4cfe8}
+.body-zone.active{fill:var(--rose);stroke:var(--rose);fill-opacity:0.7}
+.body-zone.heatmap-1{fill:rgba(184,85,85,0.2)}
+.body-zone.heatmap-2{fill:rgba(184,85,85,0.4)}
+.body-zone.heatmap-3{fill:rgba(184,85,85,0.6)}
+.body-zone.heatmap-4{fill:rgba(184,85,85,0.8)}
+.selected-zones{margin-top:10px;min-height:28px}
+.zone-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;background:var(--rose-l);border:1px solid var(--rose);color:var(--rose);font-size:11px;margin:2px;font-weight:500}
+.zone-badge button{background:none;border:none;color:var(--rose);cursor:pointer;font-size:13px;padding:0;line-height:1}
 /* HISTORY */
 .hdlabel{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin:14px 0 6px;font-weight:600}
 .hitem{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--g15);border-radius:12px;padding:12px;margin-bottom:6px}
@@ -71,7 +81,6 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .hbadge.rose{background:var(--rose-l);color:var(--rose)}.hbadge.amb{background:var(--amb-l);color:var(--amb)}.hbadge.sage{background:var(--sage-l);color:var(--sage)}.hbadge.none{background:var(--g15);color:var(--g40);font-size:13px}.hbadge.sleep{background:var(--lav-l);color:var(--lav);font-size:12px}.hbadge.act{background:var(--teal-l);color:var(--teal);font-size:12px}
 .hbody{flex:1;display:flex;flex-direction:column;gap:3px}
 .hrow{font-size:12px;color:var(--g);line-height:1.4}
-.hnote{color:var(--g40);font-style:italic;margin-top:2px;font-size:11px}
 .htime{font-size:11px;color:var(--g40);flex-shrink:0;text-align:right}
 .hdel{background:none;border:none;color:var(--g40);cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;transition:color .14s;line-height:1}
 .hdel:hover{color:var(--rose)}
@@ -81,13 +90,11 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .cdaylabel{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);font-weight:600;text-align:center;margin-bottom:6px}
 .cphase{font-size:15px;font-weight:600;text-align:center;margin-bottom:4px}
 .cnext{font-size:12px;color:var(--g40);text-align:center;margin-bottom:16px;line-height:1.6}
-/* phase info card */
-.phase-card{border-radius:12px;padding:14px;margin-bottom:0}
-.phase-card .pc-title{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
-.phase-row{margin-bottom:8px}
+.phase-card{border-radius:12px;padding:14px}
+.phase-row{margin-bottom:10px}
 .phase-row:last-child{margin-bottom:0}
-.phase-row-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;opacity:0.65;margin-bottom:3px}
-.phase-row-text{font-size:12px;line-height:1.6}
+.phase-row-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;opacity:0.7;margin-bottom:3px}
+.phase-row-text{font-size:12px;line-height:1.65}
 .cevlist{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:16px}
 .cev{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g15);font-size:13px}
 .cev:last-child{border-bottom:none}
@@ -108,11 +115,21 @@ html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .lt.on{border-color:currentColor;font-weight:600}
 .lt .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 canvas{width:100%!important;display:block}
+/* HEATMAP screen */
+.heatmap-wrap{display:flex;gap:16px;justify-content:center;align-items:flex-start;margin-bottom:12px}
+.heatmap-view{flex:1;text-align:center}
+.hm-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--g40);font-weight:600;margin-bottom:6px}
+.hm-legend{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:10px;font-size:10px;color:var(--g40)}
+.hm-grad{width:80px;height:8px;border-radius:4px;background:linear-gradient(to right,rgba(184,85,85,0.1),rgba(184,85,85,0.9))}
 /* DATA */
 .drow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--g15);font-size:13px}
 .drow:last-child{border-bottom:none}
 .dval{font-weight:600}
 .dval.lav{color:var(--lav)}.dval.rose{color:var(--rose)}
+/* TEMP field */
+.temp-row{display:flex;align-items:center;gap:10px}
+.temp-row .ifield{max-width:100px}
+.temp-chip{display:flex;align-items:center;gap:6px;font-size:12px}
 </style>
 </head>
 <body>
@@ -120,106 +137,8 @@ canvas{width:100%!important;display:block}
 <div id="toast"></div>
 <div id="app">
 
-<!-- НАГРУЗКА -->
-<div class="screen active" id="s-load">
-  <p class="pt">Нагрузка</p>
-  <p class="ps">Боль и препараты</p>
-  <div class="card">
-    <div class="cl">Дата записи</div>
-    <input class="ifield" type="date" id="load-date">
-  </div>
-  <div class="card">
-    <div class="cl">Уровень боли</div>
-    <div class="pain-row" id="pain-btns">
-      <button class="pb" data-l="1" onclick="selPain(1)">1</button>
-      <button class="pb" data-l="2" onclick="selPain(2)">2</button>
-      <button class="pb" data-l="3" onclick="selPain(3)">3</button>
-      <button class="pb" data-l="4" onclick="selPain(4)">4</button>
-      <button class="pb" data-l="5" onclick="selPain(5)">5</button>
-      <button class="pb" data-l="6" onclick="selPain(6)">6</button>
-      <button class="pb" data-l="7" onclick="selPain(7)">7</button>
-      <button class="pb" data-l="8" onclick="selPain(8)">8</button>
-      <button class="pb" data-l="9" onclick="selPain(9)">9</button>
-      <button class="pb" data-l="10" onclick="selPain(10)">10</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="cl">Причина боли</div>
-    <div class="tags" id="reason-tags">
-      <button class="tag" onclick="togTag(this)">Долго сидела</button>
-      <button class="tag" onclick="togTag(this)">Плохо спала</button>
-      <button class="tag" onclick="togTag(this)">Перегрузка</button>
-      <button class="tag" onclick="togTag(this)">Стресс</button>
-      <button class="tag" onclick="togTag(this)">Месячные</button>
-      <button class="tag" onclick="togTag(this)">Травма</button>
-      <button class="tag" onclick="togTag(this)">Долго стояла</button>
-      <button class="tag" onclick="togTag(this)">Неудобная поза</button>
-      <button class="tag" onclick="togTag(this)">Неудачный сон</button>
-      <button class="tag add" onclick="showAddTag('reason-tags','reason-add')">+ Своя</button>
-    </div>
-    <div id="reason-add" style="display:none;margin-top:8px">
-      <div class="irow">
-        <input class="ifield" id="reason-inp" placeholder="Причина..." onkeydown="if(event.key==='Enter')addTag('reason-tags','reason-inp','reason-add')">
-        <button class="bsm" onclick="addTag('reason-tags','reason-inp','reason-add')">+</button>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="cl">Где болит</div>
-    <div class="tags" id="loc-tags">
-      <button class="tag" onclick="togTag(this)">Голова</button>
-      <button class="tag" onclick="togTag(this)">Шея</button>
-      <button class="tag" onclick="togTag(this)">Спина</button>
-      <button class="tag" onclick="togTag(this)">Поясница</button>
-      <button class="tag" onclick="togTag(this)">Живот</button>
-      <button class="tag" onclick="togTag(this)">Суставы</button>
-      <button class="tag" onclick="togTag(this)">Руки</button>
-      <button class="tag" onclick="togTag(this)">Ноги</button>
-      <button class="tag add" onclick="showAddTag('loc-tags','loc-add')">+ Своё</button>
-    </div>
-    <div id="loc-add" style="display:none;margin-top:8px">
-      <div class="irow">
-        <input class="ifield" id="loc-inp" placeholder="Где болит..." onkeydown="if(event.key==='Enter')addTag('loc-tags','loc-inp','loc-add')">
-        <button class="bsm" onclick="addTag('loc-tags','loc-inp','loc-add')">+</button>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="cl">Характер боли</div>
-    <div class="tags" id="char-tags">
-      <button class="tag" onclick="togTag(this)">Острая</button>
-      <button class="tag" onclick="togTag(this)">Тупая</button>
-      <button class="tag" onclick="togTag(this)">Пульсирующая</button>
-      <button class="tag" onclick="togTag(this)">Давящая</button>
-      <button class="tag" onclick="togTag(this)">Жгучая</button>
-      <button class="tag" onclick="togTag(this)">Простреливающая</button>
-      <button class="tag add" onclick="showAddTag('char-tags','char-add')">+ Свой</button>
-    </div>
-    <div id="char-add" style="display:none;margin-top:8px">
-      <div class="irow">
-        <input class="ifield" id="char-inp" placeholder="Характер..." onkeydown="if(event.key==='Enter')addTag('char-tags','char-inp','char-add')">
-        <button class="bsm" onclick="addTag('char-tags','char-inp','char-add')">+</button>
-      </div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="cl">Препарат</div>
-    <div class="tags" style="margin-bottom:10px">
-      <button class="tag" id="med-y" onclick="togMed(true)">Принимала</button>
-      <button class="tag sel" id="med-n" onclick="togMed(false)">Не принимала</button>
-    </div>
-    <div id="med-sec" style="display:none">
-      <div class="irow">
-        <input class="ifield" id="med-name" placeholder="Препарат...">
-        <input class="ifield" id="med-dose" type="number" placeholder="мг" style="max-width:76px">
-      </div>
-    </div>
-  </div>
-  <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button>
-</div>
-
-<!-- ВОССТАНОВЛЕНИЕ -->
-<div class="screen" id="s-rec">
+<!-- ВОССТАНОВЛЕНИЕ (главный экран) -->
+<div class="screen active" id="s-rec">
   <p class="pt">Восстановление</p>
   <p class="ps">Сон и активность</p>
   <div class="card">
@@ -276,6 +195,198 @@ canvas{width:100%!important;display:block}
   </div>
 </div>
 
+<!-- НАГРУЗКА -->
+<div class="screen" id="s-load">
+  <p class="pt">Нагрузка</p>
+  <p class="ps">Боль и препараты</p>
+
+  <!-- БЫСТРЫЕ ПОЛЯ ДНЯ -->
+  <div class="card">
+    <div class="cl">Дата и температура</div>
+    <div class="irow" style="margin-bottom:10px">
+      <div style="flex:1.5"><div class="ilabel">Дата</div><input class="ifield" type="date" id="load-date"></div>
+      <div style="flex:1"><div class="ilabel">Температура °C</div><input class="ifield" id="temp-val" type="number" step="0.1" min="35" max="42" placeholder="36.6"></div>
+    </div>
+    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+      <input type="checkbox" id="temp-high" style="width:15px;height:15px;accent-color:var(--rose)"> Выше нормы
+    </label>
+  </div>
+
+  <!-- BODY MAP -->
+  <div class="card">
+    <div class="cl">Где болит — отметь на теле</div>
+    <div class="body-map-wrap">
+      <div class="body-view">
+        <div class="body-view-label">Спереди</div>
+        <svg id="body-front" viewBox="0 0 120 280" width="100%" style="max-width:130px">
+          <!-- Голова -->
+          <ellipse class="body-zone" data-zone="Голова" cx="60" cy="22" rx="18" ry="20" onclick="togZone(this)"/>
+          <!-- Шея -->
+          <rect class="body-zone" data-zone="Шея" x="52" y="41" width="16" height="14" rx="4" onclick="togZone(this)"/>
+          <!-- Левое плечо -->
+          <ellipse class="body-zone" data-zone="Левое плечо" cx="28" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <!-- Правое плечо -->
+          <ellipse class="body-zone" data-zone="Правое плечо" cx="92" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <!-- Грудь/корпус -->
+          <rect class="body-zone" data-zone="Грудь" x="38" y="54" width="44" height="38" rx="6" onclick="togZone(this)"/>
+          <!-- Левая рука верх -->
+          <rect class="body-zone" data-zone="Левая рука" x="12" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <!-- Правая рука верх -->
+          <rect class="body-zone" data-zone="Правая рука" x="94" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <!-- Живот -->
+          <rect class="body-zone" data-zone="Живот" x="38" y="92" width="44" height="34" rx="5" onclick="togZone(this)"/>
+          <!-- Левое запястье -->
+          <rect class="body-zone" data-zone="Левое запястье" x="10" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <!-- Правое запястье -->
+          <rect class="body-zone" data-zone="Правое запястье" x="96" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <!-- Левая кисть -->
+          <ellipse class="body-zone" data-zone="Левая кисть" cx="17" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <!-- Правая кисть -->
+          <ellipse class="body-zone" data-zone="Правая кисть" cx="103" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <!-- Таз/низ живота -->
+          <rect class="body-zone" data-zone="Низ живота" x="38" y="126" width="44" height="26" rx="5" onclick="togZone(this)"/>
+          <!-- Левое бедро -->
+          <rect class="body-zone" data-zone="Левое бедро" x="36" y="152" width="22" height="48" rx="6" onclick="togZone(this)"/>
+          <!-- Правое бедро -->
+          <rect class="body-zone" data-zone="Правое бедро" x="62" y="152" width="22" height="48" rx="6" onclick="togZone(this)"/>
+          <!-- Левое колено -->
+          <ellipse class="body-zone" data-zone="Левое колено" cx="47" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <!-- Правое колено -->
+          <ellipse class="body-zone" data-zone="Правое колено" cx="73" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <!-- Левая голень -->
+          <rect class="body-zone" data-zone="Левая голень" x="37" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <!-- Правая голень -->
+          <rect class="body-zone" data-zone="Правая голень" x="65" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <!-- Левая стопа -->
+          <ellipse class="body-zone" data-zone="Левая стопа" cx="46" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+          <!-- Правая стопа -->
+          <ellipse class="body-zone" data-zone="Правая стопа" cx="74" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+        </svg>
+      </div>
+      <div class="body-view">
+        <div class="body-view-label">Сзади</div>
+        <svg id="body-back" viewBox="0 0 120 280" width="100%" style="max-width:130px">
+          <!-- Голова -->
+          <ellipse class="body-zone" data-zone="Голова (затылок)" cx="60" cy="22" rx="18" ry="20" onclick="togZone(this)"/>
+          <!-- Шея сзади -->
+          <rect class="body-zone" data-zone="Шея (сзади)" x="52" y="41" width="16" height="14" rx="4" onclick="togZone(this)"/>
+          <!-- Лопатки -->
+          <rect class="body-zone" data-zone="Лопатки" x="38" y="54" width="44" height="30" rx="5" onclick="togZone(this)"/>
+          <!-- Левое плечо сзади -->
+          <ellipse class="body-zone" data-zone="Левое плечо" cx="28" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <!-- Правое плечо сзади -->
+          <ellipse class="body-zone" data-zone="Правое плечо" cx="92" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <!-- Левая рука сзади -->
+          <rect class="body-zone" data-zone="Левая рука" x="12" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <!-- Правая рука сзади -->
+          <rect class="body-zone" data-zone="Правая рука" x="94" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <!-- Поясница -->
+          <rect class="body-zone" data-zone="Поясница" x="38" y="84" width="44" height="30" rx="5" onclick="togZone(this)"/>
+          <!-- Крестец -->
+          <rect class="body-zone" data-zone="Крестец/ягодицы" x="38" y="114" width="44" height="36" rx="5" onclick="togZone(this)"/>
+          <!-- Левое запястье сзади -->
+          <rect class="body-zone" data-zone="Левое запястье" x="10" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <!-- Правое запястье сзади -->
+          <rect class="body-zone" data-zone="Правое запястье" x="96" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <!-- Левая кисть сзади -->
+          <ellipse class="body-zone" data-zone="Левая кисть" cx="17" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <!-- Правая кисть сзади -->
+          <ellipse class="body-zone" data-zone="Правая кисть" cx="103" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <!-- Левое бедро сзади -->
+          <rect class="body-zone" data-zone="Левое бедро" x="36" y="150" width="22" height="50" rx="6" onclick="togZone(this)"/>
+          <!-- Правое бедро сзади -->
+          <rect class="body-zone" data-zone="Правое бедро" x="62" y="150" width="22" height="50" rx="6" onclick="togZone(this)"/>
+          <!-- Левое колено сзади -->
+          <ellipse class="body-zone" data-zone="Левое колено" cx="47" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <!-- Правое колено сзади -->
+          <ellipse class="body-zone" data-zone="Правое колено" cx="73" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <!-- Левая голень сзади -->
+          <rect class="body-zone" data-zone="Левая голень" x="37" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <!-- Правая голень сзади -->
+          <rect class="body-zone" data-zone="Правая голень" x="65" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <!-- Левая стопа сзади -->
+          <ellipse class="body-zone" data-zone="Левая стопа" cx="46" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+          <!-- Правая стопа сзади -->
+          <ellipse class="body-zone" data-zone="Правая стопа" cx="74" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="selected-zones" id="selected-zones-display"></div>
+  </div>
+
+  <div class="card">
+    <div class="cl">Уровень боли</div>
+    <div class="pain-row">
+      <button class="pb" data-l="1" onclick="selPain(1)">1</button>
+      <button class="pb" data-l="2" onclick="selPain(2)">2</button>
+      <button class="pb" data-l="3" onclick="selPain(3)">3</button>
+      <button class="pb" data-l="4" onclick="selPain(4)">4</button>
+      <button class="pb" data-l="5" onclick="selPain(5)">5</button>
+      <button class="pb" data-l="6" onclick="selPain(6)">6</button>
+      <button class="pb" data-l="7" onclick="selPain(7)">7</button>
+      <button class="pb" data-l="8" onclick="selPain(8)">8</button>
+      <button class="pb" data-l="9" onclick="selPain(9)">9</button>
+      <button class="pb" data-l="10" onclick="selPain(10)">10</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cl">Причина боли</div>
+    <div class="tags" id="reason-tags">
+      <button class="tag" onclick="togTag(this)">Долго сидела</button>
+      <button class="tag" onclick="togTag(this)">Плохо спала</button>
+      <button class="tag" onclick="togTag(this)">Перегрузка</button>
+      <button class="tag" onclick="togTag(this)">Стресс</button>
+      <button class="tag" onclick="togTag(this)">Месячные</button>
+      <button class="tag" onclick="togTag(this)">Травма</button>
+      <button class="tag" onclick="togTag(this)">Долго стояла</button>
+      <button class="tag" onclick="togTag(this)">Неудобная поза</button>
+      <button class="tag" onclick="togTag(this)">Неудачный сон</button>
+      <button class="tag add" onclick="showAddTag('reason-tags','reason-add')">+ Своя</button>
+    </div>
+    <div id="reason-add" style="display:none;margin-top:8px">
+      <div class="irow">
+        <input class="ifield" id="reason-inp" placeholder="Причина..." onkeydown="if(event.key==='Enter')addTag('reason-tags','reason-inp','reason-add')">
+        <button class="bsm" onclick="addTag('reason-tags','reason-inp','reason-add')">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cl">Характер боли</div>
+    <div class="tags" id="char-tags">
+      <button class="tag" onclick="togTag(this)">Острая</button>
+      <button class="tag" onclick="togTag(this)">Тупая</button>
+      <button class="tag" onclick="togTag(this)">Пульсирующая</button>
+      <button class="tag" onclick="togTag(this)">Давящая</button>
+      <button class="tag" onclick="togTag(this)">Жгучая</button>
+      <button class="tag" onclick="togTag(this)">Простреливающая</button>
+      <button class="tag add" onclick="showAddTag('char-tags','char-add')">+ Свой</button>
+    </div>
+    <div id="char-add" style="display:none;margin-top:8px">
+      <div class="irow">
+        <input class="ifield" id="char-inp" placeholder="Характер..." onkeydown="if(event.key==='Enter')addTag('char-tags','char-inp','char-add')">
+        <button class="bsm" onclick="addTag('char-tags','char-inp','char-add')">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="cl">Препарат</div>
+    <div class="tags" style="margin-bottom:10px">
+      <button class="tag" id="med-y" onclick="togMed(true)">Принимала</button>
+      <button class="tag sel" id="med-n" onclick="togMed(false)">Не принимала</button>
+    </div>
+    <div id="med-sec" style="display:none">
+      <div class="irow">
+        <input class="ifield" id="med-name" placeholder="Препарат...">
+        <input class="ifield" id="med-dose" type="number" placeholder="мг" style="max-width:76px">
+      </div>
+    </div>
+  </div>
+  <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button>
+</div>
+
 <!-- ЦИКЛ -->
 <div class="screen" id="s-cycle">
   <p class="pt">Цикл</p>
@@ -314,21 +425,35 @@ canvas{width:100%!important;display:block}
   <div id="stat-pills" class="spills"></div>
   <div class="cwrap">
     <div class="ctitle">Показатели</div>
-    <div class="layers" id="layer-toggles">
+    <div class="layers">
       <button class="lt on" data-layer="pain" style="color:var(--rose)" onclick="togLayer(this)"><div class="dot" style="background:var(--rose)"></div>Боль</button>
       <button class="lt on" data-layer="med" style="color:var(--lav)" onclick="togLayer(this)"><div class="dot" style="background:var(--lav)"></div>Таблетки</button>
       <button class="lt on" data-layer="sleep" style="color:var(--teal)" onclick="togLayer(this)"><div class="dot" style="background:var(--teal)"></div>Сон</button>
       <button class="lt on" data-layer="act" style="color:var(--sage)" onclick="togLayer(this)"><div class="dot" style="background:var(--sage)"></div>Активность</button>
       <button class="lt on" data-layer="cycle" style="color:var(--amb)" onclick="togLayer(this)"><div class="dot" style="background:var(--amb)"></div>Цикл</button>
+      <button class="lt on" data-layer="temp" style="color:#E07A3A" onclick="togLayer(this)"><div class="dot" style="background:#E07A3A"></div>Темп.</button>
     </div>
     <canvas id="main-canvas" height="150"></canvas>
     <div id="canvas-xlabels" style="display:flex;justify-content:space-between;margin-top:6px;padding:0 2px"></div>
-    <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:10px;font-size:10px;color:var(--g40)">
-      <span>▬ Боль (линия)</span>
-      <span>● Таблетки (низ)</span>
-      <span>█ Сон (столбики)</span>
-      <span>● Активность (верх)</span>
-      <span>█ Цикл (фон)</span>
+  </div>
+
+  <!-- HEATMAP -->
+  <div class="cwrap">
+    <div class="ctitle">Карта боли</div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-view">
+        <div class="hm-label">Спереди</div>
+        <svg id="hm-front" viewBox="0 0 120 280" width="100%" style="max-width:130px"></svg>
+      </div>
+      <div class="heatmap-view">
+        <div class="hm-label">Сзади</div>
+        <svg id="hm-back" viewBox="0 0 120 280" width="100%" style="max-width:130px"></svg>
+      </div>
+    </div>
+    <div class="hm-legend">
+      <span>Реже</span>
+      <div class="hm-grad"></div>
+      <span>Чаще</span>
     </div>
   </div>
 </div>
@@ -352,7 +477,6 @@ canvas{width:100%!important;display:block}
   </div>
   <div class="card">
     <div class="cl">Загрузить данные</div>
-    <p style="font-size:12px;color:var(--g40);margin-bottom:12px;line-height:1.6">Загрузи ранее скачанный JSON. Дубли не создадутся.</p>
     <label class="btn lav" style="display:block;text-align:center;cursor:pointer;padding:13px;border-radius:11px;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;font-weight:600">
       ↑ Выбрать файл
       <input type="file" accept=".json" style="display:none" onchange="impJSON(this)">
@@ -362,13 +486,13 @@ canvas{width:100%!important;display:block}
 
 <!-- NAV -->
 <nav class="nav">
-  <button class="ni active" onclick="showS('load')" id="n-load">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L12 12M12 12L8 8M12 12L16 8"/><path d="M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/></svg>
-    Нагрузка
-  </button>
-  <button class="ni" onclick="showS('rec')" id="n-rec">
+  <button class="ni active" onclick="showS('rec')" id="n-rec">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a6 6 0 0 0 9 5.2"/><path d="M12 3C6 3 2 7.5 2 12a10 10 0 0 0 20 0c0-1-.1-2-.4-3"/></svg>
     Восст.
+  </button>
+  <button class="ni" onclick="showS('load')" id="n-load">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L12 12M12 12L8 8M12 12L16 8"/><path d="M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/></svg>
+    Нагрузка
   </button>
   <button class="ni" onclick="showS('cycle')" id="n-cycle">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
@@ -390,23 +514,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore,collection,addDoc,getDocs,query,orderBy,doc,setDoc,getDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth,signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-const app = initializeApp({
-  apiKey:"AIzaSyCWYyy19WDJf1Ki026fKHdrZQTIVKazMuI",
-  authDomain:"spine-tracker-96e55.firebaseapp.com",
-  projectId:"spine-tracker-96e55",
-  storageBucket:"spine-tracker-96e55.firebasestorage.app",
-  messagingSenderId:"451481913810",
-  appId:"1:451481913810:web:f55ac32d330322aa94200b"
-});
-const db=getFirestore(app);
-const auth=getAuth(app);
-
+const app=initializeApp({apiKey:"AIzaSyCWYyy19WDJf1Ki026fKHdrZQTIVKazMuI",authDomain:"spine-tracker-96e55.firebaseapp.com",projectId:"spine-tracker-96e55",storageBucket:"spine-tracker-96e55.firebasestorage.app",messagingSenderId:"451481913810",appId:"1:451481913810:web:f55ac32d330322aa94200b"});
+const db=getFirestore(app),auth=getAuth(app);
 let uid=null,events=[],sleeps=[],acts=[],cycleEvts=[];
 let cycleSettings={len:28,days:5};
 window._period=14;
-window._layers={pain:true,med:true,sleep:true,act:true,cycle:true};
+window._layers={pain:true,med:true,sleep:true,act:true,cycle:true,temp:true};
 
-signInAnonymously(auth).then(c=>{uid=c.user.uid;loadAll();}).catch(()=>toast('Ошибка авторизации',true));
+signInAnonymously(auth).then(c=>{uid=c.user.uid;loadAll();}).catch(()=>toast('Ошибка',true));
 
 async function loadAll(){
   await Promise.all([loadSettings(),loadEvents(),loadSleeps(),loadActs(),loadCycle()]);
@@ -414,92 +529,69 @@ async function loadAll(){
   document.getElementById('loader').style.display='none';
   document.getElementById('app').style.display='block';
 }
-async function loadSettings(){
-  try{const d=await getDoc(doc(db,'users',uid,'meta','settings'));if(d.exists()){cycleSettings={...cycleSettings,...d.data()};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}}catch(e){}
-}
-async function loadEvents(){
-  try{const q=query(collection(db,'users',uid,'events'),orderBy('date','desc'));const s=await getDocs(q);events=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
-}
-async function loadSleeps(){
-  try{const q=query(collection(db,'users',uid,'sleeps'),orderBy('date','desc'));const s=await getDocs(q);sleeps=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
-}
-async function loadActs(){
-  try{const q=query(collection(db,'users',uid,'acts'),orderBy('date','desc'));const s=await getDocs(q);acts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
-}
-async function loadCycle(){
-  try{const q=query(collection(db,'users',uid,'cycle'),orderBy('date','desc'));const s=await getDocs(q);cycleEvts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}
-}
+async function loadSettings(){try{const d=await getDoc(doc(db,'users',uid,'meta','settings'));if(d.exists()){cycleSettings={...cycleSettings,...d.data()};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}}catch(e){}}
+async function loadEvents(){try{const q=query(collection(db,'users',uid,'events'),orderBy('date','desc'));const s=await getDocs(q);events=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
+async function loadSleeps(){try{const q=query(collection(db,'users',uid,'sleeps'),orderBy('date','desc'));const s=await getDocs(q);sleeps=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
+async function loadActs(){try{const q=query(collection(db,'users',uid,'acts'),orderBy('date','desc'));const s=await getDocs(q);acts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
+async function loadCycle(){try{const q=query(collection(db,'users',uid,'cycle'),orderBy('date','desc'));const s=await getDocs(q);cycleEvts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
 
 function renderAll(){renderHistory();renderCharts();renderCycle();updateDataStats();}
 
 window.saveLoad=async function(){
-  const btn=document.getElementById('load-save');
-  btn.textContent='Сохраняю...';btn.disabled=true;
+  const btn=document.getElementById('load-save');btn.textContent='Сохраняю...';btn.disabled=true;
   const date=document.getElementById('load-date').value;
   if(!date){toast('Укажи дату',true);btn.textContent='Сохранить';btn.disabled=false;return;}
   const pain=window._selPain;
+  const zones=window._selZones||[];
   const reasons=[...document.querySelectorAll('#reason-tags .tag.sel')].map(t=>t.textContent);
-  const loc=[...document.querySelectorAll('#loc-tags .tag.sel')].map(t=>t.textContent);
   const chr=[...document.querySelectorAll('#char-tags .tag.sel:not(.add)')].map(t=>t.textContent);
   const medY=document.getElementById('med-y').classList.contains('sel');
   const medName=document.getElementById('med-name').value.trim();
   const medDose=document.getElementById('med-dose').value;
+  const tempVal=document.getElementById('temp-val').value;
+  const tempHigh=document.getElementById('temp-high').checked;
   const rec={type:'pain',date,ts:new Date().toISOString(),
-    pain:pain?{level:pain,reasons,location:loc,character:chr}:null,
-    med:medY&&medName?{name:medName,dose:medDose}:null
+    pain:pain?{level:pain,zones,reasons,character:chr}:null,
+    med:medY&&medName?{name:medName,dose:medDose}:null,
+    temp:tempVal?{value:parseFloat(tempVal),high:tempHigh}:null
   };
-  try{
-    const ref=await addDoc(collection(db,'users',uid,'events'),rec);
-    events.unshift({id:ref.id,...rec});
-    toast('Сохранено');resetLoad();renderAll();
-  }catch(e){toast('Ошибка',true);}
+  try{const ref=await addDoc(collection(db,'users',uid,'events'),rec);events.unshift({id:ref.id,...rec});toast('Сохранено');resetLoad();renderAll();}
+  catch(e){toast('Ошибка',true);}
   btn.textContent='Сохранить';btn.disabled=false;
 };
 
 window.saveSleep=async function(){
-  const date=document.getElementById('sleep-date').value;
-  const h=document.getElementById('sleep-h').value;
-  const m=document.getElementById('sleep-m').value;
-  const b23=document.getElementById('sleep-23').checked;
-  const q=document.querySelector('.sq.sel')?.dataset.q||null;
+  const date=document.getElementById('sleep-date').value,h=document.getElementById('sleep-h').value,m=document.getElementById('sleep-m').value;
+  const b23=document.getElementById('sleep-23').checked,q=document.querySelector('.sq.sel')?.dataset.q||null;
   if(!date||!h){toast('Укажи дату и часы',true);return;}
   const rec={date,ts:new Date().toISOString(),hours:parseInt(h),minutes:parseInt(m||0),before23:b23,quality:q};
   try{
-    const existing=sleeps.find(s=>s.date===date);
-    if(existing){await setDoc(doc(db,'users',uid,'sleeps',existing.id),rec);const idx=sleeps.findIndex(s=>s.id===existing.id);sleeps[idx]={id:existing.id,...rec};}
+    const ex=sleeps.find(s=>s.date===date);
+    if(ex){await setDoc(doc(db,'users',uid,'sleeps',ex.id),rec);const i=sleeps.findIndex(s=>s.id===ex.id);sleeps[i]={id:ex.id,...rec};}
     else{const ref=await addDoc(collection(db,'users',uid,'sleeps'),rec);sleeps.unshift({id:ref.id,...rec});}
     toast('Сон сохранён');resetSleep();renderAll();
   }catch(e){toast('Ошибка',true);}
 };
 
 window.saveAct=async function(){
-  const date=document.getElementById('act-date').value;
-  const kind=window._selAct;
+  const date=document.getElementById('act-date').value,kind=window._selAct;
   const sub=[...document.querySelectorAll('#sub-tags .tag.sel')].map(t=>t.textContent);
   if(!date||!kind){toast('Укажи дату и вид',true);return;}
   const rec={type:'act',date,ts:new Date().toISOString(),kind,sub};
-  try{
-    const ref=await addDoc(collection(db,'users',uid,'acts'),rec);
-    acts.unshift({id:ref.id,...rec});
-    toast('Активность сохранена');resetAct();renderAll();
-  }catch(e){toast('Ошибка',true);}
+  try{const ref=await addDoc(collection(db,'users',uid,'acts'),rec);acts.unshift({id:ref.id,...rec});toast('Активность сохранена');resetAct();renderAll();}
+  catch(e){toast('Ошибка',true);}
 };
 
 window.saveCycleStart=async function(){
-  const date=document.getElementById('cycle-date').value;
-  if(!date){toast('Укажи дату',true);return;}
-  try{
-    const ref=await addDoc(collection(db,'users',uid,'cycle'),{date,ts:new Date().toISOString()});
-    cycleEvts.unshift({id:ref.id,date});cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));
-    toast('Начало цикла отмечено');renderCycle();
-  }catch(e){toast('Ошибка',true);}
+  const date=document.getElementById('cycle-date').value;if(!date){toast('Укажи дату',true);return;}
+  try{const ref=await addDoc(collection(db,'users',uid,'cycle'),{date,ts:new Date().toISOString()});cycleEvts.unshift({id:ref.id,date});cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));toast('Отмечено');renderCycle();}
+  catch(e){toast('Ошибка',true);}
 };
 
 window.saveCycleSettings=async function(){
   cycleSettings.len=parseInt(document.getElementById('cyc-len').value)||28;
   cycleSettings.days=parseInt(document.getElementById('cyc-days').value)||5;
-  try{await setDoc(doc(db,'users',uid,'meta','settings'),cycleSettings);toast('Настройки сохранены');renderCycle();}
-  catch(e){toast('Ошибка',true);}
+  try{await setDoc(doc(db,'users',uid,'meta','settings'),cycleSettings);toast('Настройки сохранены');renderCycle();}catch(e){toast('Ошибка',true);}
 };
 
 window.delEntry=async function(id,coll){
@@ -515,103 +607,55 @@ window.delEntry=async function(id,coll){
 
 function renderHistory(){
   const el=document.getElementById('hist-list');
-  const all=[
-    ...events.map(e=>({...e,_coll:'events',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),
-    ...sleeps.map(e=>({...e,_coll:'sleeps',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),
-    ...acts.map(e=>({...e,_coll:'acts',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')}))
-  ].sort((a,b)=>b._sd.localeCompare(a._sd));
+  const all=[...events.map(e=>({...e,_c:'events',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),...sleeps.map(e=>({...e,_c:'sleeps',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),...acts.map(e=>({...e,_c:'acts',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')}))].sort((a,b)=>b._sd.localeCompare(a._sd));
   if(!all.length){el.innerHTML='<div class="empty">Записей пока нет</div>';return;}
-  const groups={};
-  all.forEach(e=>{const d=e.date;if(!groups[d])groups[d]=[];groups[d].push(e);});
-  const today=new Date().toISOString().split('T')[0];
-  const yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  const groups={};all.forEach(e=>{if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
+  const today=new Date().toISOString().split('T')[0],yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
   let html='';
   Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date=>{
-    let lbl=date===today?'Сегодня':date===yest?'Вчера':new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+    const lbl=date===today?'Сегодня':date===yest?'Вчера':new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
     html+=`<div class="hdlabel">${lbl}</div>`;
     groups[date].forEach(e=>{
-      if(e._coll==='events'){
-        const pl=e.pain?.level;
-        const bc=pl>=8?'rose':pl>=5?'amb':'sage';
-        html+=`<div class="hitem">
-          <div class="hbadge ${pl?bc:'none'}">${pl||'—'}</div>
-          <div class="hbody">
-            ${e.pain?.reasons?.length?`<div class="hrow">💬 ${e.pain.reasons.join(', ')}</div>`:''}
-            ${e.pain?.location?.length?`<div class="hrow">📍 ${e.pain.location.join(', ')}${e.pain.character?.length?' · '+e.pain.character.join(', '):''}</div>`:''}
-            ${e.med?`<div class="hrow">💊 ${e.med.name}${e.med.dose?' '+e.med.dose+'мг':''}</div>`:''}
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-            <div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div>
-            <button class="hdel" onclick="delEntry('${e.id}','events')">×</button>
-          </div>
-        </div>`;
-      }else if(e._coll==='sleeps'){
-        html+=`<div class="hitem">
-          <div class="hbadge sleep">🌙</div>
-          <div class="hbody">
-            <div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>
-            ${e.quality?`<div class="hrow" style="color:var(--g40)">${e.quality}</div>`:''}
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-            <div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div>
-            <button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button>
-          </div>
-        </div>`;
-      }else if(e._coll==='acts'){
-        html+=`<div class="hitem">
-          <div class="hbadge act">🏃</div>
-          <div class="hbody">
-            <div class="hrow">${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-            <div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div>
-            <button class="hdel" onclick="delEntry('${e.id}','acts')">×</button>
-          </div>
-        </div>`;
+      if(e._c==='events'){
+        const pl=e.pain?.level,bc=pl>=8?'rose':pl>=5?'amb':'sage';
+        html+=`<div class="hitem"><div class="hbadge ${pl?bc:'none'}">${pl||'—'}</div><div class="hbody">
+          ${e.pain?.zones?.length?`<div class="hrow">🫀 ${e.pain.zones.join(', ')}</div>`:''}
+          ${e.pain?.reasons?.length?`<div class="hrow">💬 ${e.pain.reasons.join(', ')}</div>`:''}
+          ${e.pain?.character?.length?`<div class="hrow" style="color:var(--g40)">${e.pain.character.join(', ')}</div>`:''}
+          ${e.med?`<div class="hrow">💊 ${e.med.name}${e.med.dose?' '+e.med.dose+'мг':''}</div>`:''}
+          ${e.temp?`<div class="hrow">🌡 ${e.temp.value}°C${e.temp.high?' ↑':''}</div>`:''}
+        </div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','events')">×</button></div></div>`;
+      }else if(e._c==='sleeps'){
+        html+=`<div class="hitem"><div class="hbadge sleep">🌙</div><div class="hbody"><div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>${e.quality?`<div class="hrow" style="color:var(--g40)">${e.quality}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button></div></div>`;
+      }else{
+        html+=`<div class="hitem"><div class="hbadge act">🏃</div><div class="hbody"><div class="hrow">${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','acts')">×</button></div></div>`;
       }
     });
   });
   el.innerHTML=html;
 }
 
-// Полные данные по фазам цикла
-const phaseData = {
-  menstruation: {
-    name:'Менструация',
-    color:'#B85555',
-    bg:'rgba(184,85,85,0.1)',
-    hormones:'Эстроген и прогестерон на минимуме. Эндометрий отторгается. Простагландины вызывают сокращения матки — отсюда боль и спазмы.',
-    body:'Энергия снижена. Болевой порог может быть понижен. Возможны головные боли, боли в пояснице, отёчность, перепады настроения.',
-    load:'Минимальная. Лёгкая прогулка, медленная растяжка, дыхательные практики. Избегай нагрузки на пресс и поясницу.',
-    recovery:'Тепло на живот и поясницу. Больше сна. Массаж — мягкий, не на живот. Бассейн — по самочувствию.',
-  },
-  follicular: {
-    name:'Фолликулярная фаза',
-    color:'#4E8C5F',
-    bg:'rgba(78,140,95,0.1)',
-    hormones:'Растёт ФСГ — стимулирует созревание фолликула. Эстроген постепенно повышается. Организм готовится к овуляции.',
-    body:'Энергия нарастает. Настроение улучшается. Лучше переносится физическая нагрузка. Мышцы восстанавливаются быстрее. Болевой порог повышается.',
-    load:'Хорошее время для ЛФК, бассейна, активных тренировок. Тело хорошо отзывается на нагрузку и быстро восстанавливается.',
-    recovery:'Активность поддерживает энергию. Массаж переносится хорошо. Сон более качественный — используй это время.',
-  },
-  ovulation: {
-    name:'Овуляция',
-    color:'#2E8A8C',
-    bg:'rgba(46,138,140,0.1)',
-    hormones:'Пик эстрогена → выброс ЛГ → выход яйцеклетки. Кратковременный рост тестостерона даёт прилив сил и либидо.',
-    body:'Пик физической силы и выносливости. Но: связки и суставы чуть мягче из-за эстрогена — риск травм выше. Возможна лёгкая боль внизу живота (миттельшмерц).',
-    load:'Можно много, но осторожно с ударными нагрузками и резкими движениями — суставы уязвимее. ЛФК и плавание — отлично.',
-    recovery:'Массаж переносится хорошо. Следи за болью в суставах. Не перегружай шею и поясницу.',
-  },
-  luteal: {
-    name:'Лютеиновая фаза',
-    color:'#7B6BB0',
-    bg:'rgba(123,107,176,0.1)',
-    hormones:'Жёлтое тело выделяет прогестерон. Если оплодотворения нет — к концу фазы оба гормона падают. Возможен ПМС: задержка жидкости, раздражительность, усталость.',
-    body:'В начале — нормально. К концу — нарастает напряжение в теле, возможны боли в спине и пояснице, отёчность, тяжесть, снижение концентрации. Болевой порог снижается.',
-    load:'Умеренная. ЛФК — да, но прислушивайся к телу. В последние дни перед менструацией снижай интенсивность.',
-    recovery:'Массаж ШВЗ очень кстати — снимает накопившееся напряжение. Больше сна. Тепловые процедуры. Следи за болью в спине — она может нарастать.',
-  }
+const phaseData={
+  menstruation:{name:'Менструация',color:'#B85555',bg:'rgba(184,85,85,0.08)',
+    hormones:'Эстроген и прогестерон на минимуме. Простагландины вызывают сокращения матки — отсюда боль и спазмы. Иммунитет чуть снижен.',
+    body:'Энергия снижена. Болевой порог понижен — ты чувствуешь боль острее обычного. Возможны боли в пояснице, голове, отёчность.',
+    load:'Минимальная. Лёгкая прогулка, медленный стретчинг, дыхательные практики. Избегай нагрузки на пресс и поясницу.',
+    recovery:'Тепло на живот и поясницу. Максимум сна. Массаж — мягкий, без живота. Бассейн — по самочувствию.'},
+  follicular:{name:'Фолликулярная фаза',color:'#4E8C5F',bg:'rgba(78,140,95,0.08)',
+    hormones:'Растёт ФСГ, созревает фолликул. Эстроген постепенно повышается — улучшает настроение, концентрацию, обмен веществ.',
+    body:'Энергия нарастает. Лучше переносится нагрузка. Мышцы восстанавливаются быстрее. Болевой порог повышен — боль ощущается слабее.',
+    load:'Хорошее время для ЛФК, бассейна, активных упражнений. Тело быстро адаптируется и восстанавливается.',
+    recovery:'Активность поддерживает энергию. Массаж переносится отлично. Качество сна в этой фазе обычно лучшее.'},
+  ovulation:{name:'Овуляция',color:'#2E8A8C',bg:'rgba(46,138,140,0.08)',
+    hormones:'Пик эстрогена → выброс ЛГ → выход яйцеклетки. Кратковременный рост тестостерона даёт прилив сил. Возможна лёгкая боль внизу живота.',
+    body:'Пик физической силы и выносливости. Но связки и суставы чуть мягче из-за высокого эстрогена — риск травм выше.',
+    load:'Можно много, но осторожно с ударной нагрузкой и резкими движениями. ЛФК и плавание — отлично.',
+    recovery:'Массаж переносится хорошо. Следи за болью в суставах. Не перегружай шею и поясницу.'},
+  luteal:{name:'Лютеиновая фаза',color:'#7B6BB0',bg:'rgba(123,107,176,0.08)',
+    hormones:'Жёлтое тело выделяет прогестерон. К концу фазы оба гормона падают — возможен ПМС: задержка жидкости, раздражительность, усталость.',
+    body:'Нарастает напряжение в теле, особенно в спине и пояснице. Отёчность. Болевой порог снижается к концу фазы.',
+    load:'Умеренная. ЛФК — да, но прислушивайся к телу. В последние дни снижай интенсивность.',
+    recovery:'Массаж ШВЗ снимает накопившееся напряжение. Больше сна. Следи за болью в спине — она может нарастать.'}
 };
 
 function renderCycle(){
@@ -621,238 +665,111 @@ function renderCycle(){
   const today=new Date().toISOString().split('T')[0];
   const diff=Math.floor((new Date(today)-new Date(lastStart))/86400000);
   const dayInCycle=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len+1;
-
   let phaseKey='luteal';
   if(dayInCycle<=cycleSettings.days)phaseKey='menstruation';
   else if(dayInCycle<=13)phaseKey='follicular';
   else if(dayInCycle<=16)phaseKey='ovulation';
-
   const pd=phaseData[phaseKey];
-  const nextDate=new Date(lastStart);
-  nextDate.setDate(nextDate.getDate()+cycleSettings.len);
+  const nextDate=new Date(lastStart);nextDate.setDate(nextDate.getDate()+cycleSettings.len);
   const daysTo=Math.ceil((nextDate-new Date())/86400000);
   const nextStr=nextDate.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   const nextDay=nextDate.toLocaleDateString('ru-RU',{weekday:'long'});
   const early=new Date(nextDate);early.setDate(early.getDate()-3);
   const late=new Date(nextDate);late.setDate(late.getDate()+3);
   const rangeStr=early.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' — '+late.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-
   el.innerHTML=`<div class="cstatus">
     <div class="cdaynum" style="color:${pd.color}">${dayInCycle}</div>
     <div class="cdaylabel">день цикла из ${cycleSettings.len}</div>
     <div class="cphase" style="color:${pd.color}">${pd.name}</div>
     <div class="cnext">${daysTo>0?`Следующие через ${daysTo} дн.`:'Ожидаются сегодня'}<br>${nextStr} (${nextDay})<br><span style="font-size:11px">Диапазон: ${rangeStr}</span></div>
-    <div class="phase-card" style="background:${pd.bg};border:1px solid ${pd.color}22">
+    <div class="phase-card" style="background:${pd.bg};border:1px solid ${pd.color}30">
       <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Что происходит</div><div class="phase-row-text">${pd.hormones}</div></div>
       <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Как ощущается</div><div class="phase-row-text">${pd.body}</div></div>
       <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Физ. нагрузка</div><div class="phase-row-text">${pd.load}</div></div>
       <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Восстановление</div><div class="phase-row-text">${pd.recovery}</div></div>
     </div>
   </div>`;
-
-  const histEl=document.getElementById('cycle-hist');
   const histCard=document.getElementById('cycle-hist-card');
-  if(cycleEvts.length){
-    histCard.style.display='block';
-    histEl.innerHTML=`<div style="display:flex;flex-direction:column;gap:0">
-      ${cycleEvts.slice(0,8).map(e=>`<div class="cev"><div class="cdot"></div><div>${new Date(e.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('')}
-    </div>`;
-  }
+  if(cycleEvts.length){histCard.style.display='block';document.getElementById('cycle-hist').innerHTML=cycleEvts.slice(0,8).map(e=>`<div class="cev"><div class="cdot"></div><div>${new Date(e.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('');}
 }
 
 function renderCharts(){
-  const period=window._period;
-  const now=new Date();
-  const cutoff=new Date(now-period*86400000);
+  const period=window._period,now=new Date(),cutoff=new Date(now-period*86400000);
   const days=[];
-  for(let i=period-1;i>=0;i--){const d=new Date(now-i*86400000);days.push(d.toISOString().split('T')[0]);}
-
-  const painByDay={},medByDay={},sleepByDay={},actByDay={};
-  days.forEach(d=>{painByDay[d]=[];medByDay[d]=0;sleepByDay[d]=null;actByDay[d]=0;});
+  for(let i=period-1;i>=0;i--){days.push(new Date(now-i*86400000).toISOString().split('T')[0]);}
+  const pBD={},mBD={},sBD={},aBD={},tBD={};
+  days.forEach(d=>{pBD[d]=[];mBD[d]=0;sBD[d]=null;aBD[d]=0;tBD[d]=null;});
   events.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{
     const d=e.date;
-    if(painByDay[d]!==undefined){if(e.pain?.level)painByDay[d].push(e.pain.level);if(e.med)medByDay[d]++;}
+    if(pBD[d]!==undefined){if(e.pain?.level)pBD[d].push(e.pain.level);if(e.med)mBD[d]++;if(e.temp?.value)tBD[d]=e.temp.value;}
   });
-  sleeps.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(sleepByDay[e.date]!==undefined)sleepByDay[e.date]=e.hours+(e.minutes||0)/60;});
-  acts.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(actByDay[e.date]!==undefined)actByDay[e.date]++;});
-
-  const avgPain=days.map(d=>painByDay[d].length?painByDay[d].reduce((a,b)=>a+b,0)/painByDay[d].length:null);
-  const medC=days.map(d=>medByDay[d]);
-  const sleepH=days.map(d=>sleepByDay[d]);
-  const actC=days.map(d=>actByDay[d]>0?1:0);
-
-  const pE=events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level);
-  const mE=events.filter(e=>new Date(e.date)>=cutoff&&e.med);
-  const avgP=pE.length?(pE.reduce((s,e)=>s+e.pain.level,0)/pE.length).toFixed(1):'—';
-  const maxP=pE.length?Math.max(...pE.map(e=>e.pain.level)):'—';
-  document.getElementById('stat-pills').innerHTML=`
-    <div class="spill"><div class="snum lav">${mE.length}</div><div class="sdesc">таблеток</div></div>
-    <div class="spill"><div class="snum sage">${avgP}</div><div class="sdesc">ср. боль</div></div>
-    <div class="spill"><div class="snum rose">${maxP}</div><div class="sdesc">макс. боль</div></div>
-  `;
-  drawMain(days,avgPain,medC,sleepH,actC);
-
-  const step=Math.ceil(days.length/6);
-  const lblEl=document.getElementById('canvas-xlabels');
+  sleeps.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(sBD[e.date]!==undefined)sBD[e.date]=e.hours+(e.minutes||0)/60;});
+  acts.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(aBD[e.date]!==undefined)aBD[e.date]++;});
+  const avgPain=days.map(d=>pBD[d].length?pBD[d].reduce((a,b)=>a+b,0)/pBD[d].length:null);
+  const medC=days.map(d=>mBD[d]),sleepH=days.map(d=>sBD[d]),actC=days.map(d=>aBD[d]>0?1:0),tempV=days.map(d=>tBD[d]);
+  const pE=events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level),mE=events.filter(e=>new Date(e.date)>=cutoff&&e.med);
+  const avgP=pE.length?(pE.reduce((s,e)=>s+e.pain.level,0)/pE.length).toFixed(1):'—',maxP=pE.length?Math.max(...pE.map(e=>e.pain.level)):'—';
+  document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum lav">${mE.length}</div><div class="sdesc">таблеток</div></div><div class="spill"><div class="snum sage">${avgP}</div><div class="sdesc">ср. боль</div></div><div class="spill"><div class="snum rose">${maxP}</div><div class="sdesc">макс. боль</div></div>`;
+  drawMain(days,avgPain,medC,sleepH,actC,tempV);
+  renderHeatmap(period);
+  const step=Math.ceil(days.length/6),lblEl=document.getElementById('canvas-xlabels');
   lblEl.innerHTML='';
-  days.forEach((d,i)=>{
-    if(i%step===0||i===days.length-1){
-      const s=document.createElement('span');
-      s.style.cssText='font-size:9px;color:var(--g40)';
-      s.textContent=new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'numeric'});
-      lblEl.appendChild(s);
-    }
+  days.forEach((d,i)=>{if(i%step===0||i===days.length-1){const s=document.createElement('span');s.style.cssText='font-size:9px;color:var(--g40)';s.textContent=new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'numeric'});lblEl.appendChild(s);}});
+}
+
+function drawMain(days,avgPain,medC,sleepH,actC,tempV){
+  const canvas=document.getElementById('main-canvas');if(!canvas)return;
+  const W=canvas.parentElement.clientWidth-32;canvas.width=W;canvas.height=150;
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,150);
+  const L=window._layers,pad={l:6,r:6,t:14,b:14},cW=W-pad.l-pad.r,cH=150-pad.t-pad.b,n=days.length;
+  const x=i=>pad.l+(i/(n-1||1))*cW;
+  if(L.cycle&&cycleEvts.length){
+    const ls=cycleEvts[0].date,colors=['rgba(184,85,85,0.28)','rgba(78,140,95,0.2)','rgba(46,138,140,0.25)','rgba(123,107,176,0.2)'];
+    days.forEach((d,i)=>{const diff=Math.floor((new Date(d)-new Date(ls))/86400000),dc=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len;let fi=3;if(dc<cycleSettings.days)fi=0;else if(dc<13)fi=1;else if(dc<16)fi=2;ctx.fillStyle=colors[fi];ctx.fillRect(pad.l+i*(cW/n),pad.t,cW/n+1,cH);});
+  }
+  ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;[0.25,0.5,0.75].forEach(v=>{ctx.beginPath();ctx.moveTo(pad.l,pad.t+cH*v);ctx.lineTo(W-pad.r,pad.t+cH*v);ctx.stroke();});
+  if(L.sleep){const bw=Math.max(3,cW/n-3);sleepH.forEach((v,i)=>{if(v===null)return;const bh=(Math.min(v,10)/10)*cH;ctx.fillStyle='rgba(46,138,140,0.35)';ctx.fillRect(x(i)-bw/2,pad.t+cH-bh,bw,bh);});}
+  if(L.act){actC.forEach((v,i)=>{if(!v)return;ctx.beginPath();ctx.arc(x(i),pad.t+6,5,0,Math.PI*2);ctx.fillStyle='#4E8C5F';ctx.fill();});}
+  if(L.med){medC.forEach((v,i)=>{if(!v)return;ctx.beginPath();ctx.arc(x(i),pad.t+cH-6,5,0,Math.PI*2);ctx.fillStyle='#7B6BB0';ctx.fill();if(v>1){ctx.fillStyle='#7B6BB0';ctx.font='bold 9px Manrope';ctx.textAlign='center';ctx.fillText(v,x(i),pad.t+cH-13);}});}
+  if(L.temp){const tPts=tempV.map((v,i)=>v!==null?{x:x(i),y:pad.t+cH-((v-35)/7)*cH}:null).filter(Boolean);if(tPts.length>=2){ctx.beginPath();ctx.moveTo(tPts[0].x,tPts[0].y);tPts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.strokeStyle='#E07A3A';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);tPts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#E07A3A';ctx.fill();});}}
+  if(L.pain){const pts=avgPain.map((v,i)=>v!==null?{x:x(i),y:pad.t+cH-(v/10)*cH}:null).filter(Boolean);if(pts.length>=2){ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();const g=ctx.createLinearGradient(0,0,0,150);g.addColorStop(0,'rgba(184,85,85,0.45)');g.addColorStop(1,'rgba(184,85,85,0.05)');ctx.fillStyle=g;ctx.fill();ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.strokeStyle='#B85555';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle='#B85555';ctx.fill();});}}
+}
+
+// HEATMAP - clone body SVG and color by frequency
+function renderHeatmap(period){
+  const cutoff=new Date(Date.now()-period*86400000);
+  const zoneCounts={};
+  events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.zones?.length).forEach(e=>{e.pain.zones.forEach(z=>{zoneCounts[z]=(zoneCounts[z]||0)+1;});});
+  const maxCount=Math.max(...Object.values(zoneCounts),1);
+  ['front','back'].forEach(side=>{
+    const src=document.getElementById('body-'+side);
+    const hm=document.getElementById('hm-'+side);
+    if(!src||!hm)return;
+    hm.innerHTML=src.innerHTML;
+    hm.querySelectorAll('.body-zone').forEach(zone=>{
+      zone.style.cursor='default';
+      zone.onclick=null;
+      const z=zone.dataset.zone;
+      const count=zoneCounts[z]||0;
+      if(count===0){zone.style.fill='var(--g15)';zone.style.stroke='var(--g40)';}
+      else{const intensity=count/maxCount;zone.style.fill=`rgba(184,85,85,${0.15+intensity*0.75})`;zone.style.stroke=`rgba(184,85,85,${0.5+intensity*0.5})`;}
+    });
   });
 }
 
-function drawMain(days,avgPain,medC,sleepH,actC){
-  const canvas=document.getElementById('main-canvas');if(!canvas)return;
-  const W=canvas.parentElement.clientWidth-32;
-  canvas.width=W;canvas.height=150;
-  const ctx=canvas.getContext('2d');
-  ctx.clearRect(0,0,W,150);
-  const L=window._layers;
-  const pad={l:6,r:6,t:14,b:14};
-  const cW=W-pad.l-pad.r,cH=150-pad.t-pad.b;
-  const n=days.length;
-  const x=i=>pad.l+(i/(n-1||1))*cW;
+window.expJSON=function(){const data={version:4,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`fon_${new Date().toISOString().split('T')[0]}.json`;a.click();toast('Файл скачан');};
+window.expCSV=function(){const rows=[['Тип','Дата','Боль','Зоны','Причина','Характер','Препарат','Доза','Температура','Сон ч','Сон мин','До 23','Качество','Активность','Подвид']];events.forEach(e=>rows.push(['боль',e.date,e.pain?.level||'',(e.pain?.zones||[]).join(';'),(e.pain?.reasons||[]).join(';'),(e.pain?.character||[]).join(';'),e.med?.name||'',e.med?.dose||'',e.temp?.value||'','','','','','','']));sleeps.forEach(e=>rows.push(['сон',e.date,'','','','','','','',e.hours,e.minutes||0,e.before23?'да':'нет',e.quality||'','','']));acts.forEach(e=>rows.push(['активность',e.date,'','','','','','','','','','','',e.kind,(e.sub||[]).join(';')]));const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');const b=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`fon_${new Date().toISOString().split('T')[0]}.csv`;a.click();};
+window.impJSON=function(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async e=>{try{const data=JSON.parse(e.target.result);let added=0;const addNew=async(arr,la,coll)=>{const ids=new Set(la.map(x=>x.id));for(const item of(arr||[])){if(!ids.has(item.id)){const{id,...rest}=item;const ref=await addDoc(collection(db,'users',uid,coll),rest);la.unshift({id:ref.id,...rest});added++;}}};await addNew(data.events,events,'events');await addNew(data.sleeps,sleeps,'sleeps');await addNew(data.acts,acts,'acts');renderAll();toast(`Добавлено ${added} записей`);}catch(err){toast('Ошибка импорта',true);}};reader.readAsText(file);};
 
-  // cycle background - contrasted
-  if(L.cycle&&cycleEvts.length){
-    const lastStart=cycleEvts[0].date;
-    const colors=['rgba(184,85,85,0.28)','rgba(78,140,95,0.2)','rgba(46,138,140,0.25)','rgba(123,107,176,0.2)'];
-    days.forEach((d,i)=>{
-      const diff=Math.floor((new Date(d)-new Date(lastStart))/86400000);
-      const dc=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len;
-      let fi=3;
-      if(dc<cycleSettings.days)fi=0;
-      else if(dc<13)fi=1;
-      else if(dc<16)fi=2;
-      ctx.fillStyle=colors[fi];
-      const bw=cW/n;
-      ctx.fillRect(pad.l+i*bw,pad.t,bw+1,cH);
-    });
-  }
+function updateDataStats(){const all=[...events,...sleeps,...acts],sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date)),fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});document.getElementById('data-stats').innerHTML=`<div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div><div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div><div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div><div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div><div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>`;}
 
-  // grid lines
-  ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;
-  [0.25,0.5,0.75].forEach(v=>{ctx.beginPath();ctx.moveTo(pad.l,pad.t+cH*v);ctx.lineTo(W-pad.r,pad.t+cH*v);ctx.stroke();});
-
-  // sleep bars - more opaque
-  if(L.sleep){
-    const maxS=10;
-    const bw=Math.max(3,cW/n-3);
-    sleepH.forEach((v,i)=>{
-      if(v===null)return;
-      const bh=(Math.min(v,maxS)/maxS)*cH;
-      ctx.fillStyle='rgba(46,138,140,0.35)';
-      ctx.beginPath();
-      if(ctx.roundRect)ctx.roundRect(x(i)-bw/2,pad.t+cH-bh,bw,bh,[2,2,0,0]);
-      else ctx.rect(x(i)-bw/2,pad.t+cH-bh,bw,bh);
-      ctx.fill();
-    });
-  }
-
-  // activity dots - top, bigger
-  if(L.act){
-    actC.forEach((v,i)=>{
-      if(!v)return;
-      ctx.beginPath();ctx.arc(x(i),pad.t+6,5,0,Math.PI*2);
-      ctx.fillStyle='#4E8C5F';ctx.fill();
-    });
-  }
-
-  // med dots - bottom, bigger
-  if(L.med){
-    medC.forEach((v,i)=>{
-      if(!v)return;
-      ctx.beginPath();ctx.arc(x(i),pad.t+cH-6,5,0,Math.PI*2);
-      ctx.fillStyle='#7B6BB0';ctx.fill();
-      if(v>1){ctx.fillStyle='#7B6BB0';ctx.font='bold 9px Manrope';ctx.textAlign='center';ctx.fillText(v,x(i),pad.t+cH-13);}
-    });
-  }
-
-  // pain fill + line - bold
-  if(L.pain){
-    const pts=avgPain.map((v,i)=>v!==null?{x:x(i),y:pad.t+cH-(v/10)*cH}:null).filter(Boolean);
-    if(pts.length>=2){
-      ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);
-      pts.forEach(p=>ctx.lineTo(p.x,p.y));
-      ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();
-      const g=ctx.createLinearGradient(0,0,0,150);
-      g.addColorStop(0,'rgba(184,85,85,0.45)');g.addColorStop(1,'rgba(184,85,85,0.05)');
-      ctx.fillStyle=g;ctx.fill();
-      ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
-      pts.forEach(p=>ctx.lineTo(p.x,p.y));
-      ctx.strokeStyle='#B85555';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
-      pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle='#B85555';ctx.fill();});
-    }
-  }
-}
-
-window.expJSON=function(){
-  const data={version:3,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};
-  const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download=`fon_${new Date().toISOString().split('T')[0]}.json`;a.click();toast('Файл скачан');
-};
-
-window.expCSV=function(){
-  const rows=[['Тип','Дата','Боль','Причина','Локация','Характер','Препарат','Доза','Сон ч','Сон мин','До 23','Качество сна','Активность','Подвид']];
-  events.forEach(e=>rows.push(['боль',e.date,e.pain?.level||'',(e.pain?.reasons||[]).join(';'),(e.pain?.location||[]).join(';'),(e.pain?.character||[]).join(';'),e.med?.name||'',e.med?.dose||'','','','','','','']));
-  sleeps.forEach(e=>rows.push(['сон',e.date,'','','','','','',e.hours,e.minutes||0,e.before23?'да':'нет',e.quality||'','','']));
-  acts.forEach(e=>rows.push(['активность',e.date,'','','','','','','','','','',e.kind,(e.sub||[]).join(';')]));
-  const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
-  const b=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);
-  a.download=`fon_${new Date().toISOString().split('T')[0]}.csv`;a.click();
-};
-
-window.impJSON=function(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async e=>{
-    try{
-      const data=JSON.parse(e.target.result);let added=0;
-      const addNew=async(arr,localArr,coll)=>{
-        const ids=new Set(localArr.map(x=>x.id));
-        for(const item of(arr||[])){if(!ids.has(item.id)){const{id,...rest}=item;const ref=await addDoc(collection(db,'users',uid,coll),rest);localArr.unshift({id:ref.id,...rest});added++;}}
-      };
-      await addNew(data.events,events,'events');
-      await addNew(data.sleeps,sleeps,'sleeps');
-      await addNew(data.acts,acts,'acts');
-      renderAll();toast(`Добавлено ${added} записей`);
-    }catch(err){toast('Ошибка импорта',true);}
-  };
-  reader.readAsText(file);
-};
-
-function updateDataStats(){
-  const all=[...events,...sleeps,...acts];
-  const sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date));
-  const fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('data-stats').innerHTML=`
-    <div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div>
-    <div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div>
-    <div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div>
-    <div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div>
-    <div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>
-  `;
-}
-
-window._renderCharts=renderCharts;
-window._renderCycle=renderCycle;
+window._renderCharts=renderCharts;window._renderCycle=renderCycle;
 </script>
 
 <script>
-window._selPain=null;window._selAct=null;
+window._selPain=null;window._selAct=null;window._selZones=[];
 
-function toast(msg,err=false){
-  const t=document.getElementById('toast');
-  t.textContent=(err?'✗ ':'✓ ')+msg;
-  t.style.background=err?'var(--rose)':'var(--g)';
-  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
-}
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=(err?'✗ ':'✓ ')+msg;t.style.background=err?'var(--rose)':'var(--g)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 function showS(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -863,109 +780,68 @@ function showS(name){
   if(name==='cycle'){if(window._renderCycle)window._renderCycle();}
 }
 
-function selPain(l){
-  window._selPain=l;
-  document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('sel',parseInt(b.dataset.l)===l));
+function togZone(el){
+  const zone=el.dataset.zone;
+  const idx=window._selZones.indexOf(zone);
+  // sync both SVGs (front+back may have same zone name)
+  const allZones=document.querySelectorAll(`.body-zone[data-zone="${zone}"]`);
+  if(idx>-1){
+    window._selZones.splice(idx,1);
+    allZones.forEach(z=>z.classList.remove('active'));
+  }else{
+    window._selZones.push(zone);
+    allZones.forEach(z=>z.classList.add('active'));
+  }
+  updateZoneDisplay();
 }
 
+function updateZoneDisplay(){
+  const el=document.getElementById('selected-zones-display');
+  if(!window._selZones.length){el.innerHTML='<span style="font-size:11px;color:var(--g40)">Нажми на зону тела</span>';return;}
+  el.innerHTML=window._selZones.map(z=>`<span class="zone-badge">${z}<button onclick="removeZone('${z}')">×</button></span>`).join('');
+}
+
+function removeZone(zone){
+  const idx=window._selZones.indexOf(zone);if(idx>-1)window._selZones.splice(idx,1);
+  document.querySelectorAll(`.body-zone[data-zone="${zone}"]`).forEach(z=>z.classList.remove('active'));
+  updateZoneDisplay();
+}
+
+function selPain(l){window._selPain=l;document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('sel',parseInt(b.dataset.l)===l));}
 function togTag(el){if(!el.classList.contains('add'))el.classList.toggle('sel');}
-
 function selQ(btn){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
-
-function togMed(yes){
-  document.getElementById('med-y').classList.toggle('sel',yes);
-  document.getElementById('med-n').classList.toggle('sel',!yes);
-  document.getElementById('med-sec').style.display=yes?'block':'none';
-}
+function togMed(yes){document.getElementById('med-y').classList.toggle('sel',yes);document.getElementById('med-n').classList.toggle('sel',!yes);document.getElementById('med-sec').style.display=yes?'block':'none';}
 
 const subOptions={'ЛФК':['На спину','На шею','Общая','Стретчинг'],'Массаж':['ШВЗ','Полный','СПА'],'Бассейн':[]};
 
-function selAct(btn,kind){
-  document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');window._selAct=kind;
-  const subs=subOptions[kind]||[];
-  const sw=document.getElementById('sub-wrap');
-  const st=document.getElementById('sub-tags');
-  sw.style.display='block';
-  st.innerHTML=subs.map(s=>`<button class="tag" onclick="togTag(this)">${s}</button>`).join('')+
-    '<button class="tag add" onclick="showAddSubTag()">+ Свой</button>';
-}
-
+function selAct(btn,kind){document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');window._selAct=kind;const subs=subOptions[kind]||[];const sw=document.getElementById('sub-wrap'),st=document.getElementById('sub-tags');sw.style.display='block';st.innerHTML=subs.map(s=>`<button class="tag" onclick="togTag(this)">${s}</button>`).join('')+'<button class="tag add" onclick="showAddSubTag()">+ Свой</button>';}
 function showAddSubTag(){document.getElementById('sub-inp').parentElement.style.display='block';document.getElementById('sub-inp').focus();}
+function addSubTag(){const val=document.getElementById('sub-inp').value.trim();if(!val)return;const tags=document.getElementById('sub-tags');const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);tags.appendChild(btn);document.getElementById('sub-inp').value='';}
 
-function addSubTag(){
-  const val=document.getElementById('sub-inp').value.trim();if(!val)return;
-  const tags=document.getElementById('sub-tags');
-  const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);
-  tags.appendChild(btn);document.getElementById('sub-inp').value='';
-}
+function showAddTag(cid,boxId){const box=document.getElementById(boxId);box.style.display=box.style.display==='none'?'block':'none';if(box.style.display==='block')box.querySelector('input').focus();}
+function addTag(cid,inpId,boxId){const val=document.getElementById(inpId).value.trim();if(!val)return;const tags=document.getElementById(cid);const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);tags.insertBefore(btn,tags.querySelector('.add'));document.getElementById(inpId).value='';document.getElementById(boxId).style.display='none';}
+function addActTag(){const val=document.getElementById('act-inp').value.trim();if(!val)return;const tags=document.getElementById('act-tags');const btn=document.createElement('button');btn.className='tag';btn.textContent=val;if(!subOptions[val])subOptions[val]=[];btn.onclick=()=>selAct(btn,val);tags.insertBefore(btn,tags.querySelector('.add'));document.getElementById('act-inp').value='';document.getElementById('act-add').style.display='none';selAct(btn,val);}
 
-function showAddTag(cid,boxId){
-  const box=document.getElementById(boxId);
-  box.style.display=box.style.display==='none'?'block':'none';
-  if(box.style.display==='block')box.querySelector('input').focus();
-}
-
-function addTag(cid,inpId,boxId){
-  const val=document.getElementById(inpId).value.trim();if(!val)return;
-  const tags=document.getElementById(cid);
-  const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);
-  tags.insertBefore(btn,tags.querySelector('.add'));
-  document.getElementById(inpId).value='';document.getElementById(boxId).style.display='none';
-}
-
-function addActTag(){
-  const val=document.getElementById('act-inp').value.trim();if(!val)return;
-  const tags=document.getElementById('act-tags');
-  const btn=document.createElement('button');btn.className='tag';btn.textContent=val;
-  if(!subOptions[val])subOptions[val]=[];
-  btn.onclick=()=>selAct(btn,val);
-  tags.insertBefore(btn,tags.querySelector('.add'));
-  document.getElementById('act-inp').value='';document.getElementById('act-add').style.display='none';
-  selAct(btn,val);
-}
-
-function setPeriod(btn,days){
-  document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');window._period=days;
-  const lm={14:'2 недели',30:'Месяц',90:'3 месяца',180:'6 месяцев',365:'Год'};
-  document.getElementById('period-lbl').textContent=lm[days]||days+' дней';
-  if(window._renderCharts)window._renderCharts();
-}
-
-function togLayer(btn){
-  btn.classList.toggle('on');
-  window._layers[btn.dataset.layer]=btn.classList.contains('on');
-  if(window._renderCharts)window._renderCharts();
-}
+function setPeriod(btn,days){document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');window._period=days;const lm={14:'2 недели',30:'Месяц',90:'3 месяца',180:'6 месяцев',365:'Год'};document.getElementById('period-lbl').textContent=lm[days]||days+' дней';if(window._renderCharts)window._renderCharts();}
+function togLayer(btn){btn.classList.toggle('on');window._layers[btn.dataset.layer]=btn.classList.contains('on');if(window._renderCharts)window._renderCharts();}
 
 function resetLoad(){
-  window._selPain=null;
+  window._selPain=null;window._selZones=[];
   document.querySelectorAll('.pb').forEach(b=>b.classList.remove('sel'));
-  document.querySelectorAll('#reason-tags .tag, #loc-tags .tag, #char-tags .tag').forEach(t=>t.classList.remove('sel'));
-  document.getElementById('med-y').classList.remove('sel');
-  document.getElementById('med-n').classList.add('sel');
+  document.querySelectorAll('.body-zone').forEach(z=>z.classList.remove('active'));
+  document.querySelectorAll('#reason-tags .tag,#char-tags .tag').forEach(t=>t.classList.remove('sel'));
+  document.getElementById('med-y').classList.remove('sel');document.getElementById('med-n').classList.add('sel');
   document.getElementById('med-sec').style.display='none';
-  if(document.getElementById('med-name'))document.getElementById('med-name').value='';
-  if(document.getElementById('med-dose'))document.getElementById('med-dose').value='';
+  document.getElementById('med-name').value='';document.getElementById('med-dose').value='';
+  document.getElementById('temp-val').value='';document.getElementById('temp-high').checked=false;
+  updateZoneDisplay();
 }
-
-function resetSleep(){
-  document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('sleep-h').value='';
-  document.getElementById('sleep-m').value='';
-  document.getElementById('sleep-23').checked=false;
-}
-
-function resetAct(){
-  window._selAct=null;
-  document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));
-  document.querySelectorAll('#sub-tags .tag').forEach(b=>b.classList.remove('sel'));
-  document.getElementById('sub-wrap').style.display='none';
-}
+function resetSleep(){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));document.getElementById('sleep-h').value='';document.getElementById('sleep-m').value='';document.getElementById('sleep-23').checked=false;}
+function resetAct(){window._selAct=null;document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));document.querySelectorAll('#sub-tags .tag').forEach(b=>b.classList.remove('sel'));document.getElementById('sub-wrap').style.display='none';}
 
 const today=new Date().toISOString().split('T')[0];
 ['load-date','sleep-date','act-date','cycle-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+updateZoneDisplay();
 </script>
 </body>
 </html>
