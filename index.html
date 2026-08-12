@@ -200,16 +200,17 @@ canvas{width:100%!important;display:block}
   <p class="pt">Нагрузка</p>
   <p class="ps">Боль и препараты</p>
 
-  <!-- БЫСТРЫЕ ПОЛЯ ДНЯ -->
+  <!-- ДАТА И ТЕМПЕРАТУРА -->
   <div class="card">
-    <div class="cl">Дата и температура</div>
-    <div class="irow" style="margin-bottom:10px">
-      <div style="flex:1.5"><div class="ilabel">Дата</div><input class="ifield" type="date" id="load-date"></div>
-      <div style="flex:1"><div class="ilabel">Температура °C</div><input class="ifield" id="temp-val" type="number" step="0.1" min="35" max="42" placeholder="36.6"></div>
+    <div class="cl">Дата записи</div>
+    <input class="ifield" type="date" id="load-date" style="margin-bottom:12px">
+    <div class="cl">Температура °C</div>
+    <div class="irow" style="align-items:center">
+      <input class="ifield" id="temp-val" type="number" step="0.1" min="35" max="42" placeholder="36.6" style="max-width:120px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;white-space:nowrap">
+        <input type="checkbox" id="temp-high" style="width:15px;height:15px;accent-color:var(--rose)"> Выше нормы
+      </label>
     </div>
-    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
-      <input type="checkbox" id="temp-high" style="width:15px;height:15px;accent-color:var(--rose)"> Выше нормы
-    </label>
   </div>
 
   <!-- BODY MAP -->
@@ -384,6 +385,10 @@ canvas{width:100%!important;display:block}
       </div>
     </div>
   </div>
+  <div class="card">
+    <div class="cl">Заметка</div>
+    <textarea class="ifield" id="load-note" rows="3" placeholder="Контекст, детали, что предшествовало...&#10;Любое наблюдение которое может быть важным."></textarea>
+  </div>
   <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button>
 </div>
 
@@ -550,10 +555,12 @@ window.saveLoad=async function(){
   const medDose=document.getElementById('med-dose').value;
   const tempVal=document.getElementById('temp-val').value;
   const tempHigh=document.getElementById('temp-high').checked;
+  const note=document.getElementById('load-note').value.trim();
   const rec={type:'pain',date,ts:new Date().toISOString(),
     pain:pain?{level:pain,zones,reasons,character:chr}:null,
     med:medY&&medName?{name:medName,dose:medDose}:null,
-    temp:tempVal?{value:parseFloat(tempVal),high:tempHigh}:null
+    temp:tempVal?{value:parseFloat(tempVal),high:tempHigh}:null,
+    note:note||null
   };
   try{const ref=await addDoc(collection(db,'users',uid,'events'),rec);events.unshift({id:ref.id,...rec});toast('Сохранено');resetLoad();renderAll();}
   catch(e){toast('Ошибка',true);}
@@ -624,6 +631,7 @@ function renderHistory(){
           ${e.pain?.character?.length?`<div class="hrow" style="color:var(--g40)">${e.pain.character.join(', ')}</div>`:''}
           ${e.med?`<div class="hrow">💊 ${e.med.name}${e.med.dose?' '+e.med.dose+'мг':''}</div>`:''}
           ${e.temp?`<div class="hrow">🌡 ${e.temp.value}°C${e.temp.high?' ↑':''}</div>`:''}
+          ${e.note?`<div class="hrow" style="color:var(--g40);font-style:italic;font-size:11px">${e.note}</div>`:''}
         </div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','events')">×</button></div></div>`;
       }else if(e._c==='sleeps'){
         html+=`<div class="hitem"><div class="hbadge sleep">🌙</div><div class="hbody"><div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>${e.quality?`<div class="hrow" style="color:var(--g40)">${e.quality}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button></div></div>`;
@@ -834,6 +842,7 @@ function resetLoad(){
   document.getElementById('med-sec').style.display='none';
   document.getElementById('med-name').value='';document.getElementById('med-dose').value='';
   document.getElementById('temp-val').value='';document.getElementById('temp-high').checked=false;
+  document.getElementById('load-note').value='';
   updateZoneDisplay();
 }
 function resetSleep(){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));document.getElementById('sleep-h').value='';document.getElementById('sleep-m').value='';document.getElementById('sleep-23').checked=false;}
