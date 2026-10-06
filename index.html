@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Фон</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -130,12 +130,18 @@ canvas{width:100%!important;display:block}
 .temp-row{display:flex;align-items:center;gap:10px}
 .temp-row .ifield{max-width:100px}
 .temp-chip{display:flex;align-items:center;gap:6px;font-size:12px}
+
+@media(min-width:800px){.screen{max-width:900px;margin:auto}.nav{max-width:900px;margin:auto}}
+.ni{min-height:52px;font-size:9px}.btn:disabled{opacity:.5;cursor:wait}
+:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
+#backup-text{width:100%;min-height:180px;font-family:monospace;font-size:12px}
+#sync-status{padding:10px 16px;font-size:12px;white-space:pre-wrap}
 </style>
 </head>
 <body>
 <div id="loader"><div class="loader-name">Фон</div><div class="loader-sub">загрузка</div></div>
 <div id="toast"></div>
-<div id="app">
+<div id="app"><div id="sync-status" role="status" aria-live="polite"></div>
 
 <!-- ВОССТАНОВЛЕНИЕ (главный экран) -->
 <div class="screen active" id="s-rec">
@@ -476,12 +482,27 @@ canvas{width:100%!important;display:block}
   <p class="ps">Экспорт и импорт</p>
   <div class="card"><div id="data-stats"></div></div>
   <div class="card">
-    <div class="cl">Скачать</div>
-    <button class="btn mt8" onclick="expJSON()">↓ JSON — перенос между версиями</button>
-    <button class="btn sage mt8" onclick="expCSV()">↓ CSV — для таблиц и врача</button>
+    <div class="cl">Отчёт для врача</div>
+    <p style="font-size:12px;margin-bottom:12px">Отдельный печатный документ: карта тела, график боли, препараты, активность, цикл и подробные записи.</p>
+    <label>Пациент (необязательно)<input class="ifield" id="report-name" maxlength="200" placeholder="Имя или инициалы"></label>
+    <div class="irow mt8"><label>С<input class="ifield" type="date" id="report-from"></label><label>По<input class="ifield" type="date" id="report-to"></label></div>
+    <label>Вопрос к врачу (необязательно)<textarea class="ifield mt8" id="report-question" maxlength="2000" placeholder="Что хочешь обсудить на приёме"></textarea></label>
+    <button class="btn mt8" onclick="openDoctorReport()">Открыть отчёт / сохранить PDF</button>
+    <button class="btn sage mt8" onclick="openDoctorReport(true)">Скачать отчёт HTML</button>
+    <p class="mt8" style="font-size:12px">Для PDF: открой отчёт → «Печать / сохранить в PDF». Имя и вопрос используются только для отчёта и не записываются в Firebase.</p>
   </div>
   <div class="card">
-    <div class="cl">Загрузить данные</div>
+    <div class="cl">Скачать</div>
+    <button class="btn mt8" onclick="expJSON()">↓ JSON — полная резервная копия</button>
+    <button class="btn sage mt8" onclick="expCSV()">↓ CSV — для таблиц и врача</button>
+    <button class="btn mt8" onclick="showBackupText()">Показать JSON текстом</button>
+    <div id="backup-panel" hidden><p class="mt8">Если файл не скачивается, скопируй весь текст и сохрани его в файл с расширением .json.</p>
+    <textarea id="backup-text" readonly aria-label="Резервная копия JSON"></textarea>
+    <button class="btn mt8" onclick="copyBackupText()">Копировать текст</button></div>
+    <p class="mt8" style="font-size:12px">JSON содержит все записи и настройки цикла. CSV содержит записи, включая цикл и заметки. Файлы содержат личные данные.</p>
+  </div>
+  <div class="card">
+    <div class="cl">Восстановить из JSON</div><p style="font-size:12px;margin-bottom:12px">Перед записью появится состав файла. Импорт добавляет отсутствующие записи, не удаляя существующие. Настройки цикла восстанавливаются из файла.</p>
     <label class="btn lav" style="display:block;text-align:center;cursor:pointer;padding:13px;border-radius:11px;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;font-weight:600">
       ↑ Выбрать файл
       <input type="file" accept=".json" style="display:none" onchange="impJSON(this)">
@@ -490,7 +511,8 @@ canvas{width:100%!important;display:block}
 </div>
 
 <!-- NAV -->
-<nav class="nav">
+<nav class="nav" aria-label="Разделы приложения">
+  <button class="ni" onclick="showS('data')" id="n-data"><span style="font-size:20px" aria-hidden="true">↓</span>Данные</button>
   <button class="ni active" onclick="showS('rec')" id="n-rec">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a6 6 0 0 0 9 5.2"/><path d="M12 3C6 3 2 7.5 2 12a10 10 0 0 0 20 0c0-1-.1-2-.4-3"/></svg>
     Восст.
@@ -526,20 +548,28 @@ let cycleSettings={len:28,days:5};
 window._period=14;
 window._layers={pain:true,med:true,sleep:true,act:true,cycle:true,temp:true};
 
-signInAnonymously(auth).then(c=>{uid=c.user.uid;loadAll();}).catch(()=>toast('Ошибка',true));
-
+let dataReady=false, importBusy=false;
+function syncStatus(message){document.getElementById('sync-status').textContent=message;}
+function requireData(){if(!dataReady){toast('Данные загружены не полностью. Обнови страницу и проверь подключение.',true);return false;}return true;}
+signInAnonymously(auth).then(async c=>{uid=c.user.uid;await loadAll();}).catch(e=>{
+  document.getElementById('loader').textContent='Не удалось подключиться к Firebase ('+(e.code||'ошибка сети')+'). Обнови страницу и проверь подключение.';
+});
 async function loadAll(){
-  await Promise.all([loadSettings(),loadEvents(),loadSleeps(),loadActs(),loadCycle()]);
-  renderAll();
+  dataReady=false;
+  const result=await Promise.allSettled([loadSettings(),loadEvents(),loadSleeps(),loadActs(),loadCycle()]);
+  const failed=result.filter(r=>r.status==='rejected');
+  dataReady=!failed.length;
+  syncStatus(dataReady?'Данные загружены · Фон 4.1':'Не удалось загрузить все данные. Выгрузка и изменения заблокированы: обнови страницу. '+(failed[0].reason.code||''));
   document.getElementById('loader').style.display='none';
   document.getElementById('app').style.display='block';
+  renderAll();
 }
-async function loadSettings(){try{const d=await getDoc(doc(db,'users',uid,'meta','settings'));if(d.exists()){cycleSettings={...cycleSettings,...d.data()};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}}catch(e){}}
-async function loadEvents(){try{const q=query(collection(db,'users',uid,'events'),orderBy('date','desc'));const s=await getDocs(q);events=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
-async function loadSleeps(){try{const q=query(collection(db,'users',uid,'sleeps'),orderBy('date','desc'));const s=await getDocs(q);sleeps=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
-async function loadActs(){try{const q=query(collection(db,'users',uid,'acts'),orderBy('date','desc'));const s=await getDocs(q);acts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
-async function loadCycle(){try{const q=query(collection(db,'users',uid,'cycle'),orderBy('date','desc'));const s=await getDocs(q);cycleEvts=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){}}
-
+async function loadSettings(){const d=await getDoc(doc(db,'users',uid,'meta','settings'));if(d.exists()){cycleSettings={...cycleSettings,...d.data()};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}}
+async function loadRecords(name){const s=await getDocs(collection(db,'users',uid,name));return s.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));}
+async function loadEvents(){events=await loadRecords('events');}
+async function loadSleeps(){sleeps=await loadRecords('sleeps');}
+async function loadActs(){acts=await loadRecords('acts');}
+async function loadCycle(){cycleEvts=await loadRecords('cycle');}
 function renderAll(){renderHistory();renderCharts();renderCycle();updateDataStats();}
 
 window.saveLoad=async function(){
@@ -556,8 +586,10 @@ window.saveLoad=async function(){
   const tempVal=document.getElementById('temp-val').value;
   const tempHigh=document.getElementById('temp-high').checked;
   const note=document.getElementById('load-note').value.trim();
+  if(pain===null&&!medY&&!tempVal&&!note){toast('Добавь боль, препарат, температуру или заметку',true);btn.textContent='Сохранить';btn.disabled=false;return;}
+  if(medY&&!medName){toast('Укажи название препарата',true);btn.textContent='Сохранить';btn.disabled=false;return;}
   const rec={type:'pain',date,ts:new Date().toISOString(),
-    pain:pain?{level:pain,zones,reasons,character:chr}:null,
+    pain:pain!==null?{level:pain,zones,reasons,character:chr}:null,
     med:medY&&medName?{name:medName,dose:medDose}:null,
     temp:tempVal?{value:parseFloat(tempVal),high:tempHigh}:null,
     note:note||null
@@ -571,6 +603,7 @@ window.saveSleep=async function(){
   const date=document.getElementById('sleep-date').value,h=document.getElementById('sleep-h').value,m=document.getElementById('sleep-m').value;
   const b23=document.getElementById('sleep-23').checked,q=document.querySelector('.sq.sel')?.dataset.q||null;
   if(!date||!h){toast('Укажи дату и часы',true);return;}
+  if(!Number.isInteger(Number(h))||Number(h)<0||Number(h)>24||!Number.isInteger(Number(m||0))||Number(m||0)<0||Number(m||0)>59||Number(h)*60+Number(m||0)>1440){toast('Проверь часы (0–24) и минуты (0–59)',true);return;}
   const rec={date,ts:new Date().toISOString(),hours:parseInt(h),minutes:parseInt(m||0),before23:b23,quality:q};
   try{
     const ex=sleeps.find(s=>s.date===date);
@@ -591,14 +624,17 @@ window.saveAct=async function(){
 
 window.saveCycleStart=async function(){
   const date=document.getElementById('cycle-date').value;if(!date){toast('Укажи дату',true);return;}
-  try{const ref=await addDoc(collection(db,'users',uid,'cycle'),{date,ts:new Date().toISOString()});cycleEvts.unshift({id:ref.id,date});cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));toast('Отмечено');renderCycle();}
+  if(date>localDate()){toast('Начало цикла не может быть в будущем',true);return;}
+  if(cycleEvts.some(e=>e.date===date)){toast('Эта дата уже отмечена',true);return;}
+  try{const ref=await addDoc(collection(db,'users',uid,'cycle'),{date,ts:new Date().toISOString()});cycleEvts.unshift({id:ref.id,date});cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));toast('Отмечено');renderAll();}
   catch(e){toast('Ошибка',true);}
 };
 
 window.saveCycleSettings=async function(){
-  cycleSettings.len=parseInt(document.getElementById('cyc-len').value)||28;
-  cycleSettings.days=parseInt(document.getElementById('cyc-days').value)||5;
-  try{await setDoc(doc(db,'users',uid,'meta','settings'),cycleSettings);toast('Настройки сохранены');renderCycle();}catch(e){toast('Ошибка',true);}
+  const next={len:Number(document.getElementById('cyc-len').value),days:Number(document.getElementById('cyc-days').value)};
+  if(!Number.isInteger(next.len)||next.len<1||next.len>365||!Number.isInteger(next.days)||next.days<1||next.days>next.len){toast('Проверь длительность цикла и менструации',true);return;}
+  try{await setDoc(doc(db,'users',uid,'meta','settings'),next);cycleSettings=next;toast('Настройки сохранены');renderAll();}catch(e){toast('Настройки не сохранены',true);}
+
 };
 
 window.delEntry=async function(id,coll){
@@ -617,7 +653,7 @@ function renderHistory(){
   const all=[...events.map(e=>({...e,_c:'events',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),...sleeps.map(e=>({...e,_c:'sleeps',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),...acts.map(e=>({...e,_c:'acts',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')}))].sort((a,b)=>b._sd.localeCompare(a._sd));
   if(!all.length){el.innerHTML='<div class="empty">Записей пока нет</div>';return;}
   const groups={};all.forEach(e=>{if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
-  const today=new Date().toISOString().split('T')[0],yest=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  const today=localDate(),yest=localDate(new Date(Date.now()-86400000));
   let html='';
   Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date=>{
     const lbl=date===today?'Сегодня':date===yest?'Вчера':new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
@@ -625,61 +661,40 @@ function renderHistory(){
     groups[date].forEach(e=>{
       if(e._c==='events'){
         const pl=e.pain?.level,bc=pl>=8?'rose':pl>=5?'amb':'sage';
-        html+=`<div class="hitem"><div class="hbadge ${pl?bc:'none'}">${pl||'—'}</div><div class="hbody">
-          ${e.pain?.zones?.length?`<div class="hrow">🫀 ${e.pain.zones.join(', ')}</div>`:''}
-          ${e.pain?.reasons?.length?`<div class="hrow">💬 ${e.pain.reasons.join(', ')}</div>`:''}
-          ${e.pain?.character?.length?`<div class="hrow" style="color:var(--g40)">${e.pain.character.join(', ')}</div>`:''}
-          ${e.med?`<div class="hrow">💊 ${e.med.name}${e.med.dose?' '+e.med.dose+'мг':''}</div>`:''}
+        html+=`<div class="hitem"><div class="hbadge ${pl!=null?bc:'none'}">${pl??'—'}</div><div class="hbody">
+          ${e.pain?.zones?.length?`<div class="hrow">🫀 ${esc(e.pain.zones.join(', '))}</div>`:''}
+          ${e.pain?.reasons?.length?`<div class="hrow">💬 ${esc(e.pain.reasons.join(', '))}</div>`:''}
+          ${e.pain?.character?.length?`<div class="hrow" style="color:var(--g40)">${esc(e.pain.character.join(', '))}</div>`:''}
+          ${e.med?`<div class="hrow">💊 ${esc(e.med.name)}${e.med.dose?' '+esc(e.med.dose)+'мг':''}</div>`:''}
           ${e.temp?`<div class="hrow">🌡 ${e.temp.value}°C${e.temp.high?' ↑':''}</div>`:''}
-          ${e.note?`<div class="hrow" style="color:var(--g40);font-style:italic;font-size:11px">${e.note}</div>`:''}
+          ${e.note?`<div class="hrow" style="color:var(--g40);font-style:italic;font-size:11px">${esc(e.note)}</div>`:''}
         </div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','events')">×</button></div></div>`;
       }else if(e._c==='sleeps'){
-        html+=`<div class="hitem"><div class="hbadge sleep">🌙</div><div class="hbody"><div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>${e.quality?`<div class="hrow" style="color:var(--g40)">${e.quality}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button></div></div>`;
+        html+=`<div class="hitem"><div class="hbadge sleep">🌙</div><div class="hbody"><div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>${e.quality?`<div class="hrow" style="color:var(--g40)">${esc(e.quality)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button></div></div>`;
       }else{
-        html+=`<div class="hitem"><div class="hbadge act">🏃</div><div class="hbody"><div class="hrow">${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','acts')">×</button></div></div>`;
+        html+=`<div class="hitem"><div class="hbadge act">🏃</div><div class="hbody"><div class="hrow">${esc(e.kind)}${e.sub?.length?' · '+esc(e.sub.join(', ')):''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','acts')">×</button></div></div>`;
       }
     });
   });
   el.innerHTML=html;
 }
 
-const phaseData={
-  menstruation:{name:'Менструация',color:'#B85555',bg:'rgba(184,85,85,0.08)',
-    hormones:'Эстроген и прогестерон на минимуме. Простагландины вызывают сокращения матки — отсюда боль и спазмы. Иммунитет чуть снижен.',
-    body:'Энергия снижена. Болевой порог понижен — ты чувствуешь боль острее обычного. Возможны боли в пояснице, голове, отёчность.',
-    load:'Минимальная. Лёгкая прогулка, медленный стретчинг, дыхательные практики. Избегай нагрузки на пресс и поясницу.',
-    recovery:'Тепло на живот и поясницу. Максимум сна. Массаж — мягкий, без живота. Бассейн — по самочувствию.'},
-  follicular:{name:'Фолликулярная фаза',color:'#4E8C5F',bg:'rgba(78,140,95,0.08)',
-    hormones:'Растёт ФСГ, созревает фолликул. Эстроген постепенно повышается — улучшает настроение, концентрацию, обмен веществ.',
-    body:'Энергия нарастает. Лучше переносится нагрузка. Мышцы восстанавливаются быстрее. Болевой порог повышен — боль ощущается слабее.',
-    load:'Хорошее время для ЛФК, бассейна, активных упражнений. Тело быстро адаптируется и восстанавливается.',
-    recovery:'Активность поддерживает энергию. Массаж переносится отлично. Качество сна в этой фазе обычно лучшее.'},
-  ovulation:{name:'Овуляция',color:'#2E8A8C',bg:'rgba(46,138,140,0.08)',
-    hormones:'Пик эстрогена → выброс ЛГ → выход яйцеклетки. Кратковременный рост тестостерона даёт прилив сил. Возможна лёгкая боль внизу живота.',
-    body:'Пик физической силы и выносливости. Но связки и суставы чуть мягче из-за высокого эстрогена — риск травм выше.',
-    load:'Можно много, но осторожно с ударной нагрузкой и резкими движениями. ЛФК и плавание — отлично.',
-    recovery:'Массаж переносится хорошо. Следи за болью в суставах. Не перегружай шею и поясницу.'},
-  luteal:{name:'Лютеиновая фаза',color:'#7B6BB0',bg:'rgba(123,107,176,0.08)',
-    hormones:'Жёлтое тело выделяет прогестерон. К концу фазы оба гормона падают — возможен ПМС: задержка жидкости, раздражительность, усталость.',
-    body:'Нарастает напряжение в теле, особенно в спине и пояснице. Отёчность. Болевой порог снижается к концу фазы.',
-    load:'Умеренная. ЛФК — да, но прислушивайся к телу. В последние дни снижай интенсивность.',
-    recovery:'Массаж ШВЗ снимает накопившееся напряжение. Больше сна. Следи за болью в спине — она может нарастать.'}
-};
+const phaseData={menstruation:{name:'Менструация',color:'#B85555'},follicular:{name:'Фолликулярная фаза',color:'#4E8C5F'},ovulation:{name:'Овуляция',color:'#2E8A8C'},luteal:{name:'Лютеиновая фаза',color:'#7B6BB0'}};
 
 function renderCycle(){
   const el=document.getElementById('cycle-status');
-  const lastStart=cycleEvts[0]?.date;
+  const lastStart=cycleEvts.find(e=>e.date<=localDate())?.date;
   if(!lastStart){el.innerHTML='<div class="empty">Отметь начало цикла чтобы видеть фазы</div>';return;}
-  const today=new Date().toISOString().split('T')[0];
+  const today=localDate();
   const diff=Math.floor((new Date(today)-new Date(lastStart))/86400000);
-  const dayInCycle=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len+1;
+  const dayInCycle=diff+1;
   let phaseKey='luteal';
   if(dayInCycle<=cycleSettings.days)phaseKey='menstruation';
-  else if(dayInCycle<=13)phaseKey='follicular';
-  else if(dayInCycle<=16)phaseKey='ovulation';
+  else if(dayInCycle<cycleSettings.len-15)phaseKey='follicular';
+  else if(dayInCycle<=cycleSettings.len-12)phaseKey='ovulation';
   const pd=phaseData[phaseKey];
   const nextDate=new Date(lastStart);nextDate.setDate(nextDate.getDate()+cycleSettings.len);
-  const daysTo=Math.ceil((nextDate-new Date())/86400000);
+  const daysTo=Math.round((nextDate-new Date(localDate()))/86400000);
   const nextStr=nextDate.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
   const nextDay=nextDate.toLocaleDateString('ru-RU',{weekday:'long'});
   const early=new Date(nextDate);early.setDate(early.getDate()-3);
@@ -688,14 +703,9 @@ function renderCycle(){
   el.innerHTML=`<div class="cstatus">
     <div class="cdaynum" style="color:${pd.color}">${dayInCycle}</div>
     <div class="cdaylabel">день цикла из ${cycleSettings.len}</div>
-    <div class="cphase" style="color:${pd.color}">${pd.name}</div>
-    <div class="cnext">${daysTo>0?`Следующие через ${daysTo} дн.`:'Ожидаются сегодня'}<br>${nextStr} (${nextDay})<br><span style="font-size:11px">Диапазон: ${rangeStr}</span></div>
-    <div class="phase-card" style="background:${pd.bg};border:1px solid ${pd.color}30">
-      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Что происходит</div><div class="phase-row-text">${pd.hormones}</div></div>
-      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Как ощущается</div><div class="phase-row-text">${pd.body}</div></div>
-      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Физ. нагрузка</div><div class="phase-row-text">${pd.load}</div></div>
-      <div class="phase-row"><div class="phase-row-label" style="color:${pd.color}">Восстановление</div><div class="phase-row-text">${pd.recovery}</div></div>
-    </div>
+    <div class="cphase" style="color:${pd.color}">${dayInCycle>cycleSettings.len?'Новый цикл ещё не отмечен':pd.name+' · оценка по календарю'}</div>
+    <div class="cnext">${daysTo>0?`Следующие через ${daysTo} дн.`:daysTo===0?'Ожидаются сегодня':`Расчётная дата прошла ${-daysTo} дн. назад`}<br>${nextStr} (${nextDay})<br><span style="font-size:11px">Диапазон: ${rangeStr}</span></div>
+    <div class="phase-card">Это календарная оценка по указанной длительности, а не подтверждение овуляции или уровня гормонов. Сопоставляй её со своими записями о самочувствии.</div>
   </div>`;
   const histCard=document.getElementById('cycle-hist-card');
   if(cycleEvts.length){histCard.style.display='block';document.getElementById('cycle-hist').innerHTML=cycleEvts.slice(0,8).map(e=>`<div class="cev"><div class="cdot"></div><div>${new Date(e.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('');}
@@ -704,20 +714,20 @@ function renderCycle(){
 function renderCharts(){
   const period=window._period,now=new Date(),cutoff=new Date(now-period*86400000);
   const days=[];
-  for(let i=period-1;i>=0;i--){days.push(new Date(now-i*86400000).toISOString().split('T')[0]);}
+  for(let i=period-1;i>=0;i--){days.push(localDate(new Date(now-i*86400000)));}
   const pBD={},mBD={},sBD={},aBD={},tBD={};
   days.forEach(d=>{pBD[d]=[];mBD[d]=0;sBD[d]=null;aBD[d]=0;tBD[d]=null;});
   events.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{
     const d=e.date;
-    if(pBD[d]!==undefined){if(e.pain?.level)pBD[d].push(e.pain.level);if(e.med)mBD[d]++;if(e.temp?.value)tBD[d]=e.temp.value;}
+    if(pBD[d]!==undefined){if(e.pain?.level!=null)pBD[d].push(e.pain.level);if(e.med)mBD[d]++;if(e.temp?.value)tBD[d]=e.temp.value;}
   });
   sleeps.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(sBD[e.date]!==undefined)sBD[e.date]=e.hours+(e.minutes||0)/60;});
   acts.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(aBD[e.date]!==undefined)aBD[e.date]++;});
   const avgPain=days.map(d=>pBD[d].length?pBD[d].reduce((a,b)=>a+b,0)/pBD[d].length:null);
   const medC=days.map(d=>mBD[d]),sleepH=days.map(d=>sBD[d]),actC=days.map(d=>aBD[d]>0?1:0),tempV=days.map(d=>tBD[d]);
-  const pE=events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level),mE=events.filter(e=>new Date(e.date)>=cutoff&&e.med);
+  const pE=events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level!=null),mE=events.filter(e=>new Date(e.date)>=cutoff&&e.med);
   const avgP=pE.length?(pE.reduce((s,e)=>s+e.pain.level,0)/pE.length).toFixed(1):'—',maxP=pE.length?Math.max(...pE.map(e=>e.pain.level)):'—';
-  document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum lav">${mE.length}</div><div class="sdesc">таблеток</div></div><div class="spill"><div class="snum sage">${avgP}</div><div class="sdesc">ср. боль</div></div><div class="spill"><div class="snum rose">${maxP}</div><div class="sdesc">макс. боль</div></div>`;
+  document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum lav">${mE.length}</div><div class="sdesc">приёмов препарата</div></div><div class="spill"><div class="snum sage">${avgP}</div><div class="sdesc">ср. боль</div></div><div class="spill"><div class="snum rose">${maxP}</div><div class="sdesc">макс. боль</div></div>`;
   drawMain(days,avgPain,medC,sleepH,actC,tempV);
   renderHeatmap(period);
   const step=Math.ceil(days.length/6),lblEl=document.getElementById('canvas-xlabels');
@@ -727,13 +737,13 @@ function renderCharts(){
 
 function drawMain(days,avgPain,medC,sleepH,actC,tempV){
   const canvas=document.getElementById('main-canvas');if(!canvas)return;
+  if(canvas.parentElement.clientWidth<40)return;
   const W=canvas.parentElement.clientWidth-32;canvas.width=W;canvas.height=150;
   const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,150);
   const L=window._layers,pad={l:6,r:6,t:14,b:14},cW=W-pad.l-pad.r,cH=150-pad.t-pad.b,n=days.length;
   const x=i=>pad.l+(i/(n-1||1))*cW;
   if(L.cycle&&cycleEvts.length){
-    const ls=cycleEvts[0].date,colors=['rgba(184,85,85,0.28)','rgba(78,140,95,0.2)','rgba(46,138,140,0.25)','rgba(123,107,176,0.2)'];
-    days.forEach((d,i)=>{const diff=Math.floor((new Date(d)-new Date(ls))/86400000),dc=((diff%cycleSettings.len)+cycleSettings.len)%cycleSettings.len;let fi=3;if(dc<cycleSettings.days)fi=0;else if(dc<13)fi=1;else if(dc<16)fi=2;ctx.fillStyle=colors[fi];ctx.fillRect(pad.l+i*(cW/n),pad.t,cW/n+1,cH);});
+    days.forEach((d,i)=>{const start=cycleEvts.find(e=>e.date<=d);if(!start)return;const dc=Math.round((new Date(d)-new Date(start.date))/86400000);if(dc>=cycleSettings.days)return;ctx.fillStyle='rgba(184,85,85,0.20)';ctx.fillRect(pad.l+i*(cW/n),pad.t,cW/n+1,cH);});
   }
   ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;[0.25,0.5,0.75].forEach(v=>{ctx.beginPath();ctx.moveTo(pad.l,pad.t+cH*v);ctx.lineTo(W-pad.r,pad.t+cH*v);ctx.stroke();});
   if(L.sleep){const bw=Math.max(3,cW/n-3);sleepH.forEach((v,i)=>{if(v===null)return;const bh=(Math.min(v,10)/10)*cH;ctx.fillStyle='rgba(46,138,140,0.35)';ctx.fillRect(x(i)-bw/2,pad.t+cH-bh,bw,bh);});}
@@ -765,16 +775,175 @@ function renderHeatmap(period){
   });
 }
 
-window.expJSON=function(){const data={version:4,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`fon_${new Date().toISOString().split('T')[0]}.json`;a.click();toast('Файл скачан');};
-window.expCSV=function(){const rows=[['Тип','Дата','Боль','Зоны','Причина','Характер','Препарат','Доза','Температура','Сон ч','Сон мин','До 23','Качество','Активность','Подвид']];events.forEach(e=>rows.push(['боль',e.date,e.pain?.level||'',(e.pain?.zones||[]).join(';'),(e.pain?.reasons||[]).join(';'),(e.pain?.character||[]).join(';'),e.med?.name||'',e.med?.dose||'',e.temp?.value||'','','','','','','']));sleeps.forEach(e=>rows.push(['сон',e.date,'','','','','','','',e.hours,e.minutes||0,e.before23?'да':'нет',e.quality||'','','']));acts.forEach(e=>rows.push(['активность',e.date,'','','','','','','','','','','',e.kind,(e.sub||[]).join(';')]));const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');const b=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`fon_${new Date().toISOString().split('T')[0]}.csv`;a.click();};
-window.impJSON=function(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=async e=>{try{const data=JSON.parse(e.target.result);let added=0;const addNew=async(arr,la,coll)=>{const ids=new Set(la.map(x=>x.id));for(const item of(arr||[])){if(!ids.has(item.id)){const{id,...rest}=item;const ref=await addDoc(collection(db,'users',uid,coll),rest);la.unshift({id:ref.id,...rest});added++;}}};await addNew(data.events,events,'events');await addNew(data.sleeps,sleeps,'sleeps');await addNew(data.acts,acts,'acts');renderAll();toast(`Добавлено ${added} записей`);}catch(err){toast('Ошибка импорта',true);}};reader.readAsText(file);};
+function reportDate(d){return String(d||'').split('-').reverse().join('.');}
+function reportBody(side,counts){
+  const original=document.getElementById('body-'+side);if(!original)return '';
+  const svg=original.cloneNode(true);const max=Math.max(1,...Object.values(counts));
+  svg.removeAttribute('id');svg.removeAttribute('style');svg.setAttribute('width','150');svg.setAttribute('height','290');
+  for(const el of [svg,...svg.querySelectorAll('*')]){for(const a of [...el.attributes])if(a.name.startsWith('on')||a.name==='id')el.removeAttribute(a.name);}
+  svg.querySelectorAll('.body-zone').forEach(el=>{const n=counts[el.dataset.zone]||0;el.removeAttribute('class');el.setAttribute('fill',n?`rgb(${Math.round(220-90*n/max)},${Math.round(210-150*n/max)},${Math.round(210-140*n/max)})`:'#f0f0f0');el.setAttribute('stroke','#666');el.setAttribute('stroke-width','0.7');});
+  return svg.outerHTML;
+}
+function reportChart(days,ev,ac,cy){
+  let result='';
+  for(let start=0;start<days.length;start+=28){
+    const chunk=days.slice(start,start+28),w=700,h=220,left=36,right=12,top=14,bottom=126;
+    const x=i=>left+(i+.5)*(w-left-right)/chunk.length,y=v=>bottom-(bottom-top)*v/10;
+    let marks='',previous=null;
+    for(const level of [0,5,10])marks+=`<line x1="${left}" x2="${w-right}" y1="${y(level)}" y2="${y(level)}" stroke="#ccc"/><text x="24" y="${y(level)+4}" text-anchor="end">${level}</text>`;
+    chunk.forEach((d,i)=>{
+      const items=ev.filter(e=>e.date===d&&Number.isFinite(e.pain?.level)),mean=items.length?items.reduce((sum,e)=>sum+e.pain.level,0)/items.length:null;
+      if(mean!==null){if(previous!==null)marks+=`<line x1="${x(i-1)}" y1="${y(previous)}" x2="${x(i)}" y2="${y(mean)}" stroke="#222" stroke-width="1.5"/>`;marks+=`<circle cx="${x(i)}" cy="${y(mean)}" r="3" fill="#111"/><text x="${x(i)}" y="${y(mean)-6}" text-anchor="middle" font-size="8">${Number(mean.toFixed(1))}</text>`;}
+      previous=mean;
+      const meds=ev.filter(e=>e.date===d&&e.med).length,sport=ac.filter(e=>e.date===d).length,cycle=cy.some(e=>e.date===d);
+      if(meds)marks+=`<text x="${x(i)}" y="157" text-anchor="middle">${meds}</text>`;
+      if(sport)marks+=`<text x="${x(i)}" y="175" text-anchor="middle">${sport}</text>`;
+      if(cycle)marks+=`<text x="${x(i)}" y="193" text-anchor="middle">●</text>`;
+      marks+=`<text transform="translate(${x(i)},207) rotate(-40)" text-anchor="end" font-size="8">${reportDate(d).slice(0,5)}</text>`;
+    });
+    result+=`<div class="chart"><h3>${reportDate(chunk[0])} — ${reportDate(chunk.at(-1))}</h3><svg role="img" aria-label="Дневные средние оценки боли и число записей о препаратах и активности" viewBox="0 0 ${w} ${h+16}"><g font-family="Arial" font-size="10">${marks}<text x="0" y="157">П</text><text x="0" y="175">А</text><text x="0" y="193">Ц</text></g></svg></div>`;
+  }
+  return result;
+}
+function buildDoctorReport({from,to,name='',question=''}){
+  if(!validDate(from)||!validDate(to)||from>to)throw Error('Проверь начало и конец периода');
+  const length=Math.round((new Date(to)-new Date(from))/86400000)+1;
+  if(length>366)throw Error('Выбери период не более 366 дней');
+  const inside=e=>e.date>=from&&e.date<=to,ev=events.filter(inside).sort((a,b)=>a.date.localeCompare(b.date)||String(a.ts||'').localeCompare(String(b.ts||''))),sl=sleeps.filter(inside),ac=acts.filter(inside),cy=cycleEvts.filter(inside).sort((a,b)=>a.date.localeCompare(b.date));
+  const days=Array.from({length},(_,i)=>new Date(Date.parse(from+'T12:00:00Z')+i*86400000).toISOString().slice(0,10));
+  const pain=ev.filter(e=>Number.isFinite(e.pain?.level)),meds=ev.filter(e=>e.med),recordedDays=new Set([...ev,...sl,...ac,...cy].map(e=>e.date)).size;
+  const counts={},zoneDays={},zoneLevels={};
+  for(const e of pain)for(const z of new Set(e.pain.zones||[])){counts[z]=(counts[z]||0)+1;(zoneDays[z]??=new Set()).add(e.date);(zoneLevels[z]??=[]).push(e.pain.level);}
+  const mean=values=>values.length?(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1):'—';
+  const table=(heads,rows)=>`<table><thead><tr>${heads.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${heads.length}">Нет записей за выбранный период</td></tr>`}</tbody></table>`;
+  const drugGroups=new Map();for(const e of meds){const key=e.med.name+'\u0000'+String(e.med.dose??'');if(!drugGroups.has(key))drugGroups.set(key,{name:e.med.name,dose:e.med.dose,count:0,dates:new Set()});const g=drugGroups.get(key);g.count++;g.dates.add(e.date);}
+  const time=e=>e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):'—';
+  const allCycle=[...new Set(cycleEvts.map(e=>e.date).filter(d=>d<=to))].sort(),cycleRows=cy.map(e=>{const i=allCycle.indexOf(e.date);return [reportDate(e.date),i>0?Math.round((new Date(e.date)-new Date(allCycle[i-1]))/86400000)+' дн.':'—'];});
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Дневник самочувствия — ${reportDate(from)}–${reportDate(to)}</title><style>
+  *{box-sizing:border-box}body{font:12px/1.45 Arial,sans-serif;color:#151515;background:#eee;margin:0}main{max-width:900px;margin:24px auto;padding:36px;background:#fff}h1{font-size:25px;line-height:1.15;margin:8px 0 14px}h2{font-size:17px;margin:26px 0 9px;border-bottom:1px solid #777;padding-bottom:5px}h3{font-size:12px;margin:10px 0}p{margin:8px 0}.meta{color:#444}.kicker{text-transform:uppercase;letter-spacing:1.5px;font-size:10px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;border-top:2px solid #222;border-bottom:1px solid #aaa;padding:14px 0;margin:20px 0}.summary strong{display:block;font-size:22px}.small{font-size:10px;color:#555}.maps{display:flex;gap:20px;align-items:flex-start}.figures{display:flex;flex-shrink:0}.figures figure{margin:0;text-align:center}.maps table{flex:1}svg{max-width:100%}.chart{break-inside:avoid;margin-bottom:12px}.chart>svg{width:100%;height:auto}table{border-collapse:collapse;width:100%;font-size:10px;margin:9px 0 16px;table-layout:fixed}th,td{border:1px solid #bbb;padding:6px;vertical-align:top;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}th{background:#eee;font-weight:bold}thead{display:table-header-group}tr{break-inside:avoid}h2,h3{break-after:avoid}.toolbar{padding:14px;text-align:center;background:#222;color:white}.toolbar button{padding:10px 20px;cursor:pointer}footer{margin-top:24px;border-top:1px solid #aaa;padding-top:10px;font-size:10px;color:#555}
+  @page{size:A4;margin:14mm}@media print{body{background:white}main{margin:0;padding:0;max-width:none}.toolbar{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.details{break-before:page}}@media(max-width:650px){main{padding:18px;margin:0}.summary{grid-template-columns:repeat(2,1fr)}.maps{flex-direction:column}}
+  </style></head><body><div class="toolbar"><button onclick="window.print()">Печать / сохранить в PDF</button><div>В окне печати выбери «Сохранить как PDF». Для чистого документа отключи колонтитулы браузера.</div></div><main>
+  <div class="kicker">Наблюдения пациента · для консультации</div><h1>Дневник боли и самочувствия</h1>
+  <p><b>Пациент:</b> ${esc(name.trim()||'не указан')}<br><b>Период:</b> ${reportDate(from)} — ${reportDate(to)} (${length} дн.)<br><b>Сформировано:</b> ${esc(new Date().toLocaleString('ru-RU'))}</p>
+  ${question.trim()?`<p><b>Вопрос к врачу:</b> ${esc(question)}</p>`:''}
+  <p class="meta">Самостоятельные записи пациента. Документ не содержит диагноза, оценки эффективности лечения или установленных причин симптомов.</p>
+  <div class="summary"><div><strong>${recordedDays} / ${length}</strong>дней с любыми записями</div><div><strong>${mean(pain.map(e=>e.pain.level))} / 10</strong>средняя оценка боли</div><div><strong>${pain.length?Math.max(...pain.map(e=>e.pain.level)):'—'} / 10</strong>максимальная оценка</div><div><strong>${meds.length}</strong>записей о приёме препаратов</div></div>
+  <p class="small">Средняя боль рассчитана по ${pain.length} отдельным оценкам в ${new Set(pain.map(e=>e.date)).size} днях. Число записей о препаратах — не число таблеток. Отсутствие записи не означает отсутствие боли, приёма препарата или активности.</p>
+  <h2>1. Локализация боли</h2><div class="maps"><div class="figures"><figure>${reportBody('front',counts)}<figcaption>Спереди</figcaption></figure><figure>${reportBody('back',counts)}<figcaption>Сзади</figcaption></figure></div>${table(['Зона','Записей / дней','Ср. / макс. оценка'],Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(z=>[z,counts[z]+' / '+zoneDays[z].size,mean(zoneLevels[z])+' / '+Math.max(...zoneLevels[z])]))}</div>
+  <p class="small">Чем темнее зона, тем чаще она отмечена в выбранном периоде. Серая зона — нет отметок. Одна оценка боли в приложении относится ко всей записи; при нескольких зонах она показана для каждой, отдельная интенсивность по зонам не измерялась.</p>
+  <h2>2. Динамика по дням</h2><p class="small">Линия — средняя боль за день (0–10); разрыв — нет оценки. П — число записей о приёме препаратов; А — число записей активности; Ц — отмеченное начало цикла. Пустые ячейки — нет записей. Прогнозные фазы не показаны.</p>${reportChart(days,ev,ac,cy)}
+  <h2>3. Препараты</h2>${table(['Название со слов пациента','Доза в одной записи, мг','Записей / дней'],[...drugGroups.values()].map(g=>[g.name,g.dose??'не указана',g.count+' / '+g.dates.size]))}
+  <h2>4. Физическая активность</h2>${table(['Дата','Занятие','Подвид'],[...ac].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.kind,(e.sub||[]).join(', ')]))}
+  <h2>5. Менструальный цикл</h2>${table(['Отмеченное начало','Интервал с предыдущим отмеченным началом'],cycleRows)}<p class="small">Приложение хранит даты начала, но не фактические даты окончания кровотечения. В настройках на момент формирования: цикл ${esc(cycleSettings.len)} дн., менструация ${esc(cycleSettings.days)} дн.; это введённые значения, а не измеренные длительности. Интервал может учитывать отметку до начала выбранного периода.</p>
+  <section class="details"><h2>6. Подробные записи самочувствия</h2>${table(['Дата / время записи','Боль / зоны','Характер / предполагаемая причина','Препарат / температура','Заметка'],ev.map(e=>[reportDate(e.date)+' '+time(e),(e.pain?e.pain.level+'/10':'не оценена')+'\n'+(e.pain?.zones||[]).join(', '),(e.pain?.character||[]).join(', ')+'\n'+(e.pain?.reasons||[]).join(', '),(e.med?e.med.name+(e.med.dose?' · '+e.med.dose+' мг':' · доза не указана'):'')+(e.temp?'\n'+e.temp.value+' °C':''),e.note||'']))}<p class="small">Время — момент создания записи, а не подтверждённое время появления симптома или приёма лекарства. «Причина» — предположение пациента.</p>
+  <h2>7. Сон</h2>${table(['Дата','Длительность','Качество со слов пациента','Отметка «до 23:00»'],[...sl].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.hours+' ч '+(e.minutes??0)+' мин',e.quality||'не указано',e.before23?'да':'не отмечено']))}</section>
+  <footer>Источник: личный дневник «Фон». В отчёт включены загруженные записи выбранного периода. Пустые дни не заполнены нулями. Документ содержит личные данные.</footer></main></body></html>`;
+}
+window.openDoctorReport=function(download=false){
+  if(!requireData())return;
+  try{
+    const from=document.getElementById('report-from').value,to=document.getElementById('report-to').value;
+    const html=buildDoctorReport({from,to,name:document.getElementById('report-name').value,question:document.getElementById('report-question').value});
+    if(download){downloadText(html,'html','text/html;charset=utf-8');return;}
+    const report=window.open('','_blank');
+    if(!report){toast('Браузер заблокировал окно. Разреши всплывающие окна или скачай HTML.',true);return;}
+    report.opener=null;report.document.open();report.document.write(html);report.document.close();
+  }catch(e){toast(e.message||'Не удалось создать отчёт',true);}
+};
 
-function updateDataStats(){const all=[...events,...sleeps,...acts],sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date)),fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});document.getElementById('data-stats').innerHTML=`<div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div><div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div><div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div><div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div><div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>`;}
+function backupData(){return {version:5,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};}
+function downloadText(text,extension,type){
+  const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=`fon_${localDate()}.${extension}`;document.body.appendChild(a);
+  try{a.click();toast('Скачивание запрошено. Проверь папку загрузок.');}
+  catch(e){toast('Не удалось начать скачивание. Используй JSON текстом.',true);}
+  finally{a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+}
+window.expJSON=function(){if(!requireData())return;downloadText(JSON.stringify(backupData(),null,2),'json','application/json;charset=utf-8');};
+window.showBackupText=function(){if(!requireData())return;document.getElementById('backup-panel').hidden=false;document.getElementById('backup-text').value=JSON.stringify(backupData(),null,2);document.getElementById('backup-text').focus();};
+window.copyBackupText=async function(){if(!requireData())return;window.showBackupText();const area=document.getElementById('backup-text');try{await navigator.clipboard.writeText(area.value);toast('Текст скопирован');}catch(e){area.focus();area.select();toast('Выделено: нажми «Копировать» или Ctrl/Cmd+C');}};
+function csvCell(value){let text=String(value??'');if(/^[\s]*[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}
+function buildCSV(){
+  const rows=[['Тип','Дата','Боль','Зоны','Причина','Характер','Препарат','Доза','Температура','Сон ч','Сон мин','До 23','Качество','Активность','Подвид','Заметка','Время записи','Температура повышена']];
+  const records=[];
+  events.forEach(e=>records.push(['самочувствие',e.date,e.pain?.level??'',(e.pain?.zones||[]).join('; '),(e.pain?.reasons||[]).join('; '),(e.pain?.character||[]).join('; '),e.med?.name??'',e.med?.dose??'',e.temp?.value??'','','','','','','',e.note??'',e.ts??'',e.temp?(e.temp.high?'да':'нет'):'']));
+  sleeps.forEach(e=>records.push(['сон',e.date,'','','','','','','',e.hours,e.minutes??0,e.before23?'да':'нет',e.quality??'','','','',e.ts??'','']));
+  acts.forEach(e=>records.push(['активность',e.date,'','','','','','','','','','','',e.kind,(e.sub||[]).join('; '),'',e.ts??'','']));
+  cycleEvts.forEach(e=>records.push(['начало цикла',e.date,'','','','','','','','','','','','','','',e.ts??'','']));
+  records.sort((a,b)=>String(a[1]).localeCompare(String(b[1])));rows.push(...records);
+  return '\uFEFF'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n');
+}
+window.expCSV=function(){if(!requireData())return;downloadText(buildCSV(),'csv','text/csv;charset=utf-8');};
+function validDate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;const d=new Date(value+'T12:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===value;}
+function validateBackup(data){
+  if(!data||typeof data!=='object'||Array.isArray(data))throw Error('Ожидается объект JSON');
+  const fields=['events','sleeps','acts','cycleEvents'];
+  if(!fields.some(k=>Array.isArray(data[k])))throw Error('В файле нет массивов записей Фон');
+  let total=0;
+  for(const key of fields){
+    if(data[key]===undefined)continue;
+    if(!Array.isArray(data[key]))throw Error('Неверный раздел: '+key);
+    total+=data[key].length;
+    for(const r of data[key]){
+      if(!r||typeof r!=='object'||Array.isArray(r)||!validDate(r.date))throw Error('Неверная дата в разделе '+key);
+      if(r.id!==undefined&&(typeof r.id!=='string'||! /^[A-Za-z0-9_-]{1,1500}$/.test(r.id)))throw Error('Неверный ID записи');
+      if(r.ts!==undefined&&(typeof r.ts!=='string'||isNaN(Date.parse(r.ts))))throw Error('Неверное время записи');
+      for(const field of ['note','kind','quality'])if(r[field]!=null&&typeof r[field]!=='string')throw Error('Неверное текстовое поле '+field);
+      if(key==='events'){
+        if(r.pain!=null){if(typeof r.pain!=='object'||!Number.isInteger(r.pain.level)||r.pain.level<0||r.pain.level>10)throw Error('Оценка боли должна быть от 0 до 10');for(const k of ['zones','reasons','character'])if(r.pain[k]!==undefined&&(!Array.isArray(r.pain[k])||r.pain[k].some(v=>typeof v!=='string')))throw Error('Неверные признаки боли');}
+        if(r.med!=null&&(typeof r.med!=='object'||typeof r.med.name!=='string'||(r.med.dose!=null&&!['string','number'].includes(typeof r.med.dose))))throw Error('Неверная запись препарата');
+        if(r.temp!=null&&(typeof r.temp!=='object'||!Number.isFinite(r.temp.value)))throw Error('Неверная температура');
+      }
+      if(key==='sleeps'&&(!Number.isInteger(r.hours)||r.hours<0||!Number.isInteger(r.minutes??0)||(r.minutes??0)<0||(r.minutes??0)>59||r.hours*60+(r.minutes??0)>1440))throw Error('Неверная длительность сна');
+      if(key==='acts'&&(typeof r.kind!=='string'||(r.sub!==undefined&&(!Array.isArray(r.sub)||r.sub.some(v=>typeof v!=='string')))))throw Error('Неверная активность');
+    }
+  }
+  if(total>50000)throw Error('Слишком много записей: максимум 50 000');
+  if(data.cycleSettings!==undefined){const c=data.cycleSettings;if(!c||!Number.isInteger(c.len)||c.len<1||c.len>365||!Number.isInteger(c.days)||c.days<1||c.days>c.len)throw Error('Неверные настройки цикла');}
+  return data;
+}
+function canonical(value){if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';if(value&&typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+canonical(value[k])).join(',')+'}';return JSON.stringify(value);}
+function recordKey(item){const {id,...rest}=item;return canonical(rest);}
+async function stableImportId(key){const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key));return 'import_'+Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('');}
+window.impJSON=async function(input){
+  const file=input.files[0];if(!file||importBusy||!requireData()){input.value='';return;}
+  let added=0,skipped=0;importBusy=true;
+  try{
+    if(file.size>20*1024*1024)throw Error('Файл больше 20 МБ');
+    const data=validateBackup(JSON.parse(await file.text()));
+    const sections=[['events',events,'events'],['sleeps',sleeps,'sleeps'],['acts',acts,'acts'],['cycleEvents',cycleEvts,'cycle']];
+    const summary=sections.map(([key,,coll])=>`${({events:'Самочувствие',sleeps:'Сон',acts:'Активность',cycle:'Начало цикла'})[coll]}: ${(data[key]||[]).length}`).join('\n');
+    if(!confirm('Добавить данные из файла?\n'+summary+'\n'+(data.cycleSettings?'Настройки цикла будут заменены значениями из файла.':'Настройки цикла останутся прежними.')))return;
+    syncStatus('Восстановление данных… Не закрывай страницу.');
+    for(const [key,local,coll] of sections){
+      const ids=new Set(local.map(x=>x.id)),keys=new Set(local.map(recordKey)),dates=new Set(local.map(x=>x.date));
+      for(const item of data[key]||[]){
+        const fingerprint=recordKey(item);
+        if((item.id&&ids.has(item.id))||keys.has(fingerprint)||(coll==='cycle'&&dates.has(item.date))){skipped++;continue;}
+        const {id,...rest}=item,targetId=await stableImportId(fingerprint);
+        await setDoc(doc(db,'users',uid,coll,targetId),rest);
+        local.push({...rest,id:targetId});keys.add(fingerprint);if(id)ids.add(id);ids.add(targetId);dates.add(item.date);added++;
+      }
+      local.sort((a,b)=>b.date.localeCompare(a.date));
+    }
+    if(data.cycleSettings){await setDoc(doc(db,'users',uid,'meta','settings'),data.cycleSettings);cycleSettings={...data.cycleSettings};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}
+    renderAll();syncStatus(`Импорт завершён. Добавлено: ${added}; пропущено повторов или совпавших ID: ${skipped}.`);toast('Импорт завершён');
+  }catch(e){renderAll();syncStatus(`Импорт остановлен. Успешно добавлено: ${added}. ${e.message||'Ошибка подключения'}. Можно повторить импорт.`);toast('Импорт не завершён — смотри сообщение сверху',true);}
+  finally{importBusy=false;input.value='';}
+};
 
+function updateDataStats(){const all=[...events,...sleeps,...acts,...cycleEvts],sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date)),fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});document.getElementById('data-stats').innerHTML=`<div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div><div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div><div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div><div class="drow"><span>Начал цикла</span><span class="dval">${cycleEvts.length}</span></div><div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div><div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>`;}
+
+for(const name of ['saveLoad','saveSleep','saveAct','saveCycleStart','saveCycleSettings','delEntry']){
+  const original=window[name];let busy=false;
+  window[name]=async function(...args){if(busy||importBusy||!requireData())return;busy=true;try{return await original(...args);}finally{busy=false;}};
+}
 window._renderCharts=renderCharts;window._renderCycle=renderCycle;
 </script>
 
 <script>
+function localDate(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 window._selPain=null;window._selAct=null;window._selZones=[];
 
 function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=(err?'✗ ':'✓ ')+msg;t.style.background=err?'var(--rose)':'var(--g)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
@@ -783,7 +952,7 @@ function showS(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   document.getElementById('s-'+name).classList.add('active');
-  document.getElementById('n-'+name).classList.add('active');
+  document.getElementById('n-'+name)?.classList.add('active');
   if(name==='charts')setTimeout(()=>{if(window._renderCharts)window._renderCharts();},50);
   if(name==='cycle'){if(window._renderCycle)window._renderCycle();}
 }
@@ -848,8 +1017,10 @@ function resetLoad(){
 function resetSleep(){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));document.getElementById('sleep-h').value='';document.getElementById('sleep-m').value='';document.getElementById('sleep-23').checked=false;}
 function resetAct(){window._selAct=null;document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));document.querySelectorAll('#sub-tags .tag').forEach(b=>b.classList.remove('sel'));document.getElementById('sub-wrap').style.display='none';}
 
-const today=new Date().toISOString().split('T')[0];
+const today=localDate();
 ['load-date','sleep-date','act-date','cycle-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+document.getElementById('report-to').value=localDate();
+const reportStart=new Date();reportStart.setDate(reportStart.getDate()-29);document.getElementById('report-from').value=localDate(reportStart);
 updateZoneDisplay();
 </script>
 </body>
