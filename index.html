@@ -141,7 +141,7 @@ canvas{width:100%!important;display:block}
 <body>
 <div id="loader"><div class="loader-name">Фон</div><div class="loader-sub">загрузка</div></div>
 <div id="toast"></div>
-<div id="app"><div id="sync-status" role="status" aria-live="polite"></div>
+<div id="app"><button id="account-banner" type="button" onclick="showS('data')" style="display:block;width:100%;border:0;padding:12px 16px;background:var(--lav-l);color:var(--g);text-align:left;cursor:pointer">Подключение к дневнику…</button><div id="sync-status" role="status" aria-live="polite"></div>
 
 <!-- ВОССТАНОВЛЕНИЕ (главный экран) -->
 <div class="screen active" id="s-rec">
@@ -479,7 +479,21 @@ canvas{width:100%!important;display:block}
 <!-- ДАННЫЕ -->
 <div class="screen" id="s-data">
   <p class="pt">Данные</p>
-  <p class="ps">Экспорт и импорт</p>
+  <p class="ps">Аккаунт · отчёт · резервная копия</p>
+  <div class="card">
+    <div class="cl">Один дневник на всех устройствах</div>
+    <p id="account-status" style="font-weight:600;overflow-wrap:anywhere">Подключение…</p>
+    <div id="account-guest-help" style="font-size:12px;line-height:1.6;margin-top:10px">
+      <b>Сначала на телефоне, где видны записи:</b> нажми «Привязать этот дневник к Google». Затем на компьютере войди в тот же Google-аккаунт.
+      <br>Перед первой привязкой можно сохранить JSON-копию ниже. Привязка сохраняет текущий дневник.
+    </div>
+    <button class="btn mt8" id="account-link" onclick="linkGoogle()" disabled>Привязать этот дневник к Google</button>
+    <button class="btn sage mt8" id="account-signin" onclick="signInGoogle()" disabled>Войти в уже привязанный дневник</button>
+    <button class="btn mt8" id="account-refresh" onclick="refreshDiary()" disabled>Обновить данные</button>
+    <button class="btn mt8" id="account-signout" onclick="signOutGoogle()" hidden disabled>Выйти из аккаунта</button>
+    <p id="account-message" role="status" aria-live="polite" style="font-size:12px;white-space:pre-wrap;margin-top:10px"></p>
+    <p style="font-size:12px;margin-top:10px">После сохранения на другом устройстве нажми «Обновить данные», чтобы получить последние записи.</p>
+  </div>
   <div class="card"><div id="data-stats"></div></div>
   <div class="card">
     <div class="cl">Отчёт для врача</div>
@@ -538,8 +552,8 @@ canvas{width:100%!important;display:block}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore,collection,addDoc,getDocs,query,orderBy,doc,setDoc,getDoc,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth,signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore,collection,addDoc,getDocsFromServer,query,orderBy,doc,setDoc,getDocFromServer,deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth,signInAnonymously,onAuthStateChanged,GoogleAuthProvider,linkWithPopup,signInWithPopup,signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const app=initializeApp({apiKey:"AIzaSyCWYyy19WDJf1Ki026fKHdrZQTIVKazMuI",authDomain:"spine-tracker-96e55.firebaseapp.com",projectId:"spine-tracker-96e55",storageBucket:"spine-tracker-96e55.firebasestorage.app",messagingSenderId:"451481913810",appId:"1:451481913810:web:f55ac32d330322aa94200b"});
 const db=getFirestore(app),auth=getAuth(app);
@@ -548,29 +562,129 @@ let cycleSettings={len:28,days:5};
 window._period=14;
 window._layers={pain:true,med:true,sleep:true,act:true,cycle:true,temp:true};
 
-let dataReady=false, importBusy=false;
+let dataReady=false, importBusy=false, authBusy=false, pendingWrites=0, loadGeneration=0, anonymousStarting=false;
+auth.languageCode='ru';
 function syncStatus(message){document.getElementById('sync-status').textContent=message;}
-function requireData(){if(!dataReady){toast('Данные загружены не полностью. Обнови страницу и проверь подключение.',true);return false;}return true;}
-signInAnonymously(auth).then(async c=>{uid=c.user.uid;await loadAll();}).catch(e=>{
-  document.getElementById('loader').textContent='Не удалось подключиться к Firebase ('+(e.code||'ошибка сети')+'). Обнови страницу и проверь подключение.';
-});
-async function loadAll(){
-  dataReady=false;
-  const result=await Promise.allSettled([loadSettings(),loadEvents(),loadSleeps(),loadActs(),loadCycle()]);
-  const failed=result.filter(r=>r.status==='rejected');
-  dataReady=!failed.length;
-  syncStatus(dataReady?'Данные загружены · Фон 4.1':'Не удалось загрузить все данные. Выгрузка и изменения заблокированы: обнови страницу. '+(failed[0].reason.code||''));
-  document.getElementById('loader').style.display='none';
-  document.getElementById('app').style.display='block';
-  renderAll();
+function accountMessage(message){document.getElementById('account-message').textContent=message;}
+function entryCount(){return events.length+sleeps.length+acts.length+cycleEvts.length;}
+function requireData(){
+  if(authBusy||!dataReady||!uid||auth.currentUser?.uid!==uid){toast('Дождись подключения к своему дневнику. При ошибке нажми «Обновить данные».',true);return false;}
+  return true;
 }
-async function loadSettings(){const d=await getDoc(doc(db,'users',uid,'meta','settings'));if(d.exists()){cycleSettings={...cycleSettings,...d.data()};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}}
-async function loadRecords(name){const s=await getDocs(collection(db,'users',uid,name));return s.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));}
-async function loadEvents(){events=await loadRecords('events');}
-async function loadSleeps(){sleeps=await loadRecords('sleeps');}
-async function loadActs(){acts=await loadRecords('acts');}
-async function loadCycle(){cycleEvts=await loadRecords('cycle');}
-function renderAll(){renderHistory();renderCharts();renderCycle();updateDataStats();}
+function renderAccount(){
+  const user=auth.currentUser,guest=!!user?.isAnonymous;
+  document.getElementById('account-status').textContent=!user?'Подключение…':guest?'Гостевой дневник — доступен в этом браузере':`Аккаунт: ${user.email||user.displayName||'Google'}`;
+  document.getElementById('account-banner').textContent=guest?'Дневник ещё не привязан к аккаунту · Настроить доступ на других устройствах':user?`Мой аккаунт · ${user.email||user.displayName||'Google'}`:'Подключение к дневнику…';
+  document.getElementById('account-guest-help').hidden=!guest;
+  document.getElementById('account-link').hidden=!guest;
+  document.getElementById('account-signin').hidden=!guest;
+  document.getElementById('account-signout').hidden=!user||guest;
+  for(const id of ['account-link','account-signin','account-signout','account-refresh'])document.getElementById(id).disabled=authBusy||importBusy||pendingWrites>0||!dataReady;
+}
+function clearUserData(){
+  events=[];sleeps=[];acts=[];cycleEvts=[];cycleSettings={len:28,days:5};dataReady=false;
+  for(const id of ['hist-list','cycle-status','cycle-hist','data-stats','stat-pills','hm-front','hm-back'])document.getElementById(id).innerHTML='';
+  document.getElementById('cycle-hist-card').style.display='none';
+  document.getElementById('backup-text').value='';document.getElementById('backup-panel').hidden=true;
+  document.getElementById('report-name').value='';document.getElementById('report-question').value='';
+  document.getElementById('cyc-len').value=28;document.getElementById('cyc-days').value=5;
+  resetLoad();resetSleep();resetAct();
+  const canvas=document.getElementById('main-canvas');canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);
+}
+async function loadRecords(name,userId){
+  const s=await getDocsFromServer(collection(db,'users',userId,name));
+  return s.docs.map(d=>({...d.data(),id:d.id})).sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+}
+async function loadAll(){
+  const userId=uid,generation=++loadGeneration;
+  if(!userId||auth.currentUser?.uid!==userId)return false;
+  dataReady=false;syncStatus('Загружаю дневник из Firebase…');renderAccount();
+  try{
+    const [settings,nextEvents,nextSleeps,nextActs,nextCycle]=await Promise.all([
+      getDocFromServer(doc(db,'users',userId,'meta','settings')),
+      loadRecords('events',userId),loadRecords('sleeps',userId),loadRecords('acts',userId),loadRecords('cycle',userId)
+    ]);
+    if(generation!==loadGeneration||uid!==userId||auth.currentUser?.uid!==userId)return false;
+    cycleSettings=settings.exists()?{len:28,days:5,...settings.data()}:{len:28,days:5};
+    events=nextEvents;sleeps=nextSleeps;acts=nextActs;cycleEvts=nextCycle;
+    document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;
+    dataReady=true;renderAll();
+    syncStatus(`Данные загружены · ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · Фон 4.2`);
+    return true;
+  }catch(e){
+    if(generation===loadGeneration&&uid===userId){dataReady=false;syncStatus('Не удалось загрузить дневник. Записи не удалены этим действием. Проверь интернет и нажми «Обновить данные». '+(e.code||''));}
+    return false;
+  }finally{
+    if(generation===loadGeneration){document.getElementById('loader').style.display='none';document.getElementById('app').style.display='block';renderAccount();document.getElementById('account-refresh').disabled=authBusy||importBusy||pendingWrites>0;}
+  }
+}
+function renderAll(){renderHistory();renderCharts();renderCycle();updateDataStats();renderAccount();}
+function authError(e){
+  const errors={
+    'auth/operation-not-allowed':'Вход через Google ещё не включён. В Firebase открой Authentication → Sign-in method → Google → Enable и сохрани настройки.',
+    'auth/unauthorized-domain':'Этот адрес сайта не разрешён для входа. В Firebase открой Authentication → Settings → Authorized domains и добавь hyperbolga.github.io.',
+    'auth/popup-blocked':'Браузер заблокировал окно входа. Разреши всплывающие окна для этого сайта и нажми кнопку ещё раз. Открывай сайт в обычном Safari или Chrome.',
+    'auth/popup-closed-by-user':'Вход отменён. Текущий дневник не переключён.',
+    'auth/cancelled-popup-request':'Окно входа уже открыто. Заверши вход в нём.',
+    'auth/credential-already-in-use':'Этот Google-аккаунт уже связан с другим дневником. Текущий дневник остаётся открытым. Сохрани его JSON-копию перед объединением; автоматического переключения и удаления не было.',
+    'auth/account-exists-with-different-credential':'Для этой почты уже используется другой способ входа. Текущий дневник не переключён.',
+    'auth/network-request-failed':'Не удалось подключиться. Проверь интернет и повтори вход.',
+    'auth/web-storage-unsupported':'Браузер не разрешает сохранять вход. Открой сайт в обычном режиме Safari или Chrome с разрешённым хранилищем сайта.'
+  };
+  return errors[e.code]||`Не удалось выполнить вход (${e.code||'неизвестная ошибка'}). Текущие записи не удалялись.`;
+}
+async function handleAuthState(user){
+  if(!user){
+    ++loadGeneration;uid=null;clearUserData();renderAccount();
+    if(anonymousStarting)return;
+    anonymousStarting=true;
+    try{await signInAnonymously(auth);}catch(e){
+      document.getElementById('loader').style.display='none';document.getElementById('app').style.display='block';accountMessage(authError(e));syncStatus('Не удалось открыть дневник. Обнови страницу после проверки подключения.');
+    }finally{anonymousStarting=false;}
+    return;
+  }
+  if(user.uid!==uid){++loadGeneration;clearUserData();accountMessage('');}
+  uid=user.uid;renderAccount();await loadAll();
+}
+onAuthStateChanged(auth,user=>{handleAuthState(user).catch(e=>accountMessage(authError(e)));},e=>accountMessage(authError(e)));
+function canChangeAccount(){
+  if(importBusy||pendingWrites){accountMessage('Дождись завершения сохранения или импорта.');return false;}
+  return requireData();
+}
+function googleProvider(){const p=new GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});return p;}
+window.linkGoogle=async function(){
+  if(!canChangeAccount())return;
+  const user=auth.currentUser;if(!user?.isAnonymous)return;
+  const originalUid=user.uid;authBusy=true;renderAccount();accountMessage('Выбери Google-аккаунт, к которому нужно привязать этот дневник.');
+  try{
+    // Link the existing anonymous identity. Never sign in to a different account here.
+    const result=await linkWithPopup(user,googleProvider());
+    if(result.user.uid!==originalUid)throw {code:'unexpected-user-change'};
+    await handleAuthState(result.user);
+    accountMessage(dataReady?'Дневник привязан к Google. На другом устройстве нажми «Войти в уже привязанный дневник» и выбери тот же Google-аккаунт.':'Аккаунт привязан. Для загрузки записей проверь интернет и нажми «Обновить данные».');
+  }catch(e){accountMessage(authError(e));}
+  finally{authBusy=false;renderAccount();document.getElementById('account-refresh').disabled=importBusy||pendingWrites>0;}
+};
+window.signInGoogle=async function(){
+  if(!canChangeAccount())return;
+  if(!auth.currentUser?.isAnonymous)return;
+  if(entryCount()>0){accountMessage('В этом браузере уже есть записи. Чтобы сохранить доступ к ним, используй «Привязать этот дневник к Google». Вход в другой дневник здесь заблокирован.');return;}
+  authBusy=true;renderAccount();accountMessage('Выбери тот Google-аккаунт, к которому уже привязала дневник на телефоне.');
+  try{
+    const result=await signInWithPopup(auth,googleProvider());
+    await handleAuthState(result.user);
+    accountMessage(!dataReady?'Вход выполнен. Проверь интернет и нажми «Обновить данные».':entryCount()?'Открыт дневник Google-аккаунта.':'В этом аккаунте пока нет записей. Проверь выбранную почту и привязку на телефоне. Другие дневники не удалялись.');
+  }catch(e){accountMessage(authError(e));}
+  finally{authBusy=false;renderAccount();document.getElementById('account-refresh').disabled=importBusy||pendingWrites>0;}
+};
+window.signOutGoogle=async function(){
+  if(!canChangeAccount()||auth.currentUser?.isAnonymous)return;
+  if(!confirm('Выйти из Google-аккаунта на этом устройстве? Для доступа к дневнику потребуется снова войти в тот же аккаунт.'))return;
+  authBusy=true;renderAccount();
+  try{await signOut(auth);}catch(e){accountMessage(authError(e));}
+  finally{authBusy=false;renderAccount();}
+};
+window.refreshDiary=async function(){if(authBusy||importBusy||pendingWrites){toast('Дождись завершения текущего действия',true);return;}await loadAll();};
 
 window.saveLoad=async function(){
   const btn=document.getElementById('load-save');btn.textContent='Сохраняю...';btn.disabled=true;
@@ -907,7 +1021,7 @@ function recordKey(item){const {id,...rest}=item;return canonical(rest);}
 async function stableImportId(key){const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key));return 'import_'+Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('');}
 window.impJSON=async function(input){
   const file=input.files[0];if(!file||importBusy||!requireData()){input.value='';return;}
-  let added=0,skipped=0;importBusy=true;
+  const importUserId=uid;let added=0,skipped=0;importBusy=true;renderAccount();
   try{
     if(file.size>20*1024*1024)throw Error('Файл больше 20 МБ');
     const data=validateBackup(JSON.parse(await file.text()));
@@ -918,25 +1032,26 @@ window.impJSON=async function(input){
     for(const [key,local,coll] of sections){
       const ids=new Set(local.map(x=>x.id)),keys=new Set(local.map(recordKey)),dates=new Set(local.map(x=>x.date));
       for(const item of data[key]||[]){
+        if(auth.currentUser?.uid!==importUserId||uid!==importUserId)throw Error('Аккаунт изменился. Импорт остановлен.');
         const fingerprint=recordKey(item);
         if((item.id&&ids.has(item.id))||keys.has(fingerprint)||(coll==='cycle'&&dates.has(item.date))){skipped++;continue;}
         const {id,...rest}=item,targetId=await stableImportId(fingerprint);
-        await setDoc(doc(db,'users',uid,coll,targetId),rest);
+        await setDoc(doc(db,'users',importUserId,coll,targetId),rest);
         local.push({...rest,id:targetId});keys.add(fingerprint);if(id)ids.add(id);ids.add(targetId);dates.add(item.date);added++;
       }
       local.sort((a,b)=>b.date.localeCompare(a.date));
     }
-    if(data.cycleSettings){await setDoc(doc(db,'users',uid,'meta','settings'),data.cycleSettings);cycleSettings={...data.cycleSettings};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}
+    if(data.cycleSettings){if(auth.currentUser?.uid!==importUserId||uid!==importUserId)throw Error('Аккаунт изменился.');await setDoc(doc(db,'users',importUserId,'meta','settings'),data.cycleSettings);cycleSettings={...data.cycleSettings};document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;}
     renderAll();syncStatus(`Импорт завершён. Добавлено: ${added}; пропущено повторов или совпавших ID: ${skipped}.`);toast('Импорт завершён');
   }catch(e){renderAll();syncStatus(`Импорт остановлен. Успешно добавлено: ${added}. ${e.message||'Ошибка подключения'}. Можно повторить импорт.`);toast('Импорт не завершён — смотри сообщение сверху',true);}
-  finally{importBusy=false;input.value='';}
+  finally{importBusy=false;input.value='';if(uid!==importUserId){clearUserData();await loadAll();}renderAccount();}
 };
 
 function updateDataStats(){const all=[...events,...sleeps,...acts,...cycleEvts],sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date)),fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});document.getElementById('data-stats').innerHTML=`<div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div><div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div><div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div><div class="drow"><span>Начал цикла</span><span class="dval">${cycleEvts.length}</span></div><div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div><div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>`;}
 
 for(const name of ['saveLoad','saveSleep','saveAct','saveCycleStart','saveCycleSettings','delEntry']){
   const original=window[name];let busy=false;
-  window[name]=async function(...args){if(busy||importBusy||!requireData())return;busy=true;try{return await original(...args);}finally{busy=false;}};
+  window[name]=async function(...args){if(busy||importBusy||!requireData())return;const writeUid=uid;busy=true;pendingWrites++;renderAccount();try{return await original(...args);}finally{busy=false;pendingWrites--;if(uid!==writeUid){clearUserData();await loadAll();}renderAccount();}};
 }
 window._renderCharts=renderCharts;window._renderCycle=renderCycle;
 </script>
