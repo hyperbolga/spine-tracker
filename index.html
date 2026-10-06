@@ -136,6 +136,8 @@ canvas{width:100%!important;display:block}
 :focus-visible{outline:3px solid var(--teal);outline-offset:3px}
 #backup-text{width:100%;min-height:180px;font-family:monospace;font-size:12px}
 #sync-status{padding:10px 16px;font-size:12px;white-space:pre-wrap}
+
+[hidden]{display:none!important}.help{font-size:12px;line-height:1.5;color:#69645f;margin:8px 0 12px}.field-label{display:block;font-size:12px;margin-top:10px}.edit-hint{background:var(--amb-l);padding:12px;border-radius:9px;margin-bottom:12px;font-size:13px}.cancel-edit{display:block;width:100%;padding:12px;background:none;border:1px solid var(--g40);border-radius:9px;margin:8px 0 16px;cursor:pointer}.zone-editor{display:flex;align-items:center;gap:8px;justify-content:space-between;width:100%;padding:9px 0;border-bottom:1px solid var(--g15)}.zone-editor select{width:78px;padding:8px}.zone-editor button{border:0;background:none;padding:8px;cursor:pointer}.detail-picker summary{cursor:pointer;padding:12px 0;color:var(--lav)}.digit-picker svg{width:100%;max-width:320px;display:block;margin:auto}.digit-picker [role=button]{cursor:pointer}.digit-picker [role=button]:focus{outline:2px solid var(--lav)}.hist-actions{display:flex;gap:8px;margin-top:8px}.hist-actions button{padding:7px 10px;border:1px solid var(--g15);border-radius:7px;background:white;cursor:pointer;font-size:12px}.timeline-scroll{overflow-x:auto;overscroll-behavior-x:contain}.track-row{display:flex;border-bottom:1px solid var(--g15);width:max-content;min-width:100%}.track-label{position:sticky;left:0;width:100px;flex-shrink:0;background:var(--surface);z-index:2;padding:12px 6px;font-size:11px;font-weight:600;border-right:1px solid var(--g15)}.track-cells{display:flex;align-items:stretch}.track-cell{width:44px;flex-shrink:0;min-height:47px;border-right:1px solid #eee;text-align:center;padding:8px 2px;font-size:11px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px}.track-cell button{font:inherit;background:none;border:0;cursor:pointer;min-height:32px;color:var(--lav);text-decoration:underline}.track-cell small{font-size:9px;color:#625f5b}.track-none{color:#b7b2ac}.chart-day{margin-top:16px}.day-item{padding:9px 0;border-bottom:1px solid var(--g15);font-size:12px;white-space:pre-wrap}.hist-note{white-space:pre-wrap;overflow-wrap:anywhere}.digit-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -148,18 +150,15 @@ canvas{width:100%!important;display:block}
   <p class="pt">Восстановление</p>
   <p class="ps">Сон и активность</p>
   <div class="card">
-    <div class="cl">Сон</div>
+    <div class="cl">Сон</div><div id="sleep-edit-hint" class="edit-hint" hidden></div>
+<p class="help">Дата — день, когда проснулась. Пробуждения можно не указывать.</p>
     <div class="irow" style="margin-bottom:10px">
       <div style="flex:1"><div class="ilabel">Дата</div><input class="ifield" type="date" id="sleep-date"></div>
     </div>
     <div class="irow" style="margin-bottom:10px">
       <div style="flex:1"><div class="ilabel">Часы</div><input class="ifield" id="sleep-h" type="number" min="0" max="24" placeholder="7"></div>
       <div style="flex:1"><div class="ilabel">Минуты</div><input class="ifield" id="sleep-m" type="number" min="0" max="59" placeholder="30"></div>
-      <div style="flex:1.4;display:flex;flex-direction:column;justify-content:flex-end">
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:10px 0">
-          <input type="checkbox" id="sleep-23" style="width:15px;height:15px;accent-color:var(--lav)"> до 23:00
-        </label>
-      </div>
+      <div style="flex:1"><label class="ilabel" for="sleep-wakes">Пробуждений</label><input class="ifield" id="sleep-wakes" type="number" min="0" step="1" placeholder="Не указано"></div>
     </div>
     <div class="sq-row">
       <button class="sq" data-q="отлично" onclick="selQ(this)">Отлично</button>
@@ -167,10 +166,10 @@ canvas{width:100%!important;display:block}
       <button class="sq" data-q="средне" onclick="selQ(this)">Средне</button>
       <button class="sq" data-q="плохо" onclick="selQ(this)">Плохо</button>
     </div>
-    <button class="btn mt12" onclick="saveSleep()">Сохранить сон</button>
+    <button class="btn mt12" id="sleep-save" onclick="saveSleep()">Сохранить сон</button><button class="cancel-edit" data-cancel="sleeps" hidden>Отменить редактирование</button>
   </div>
   <div class="card">
-    <div class="cl">Активность</div>
+    <div class="cl">Активность</div><div id="act-edit-hint" class="edit-hint" hidden></div>
     <div class="irow" style="margin-bottom:10px">
       <div style="flex:1"><div class="ilabel">Дата</div><input class="ifield" type="date" id="act-date"></div>
     </div>
@@ -197,19 +196,22 @@ canvas{width:100%!important;display:block}
         </div>
       </div>
     </div>
-    <button class="btn mt12" onclick="saveAct()">Сохранить активность</button>
+    <div class="irow mt12"><label style="flex:1">Время<input id="act-time" class="ifield" type="time"></label><label style="flex:1">Длительность, мин<input id="act-duration" class="ifield" type="number" min="1" max="1440" placeholder="Не указано"></label></div>
+<label class="field-label">Самочувствие после<select class="ifield" id="act-effect"><option value="">Не отмечено</option><option>Лучше</option><option>Без изменений</option><option>Хуже</option></select></label>
+<textarea class="ifield mt8" id="act-note" placeholder="Заметка о занятии"></textarea>
+<button class="btn mt12" id="act-save" onclick="saveAct()">Сохранить активность</button><button class="cancel-edit" data-cancel="acts" hidden>Отменить редактирование</button>
   </div>
 </div>
 
 <!-- НАГРУЗКА -->
 <div class="screen" id="s-load">
   <p class="pt">Нагрузка</p>
-  <p class="ps">Боль и препараты</p>
+  <p class="ps">Боль и препараты</p><div id="load-edit-hint" class="edit-hint" hidden></div>
 
   <!-- ДАТА И ТЕМПЕРАТУРА -->
   <div class="card">
     <div class="cl">Дата записи</div>
-    <input class="ifield" type="date" id="load-date" style="margin-bottom:12px">
+    <div class="irow" style="margin-bottom:12px"><input aria-label="Дата события" class="ifield" type="date" id="load-date"><input aria-label="Время события" class="ifield" type="time" id="load-time"></div><p class="help">Время события можно изменить или оставить пустым.</p>
     <div class="cl">Температура °C</div>
     <div class="irow" style="align-items:center">
       <input class="ifield" id="temp-val" type="number" step="0.1" min="35" max="42" placeholder="36.6" style="max-width:120px">
@@ -318,11 +320,17 @@ canvas{width:100%!important;display:block}
         </svg>
       </div>
     </div>
-    <div class="selected-zones" id="selected-zones-display"></div>
+    <p class="help">Стороны обозначены со стороны человека. Нажми на область тела или выбери точную зону ниже.</p>
+    <details class="detail-picker"><summary>Точнее: пальцы, суставы и другие зоны</summary>
+      <label class="field-label">Точная зона<select class="ifield" id="detail-zone"><option value="">Выбери зону</option></select></label>
+      <button class="bsm mt8" type="button" onclick="addDetailedZone()">Добавить зону</button>
+      <div class="irow mt12"><label>Кисть / стопа<select class="ifield" id="digit-part" onchange="renderDigitPicker()"><option value="hand">Кисть</option><option value="foot">Стопа</option></select></label><label>Сторона<select class="ifield" id="digit-side" onchange="renderDigitPicker()"><option value="Левая">Левая</option><option value="Правая">Правая</option></select></label></div>
+      <div id="digit-picker" class="digit-picker"></div>
+    </details><div class="selected-zones" id="selected-zones-display"></div>
   </div>
 
   <div class="card">
-    <div class="cl">Уровень боли</div>
+    <div class="cl">Общая оценка или оценка сразу для всех выбранных зон</div><p class="help">Для разных зон можно указать разные значения в карточках выше. Если зона не выбрана, сохранится общая оценка.</p>
     <div class="pain-row">
       <button class="pb" data-l="1" onclick="selPain(1)">1</button>
       <button class="pb" data-l="2" onclick="selPain(2)">2</button>
@@ -338,7 +346,7 @@ canvas{width:100%!important;display:block}
   </div>
 
   <div class="card">
-    <div class="cl">Причина боли</div>
+    <div class="cl">Что могло повлиять</div>
     <div class="tags" id="reason-tags">
       <button class="tag" onclick="togTag(this)">Долго сидела</button>
       <button class="tag" onclick="togTag(this)">Плохо спала</button>
@@ -387,15 +395,24 @@ canvas{width:100%!important;display:block}
     <div id="med-sec" style="display:none">
       <div class="irow">
         <input class="ifield" id="med-name" placeholder="Препарат...">
-        <input class="ifield" id="med-dose" type="number" placeholder="мг" style="max-width:76px">
+        <input class="ifield" id="med-dose" type="number" min="0" step="any" placeholder="Доза" aria-label="Доза">
+        <select class="ifield" id="med-unit" aria-label="Единица дозы"><option>мг</option><option>мкг</option><option>г</option><option>мл</option><option>МЕ</option><option>капли</option><option>табл.</option></select>
       </div>
     </div>
+  </div>
+  <div class="card" id="med-followup">
+    <div class="cl">Подробности приёма — необязательно</div>
+    <div class="irow"><label style="flex:1">Количество<input class="ifield" id="med-quantity" type="number" min="0" step="any" placeholder="Например, 1"></label><label style="flex:1">Единица<select class="ifield" id="med-quantity-unit"><option>табл.</option><option>капс.</option><option>доз</option><option>капель</option><option>мл</option></select></label></div>
+    <p class="help">Например: доза 200 мг, количество 1 табл. Автоматический пересчёт дозы не выполняется.</p>
+    <label class="field-label">Результат после приёма<select id="med-effect" class="ifield"><option value="">Ещё не отмечен</option><option>Лучше</option><option>Без изменений</option><option>Хуже</option></select></label>
+    <div class="irow mt8"><label style="flex:1">Через сколько минут<input class="ifield" id="med-after-min" type="number" min="0" max="10080" placeholder="Не указано"></label><label style="flex:1">Боль после, 0–10<input class="ifield" id="med-after-pain" type="number" min="0" max="10" placeholder="Не указано"></label></div>
+    <p class="help">Результат можно добавить позже через редактирование записи.</p>
   </div>
   <div class="card">
     <div class="cl">Заметка</div>
     <textarea class="ifield" id="load-note" rows="3" placeholder="Контекст, детали, что предшествовало...&#10;Любое наблюдение которое может быть важным."></textarea>
   </div>
-  <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button>
+  <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button><button class="cancel-edit" data-cancel="events" hidden>Отменить редактирование</button>
 </div>
 
 <!-- ЦИКЛ -->
@@ -404,16 +421,21 @@ canvas{width:100%!important;display:block}
   <p class="ps">Менструальный календарь</p>
   <div id="cycle-status"></div>
   <div class="card mt12">
-    <div class="cl">Отметить начало цикла</div>
+    <div class="cl">Начало и окончание менструации</div><div id="cycle-edit-hint" class="edit-hint" hidden></div>
     <div class="irow">
-      <input class="ifield" id="cycle-date" type="date">
-      <button class="bsm" onclick="saveCycleStart()">Отметить</button>
+      <label style="flex:1">Начало<input class="ifield" type="date" id="cycle-date"></label><label style="flex:1">Последний день выделений<input class="ifield" type="date" id="cycle-end"></label>
     </div>
+  </div>
+  <button class="btn" id="cycle-save" onclick="saveCycleStart()">Сохранить период</button><button class="cancel-edit" data-cancel="cycle" hidden>Отменить редактирование</button>
+  <div class="card mt12"><div class="cl">Выделения за день</div><div id="bleeding-edit-hint" class="edit-hint" hidden></div>
+    <div class="irow"><label style="flex:1">Дата<input class="ifield" type="date" id="bleeding-date"></label><label style="flex:1">Интенсивность<select class="ifield" id="bleeding-flow"><option value="">Выбери</option><option>Мажущие</option><option>Скудные</option><option>Умеренные</option><option>Обильные</option></select></label></div>
+    <textarea class="ifield mt8" id="bleeding-note" placeholder="Необязательная заметка"></textarea>
+    <button class="btn mt8" id="bleeding-save" onclick="saveBleeding()">Сохранить отметку</button><button class="cancel-edit" data-cancel="bleeding" hidden>Отменить редактирование</button>
   </div>
   <div class="card">
     <div class="cl">Настройки цикла</div>
     <div style="margin-bottom:10px"><div class="ilabel">Длина цикла (дней)</div><input class="ifield" id="cyc-len" type="number" min="21" max="45" value="28"></div>
-    <div style="margin-bottom:12px"><div class="ilabel">Дней выделений</div><input class="ifield" id="cyc-days" type="number" min="1" max="10" value="5"></div>
+    <div style="margin-bottom:12px"><div class="ilabel">Ориентир длительности менструации, дней</div><input class="ifield" id="cyc-days" type="number" min="1" max="10" value="5"></div>
     <button class="btn" onclick="saveCycleSettings()">Сохранить настройки</button>
   </div>
   <div class="card" id="cycle-hist-card" style="display:none">
@@ -434,46 +456,19 @@ canvas{width:100%!important;display:block}
   </div>
   <p class="ps" id="period-lbl" style="margin-top:6px">2 недели</p>
   <div id="stat-pills" class="spills"></div>
-  <div class="cwrap">
-    <div class="ctitle">Показатели</div>
-    <div class="layers">
-      <button class="lt on" data-layer="pain" style="color:var(--rose)" onclick="togLayer(this)"><div class="dot" style="background:var(--rose)"></div>Боль</button>
-      <button class="lt on" data-layer="med" style="color:var(--lav)" onclick="togLayer(this)"><div class="dot" style="background:var(--lav)"></div>Таблетки</button>
-      <button class="lt on" data-layer="sleep" style="color:var(--teal)" onclick="togLayer(this)"><div class="dot" style="background:var(--teal)"></div>Сон</button>
-      <button class="lt on" data-layer="act" style="color:var(--sage)" onclick="togLayer(this)"><div class="dot" style="background:var(--sage)"></div>Активность</button>
-      <button class="lt on" data-layer="cycle" style="color:var(--amb)" onclick="togLayer(this)"><div class="dot" style="background:var(--amb)"></div>Цикл</button>
-      <button class="lt on" data-layer="temp" style="color:#E07A3A" onclick="togLayer(this)"><div class="dot" style="background:#E07A3A"></div>Темп.</button>
-    </div>
-    <canvas id="main-canvas" height="150"></canvas>
-    <div id="canvas-xlabels" style="display:flex;justify-content:space-between;margin-top:6px;padding:0 2px"></div>
+  <div class="card"><label class="field-label">Зона боли<select class="ifield" id="chart-zone" onchange="renderNewCharts()"><option value="">Все зоны · максимум за день</option></select></label>
+    <p class="help">Прокручивай дорожки вправо. Даты совпадают для всех показателей. Нажми дату, чтобы открыть записи дня.</p>
+    <div id="timeline-scroll" class="timeline-scroll"><div id="timeline-tracks"></div></div>
+    <div id="chart-day" class="chart-day" aria-live="polite"></div>
   </div>
-
-  <!-- HEATMAP -->
-  <div class="cwrap">
-    <div class="ctitle">Карта боли</div>
-    <div class="heatmap-wrap">
-      <div class="heatmap-view">
-        <div class="hm-label">Спереди</div>
-        <svg id="hm-front" viewBox="0 0 120 280" width="100%" style="max-width:130px"></svg>
-      </div>
-      <div class="heatmap-view">
-        <div class="hm-label">Сзади</div>
-        <svg id="hm-back" viewBox="0 0 120 280" width="100%" style="max-width:130px"></svg>
-      </div>
-    </div>
-    <div class="hm-legend">
-      <span>Реже</span>
-      <div class="hm-grad"></div>
-      <span>Чаще</span>
-    </div>
-  </div>
+  <canvas id="main-canvas" hidden></canvas><div id="hm-front" hidden></div><div id="hm-back" hidden></div><div id="canvas-xlabels" hidden></div>
 </div>
 
 <!-- ИСТОРИЯ -->
 <div class="screen" id="s-hist">
   <p class="pt">История</p>
   <p class="ps">Все записи</p>
-  <div id="hist-list"></div>
+  <div class="irow" style="margin-bottom:12px"><input class="ifield" id="history-search" type="search" placeholder="Поиск по записям" oninput="renderNewHistory()"><select class="ifield" id="history-type" onchange="renderNewHistory()"><option value="">Все записи</option><option value="events">Нагрузка</option><option value="sleeps">Сон</option><option value="acts">Активность</option><option value="cycle">Цикл</option></select></div><div id="hist-list"></div>
 </div>
 
 <!-- ДАННЫЕ -->
@@ -588,7 +583,7 @@ function clearUserData(){
   document.getElementById('backup-text').value='';document.getElementById('backup-panel').hidden=true;
   document.getElementById('report-name').value='';document.getElementById('report-question').value='';
   document.getElementById('cyc-len').value=28;document.getElementById('cyc-days').value=5;
-  resetLoad();resetSleep();resetAct();
+  resetLoad();resetSleep();resetAct();resetCycle();resetBleeding();document.getElementById('timeline-tracks').innerHTML='';document.getElementById('chart-day').innerHTML='';
   const canvas=document.getElementById('main-canvas');canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);
 }
 async function loadRecords(name,userId){
@@ -609,7 +604,7 @@ async function loadAll(){
     events=nextEvents;sleeps=nextSleeps;acts=nextActs;cycleEvts=nextCycle;
     document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;
     dataReady=true;renderAll();
-    syncStatus(`Данные загружены · ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · Фон 4.2`);
+    syncStatus(`Данные загружены · ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · Фон 5.0`);
     return true;
   }catch(e){
     if(generation===loadGeneration&&uid===userId){dataReady=false;syncStatus('Не удалось загрузить дневник. Записи не удалены этим действием. Проверь интернет и нажми «Обновить данные». '+(e.code||''));}
@@ -686,216 +681,178 @@ window.signOutGoogle=async function(){
 };
 window.refreshDiary=async function(){if(authBusy||importBusy||pendingWrites){toast('Дождись завершения текущего действия',true);return;}await loadAll();};
 
-window.saveLoad=async function(){
-  const btn=document.getElementById('load-save');btn.textContent='Сохраняю...';btn.disabled=true;
-  const date=document.getElementById('load-date').value;
-  if(!date){toast('Укажи дату',true);btn.textContent='Сохранить';btn.disabled=false;return;}
-  const pain=window._selPain;
-  const zones=window._selZones||[];
-  const reasons=[...document.querySelectorAll('#reason-tags .tag.sel')].map(t=>t.textContent);
-  const chr=[...document.querySelectorAll('#char-tags .tag.sel:not(.add)')].map(t=>t.textContent);
-  const medY=document.getElementById('med-y').classList.contains('sel');
-  const medName=document.getElementById('med-name').value.trim();
-  const medDose=document.getElementById('med-dose').value;
-  const tempVal=document.getElementById('temp-val').value;
-  const tempHigh=document.getElementById('temp-high').checked;
-  const note=document.getElementById('load-note').value.trim();
-  if(pain===null&&!medY&&!tempVal&&!note){toast('Добавь боль, препарат, температуру или заметку',true);btn.textContent='Сохранить';btn.disabled=false;return;}
-  if(medY&&!medName){toast('Укажи название препарата',true);btn.textContent='Сохранить';btn.disabled=false;return;}
-  const rec={type:'pain',date,ts:new Date().toISOString(),
-    pain:pain!==null?{level:pain,zones,reasons,character:chr}:null,
-    med:medY&&medName?{name:medName,dose:medDose}:null,
-    temp:tempVal?{value:parseFloat(tempVal),high:tempHigh}:null,
-    note:note||null
-  };
-  try{const ref=await addDoc(collection(db,'users',uid,'events'),rec);events.unshift({id:ref.id,...rec});toast('Сохранено');resetLoad();renderAll();}
-  catch(e){toast('Ошибка',true);}
-  btn.textContent='Сохранить';btn.disabled=false;
-};
-
-window.saveSleep=async function(){
-  const date=document.getElementById('sleep-date').value,h=document.getElementById('sleep-h').value,m=document.getElementById('sleep-m').value;
-  const b23=document.getElementById('sleep-23').checked,q=document.querySelector('.sq.sel')?.dataset.q||null;
-  if(!date||!h){toast('Укажи дату и часы',true);return;}
-  if(!Number.isInteger(Number(h))||Number(h)<0||Number(h)>24||!Number.isInteger(Number(m||0))||Number(m||0)<0||Number(m||0)>59||Number(h)*60+Number(m||0)>1440){toast('Проверь часы (0–24) и минуты (0–59)',true);return;}
-  const rec={date,ts:new Date().toISOString(),hours:parseInt(h),minutes:parseInt(m||0),before23:b23,quality:q};
-  try{
-    const ex=sleeps.find(s=>s.date===date);
-    if(ex){await setDoc(doc(db,'users',uid,'sleeps',ex.id),rec);const i=sleeps.findIndex(s=>s.id===ex.id);sleeps[i]={id:ex.id,...rec};}
-    else{const ref=await addDoc(collection(db,'users',uid,'sleeps'),rec);sleeps.unshift({id:ref.id,...rec});}
-    toast('Сон сохранён');resetSleep();renderAll();
-  }catch(e){toast('Ошибка',true);}
-};
-
-window.saveAct=async function(){
-  const date=document.getElementById('act-date').value,kind=window._selAct;
-  const sub=[...document.querySelectorAll('#sub-tags .tag.sel')].map(t=>t.textContent);
-  if(!date||!kind){toast('Укажи дату и вид',true);return;}
-  const rec={type:'act',date,ts:new Date().toISOString(),kind,sub};
-  try{const ref=await addDoc(collection(db,'users',uid,'acts'),rec);acts.unshift({id:ref.id,...rec});toast('Активность сохранена');resetAct();renderAll();}
-  catch(e){toast('Ошибка',true);}
-};
-
-window.saveCycleStart=async function(){
-  const date=document.getElementById('cycle-date').value;if(!date){toast('Укажи дату',true);return;}
-  if(date>localDate()){toast('Начало цикла не может быть в будущем',true);return;}
-  if(cycleEvts.some(e=>e.date===date)){toast('Эта дата уже отмечена',true);return;}
-  try{const ref=await addDoc(collection(db,'users',uid,'cycle'),{date,ts:new Date().toISOString()});cycleEvts.unshift({id:ref.id,date});cycleEvts.sort((a,b)=>b.date.localeCompare(a.date));toast('Отмечено');renderAll();}
-  catch(e){toast('Ошибка',true);}
-};
-
-window.saveCycleSettings=async function(){
-  const next={len:Number(document.getElementById('cyc-len').value),days:Number(document.getElementById('cyc-days').value)};
-  if(!Number.isInteger(next.len)||next.len<1||next.len>365||!Number.isInteger(next.days)||next.days<1||next.days>next.len){toast('Проверь длительность цикла и менструации',true);return;}
-  try{await setDoc(doc(db,'users',uid,'meta','settings'),next);cycleSettings=next;toast('Настройки сохранены');renderAll();}catch(e){toast('Настройки не сохранены',true);}
-
-};
-
-window.delEntry=async function(id,coll){
-  if(!confirm('Удалить запись?'))return;
-  try{
-    await deleteDoc(doc(db,'users',uid,coll,id));
-    if(coll==='events')events=events.filter(e=>e.id!==id);
-    if(coll==='sleeps')sleeps=sleeps.filter(e=>e.id!==id);
-    if(coll==='acts')acts=acts.filter(e=>e.id!==id);
-    toast('Удалено');renderAll();
-  }catch(e){toast('Ошибка',true);}
-};
-
-function renderHistory(){
-  const el=document.getElementById('hist-list');
-  const all=[...events.map(e=>({...e,_c:'events',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),...sleeps.map(e=>({...e,_c:'sleeps',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')})),...acts.map(e=>({...e,_c:'acts',_sd:e.date+'T'+(e.ts?.split('T')[1]||'00:00')}))].sort((a,b)=>b._sd.localeCompare(a._sd));
-  if(!all.length){el.innerHTML='<div class="empty">Записей пока нет</div>';return;}
-  const groups={};all.forEach(e=>{if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
-  const today=localDate(),yest=localDate(new Date(Date.now()-86400000));
-  let html='';
-  Object.keys(groups).sort((a,b)=>b.localeCompare(a)).forEach(date=>{
-    const lbl=date===today?'Сегодня':date===yest?'Вчера':new Date(date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-    html+=`<div class="hdlabel">${lbl}</div>`;
-    groups[date].forEach(e=>{
-      if(e._c==='events'){
-        const pl=e.pain?.level,bc=pl>=8?'rose':pl>=5?'amb':'sage';
-        html+=`<div class="hitem"><div class="hbadge ${pl!=null?bc:'none'}">${pl??'—'}</div><div class="hbody">
-          ${e.pain?.zones?.length?`<div class="hrow">🫀 ${esc(e.pain.zones.join(', '))}</div>`:''}
-          ${e.pain?.reasons?.length?`<div class="hrow">💬 ${esc(e.pain.reasons.join(', '))}</div>`:''}
-          ${e.pain?.character?.length?`<div class="hrow" style="color:var(--g40)">${esc(e.pain.character.join(', '))}</div>`:''}
-          ${e.med?`<div class="hrow">💊 ${esc(e.med.name)}${e.med.dose?' '+esc(e.med.dose)+'мг':''}</div>`:''}
-          ${e.temp?`<div class="hrow">🌡 ${e.temp.value}°C${e.temp.high?' ↑':''}</div>`:''}
-          ${e.note?`<div class="hrow" style="color:var(--g40);font-style:italic;font-size:11px">${esc(e.note)}</div>`:''}
-        </div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','events')">×</button></div></div>`;
-      }else if(e._c==='sleeps'){
-        html+=`<div class="hitem"><div class="hbadge sleep">🌙</div><div class="hbody"><div class="hrow">${e.hours}ч ${e.minutes||0}м${e.before23?' · до 23:00':''}</div>${e.quality?`<div class="hrow" style="color:var(--g40)">${esc(e.quality)}</div>`:''}</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','sleeps')">×</button></div></div>`;
-      }else{
-        html+=`<div class="hitem"><div class="hbadge act">🏃</div><div class="hbody"><div class="hrow">${esc(e.kind)}${e.sub?.length?' · '+esc(e.sub.join(', ')):''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><div class="htime">${e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):''}</div><button class="hdel" onclick="delEntry('${e.id}','acts')">×</button></div></div>`;
-      }
-    });
-  });
-  el.innerHTML=html;
+const editIds={events:null,sleeps:null,acts:null,cycle:null,bleeding:null};
+const formNames={events:'load',sleeps:'sleep',acts:'act',cycle:'cycle',bleeding:'bleeding'};
+window._zoneLevels={};
+const fineZones=[];
+function addFine(group,zone,parent){fineZones.push({group,zone,parent});}
+for(const z of ['Лоб','Висок слева','Висок справа','Затылок','Челюсть слева','Челюсть справа'])addFine('Голова',z,'Голова');
+for(const z of ['Шея слева','Шея справа','Шея сзади'])addFine('Шея',z,'Шея');
+for(const side of ['Левая','Правая']){
+  const adj=side==='Левая'?'Левое':'Правое',adjM=side==='Левая'?'Левый':'Правый';
+  addFine('Руки',adj+' предплечье',side+' рука');addFine('Руки',adjM+' локоть',side+' рука');addFine('Руки',side+' кисть',adj+' запястье');addFine('Руки',side+' ладонь',side+' кисть');
+  for(const finger of ['Большой','Указательный','Средний','Безымянный','Мизинец'])addFine('Пальцы рук',`${side} кисть · ${finger}`,side+' кисть');
+  for(const z of ['Лопатка','Ягодица','Голень','Пятка'])addFine('Тело',`${z} · ${side.toLowerCase()}`,z==='Лопатка'?'Лопатки':z==='Ягодица'?'Крестец/ягодицы':z==='Голень'?side+' голень':side+' стопа');
+  addFine('Ноги',adjM+' голеностоп',side+' стопа');addFine('Ноги',side+' стопа',side+' стопа');
+  for(let i=1;i<=5;i++)addFine('Пальцы ног',`${side} стопа · ${i===1?'Большой палец':i+'-й палец'}`,side+' стопа');
 }
-
-const phaseData={menstruation:{name:'Менструация',color:'#B85555'},follicular:{name:'Фолликулярная фаза',color:'#4E8C5F'},ovulation:{name:'Овуляция',color:'#2E8A8C'},luteal:{name:'Лютеиновая фаза',color:'#7B6BB0'}};
-
-function renderCycle(){
-  const el=document.getElementById('cycle-status');
-  const lastStart=cycleEvts.find(e=>e.date<=localDate())?.date;
-  if(!lastStart){el.innerHTML='<div class="empty">Отметь начало цикла чтобы видеть фазы</div>';return;}
-  const today=localDate();
-  const diff=Math.floor((new Date(today)-new Date(lastStart))/86400000);
-  const dayInCycle=diff+1;
-  let phaseKey='luteal';
-  if(dayInCycle<=cycleSettings.days)phaseKey='menstruation';
-  else if(dayInCycle<cycleSettings.len-15)phaseKey='follicular';
-  else if(dayInCycle<=cycleSettings.len-12)phaseKey='ovulation';
-  const pd=phaseData[phaseKey];
-  const nextDate=new Date(lastStart);nextDate.setDate(nextDate.getDate()+cycleSettings.len);
-  const daysTo=Math.round((nextDate-new Date(localDate()))/86400000);
-  const nextStr=nextDate.toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
-  const nextDay=nextDate.toLocaleDateString('ru-RU',{weekday:'long'});
-  const early=new Date(nextDate);early.setDate(early.getDate()-3);
-  const late=new Date(nextDate);late.setDate(late.getDate()+3);
-  const rangeStr=early.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' — '+late.toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-  el.innerHTML=`<div class="cstatus">
-    <div class="cdaynum" style="color:${pd.color}">${dayInCycle}</div>
-    <div class="cdaylabel">день цикла из ${cycleSettings.len}</div>
-    <div class="cphase" style="color:${pd.color}">${dayInCycle>cycleSettings.len?'Новый цикл ещё не отмечен':pd.name+' · оценка по календарю'}</div>
-    <div class="cnext">${daysTo>0?`Следующие через ${daysTo} дн.`:daysTo===0?'Ожидаются сегодня':`Расчётная дата прошла ${-daysTo} дн. назад`}<br>${nextStr} (${nextDay})<br><span style="font-size:11px">Диапазон: ${rangeStr}</span></div>
-    <div class="phase-card">Это календарная оценка по указанной длительности, а не подтверждение овуляции или уровня гормонов. Сопоставляй её со своими записями о самочувствии.</div>
-  </div>`;
-  const histCard=document.getElementById('cycle-hist-card');
-  if(cycleEvts.length){histCard.style.display='block';document.getElementById('cycle-hist').innerHTML=cycleEvts.slice(0,8).map(e=>`<div class="cev"><div class="cdot"></div><div>${new Date(e.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'})}</div></div>`).join('');}
+for(const z of ['Живот слева','Живот справа','Низ живота'])addFine('Живот',z,'Живот');
+function parentZone(zone){return fineZones.find(z=>z.zone===zone)?.parent||zone;}
+function isStart(e){return e.kind!=='bleeding';}
+function cycleStarts(){return cycleEvts.filter(isStart).sort((a,b)=>b.date.localeCompare(a.date));}
+function painSites(e){if(Array.isArray(e.pain?.sites)&&e.pain.sites.length)return e.pain.sites;return (e.pain?.zones||[]).map(zone=>({zone,level:e.pain.level,legacy:true}));}
+function painValue(e,zone=''){if(!zone)return Number.isFinite(e.pain?.level)?e.pain.level:null;const site=painSites(e).find(s=>s.zone===zone);return Number.isFinite(site?.level)?site.level:null;}
+function painText(e){if(!e.pain)return '';const sites=painSites(e);return sites.length?sites.map(s=>`${s.zone}: ${s.level}/10${s.legacy?' (общая оценка записи)':''}`).join('; '):`Общая оценка: ${e.pain.level}/10`;}
+function medText(m){if(!m)return '';return m.name+(m.dose!==''&&m.dose!=null?' · '+m.dose+' '+(m.unit||'мг'):'')+(m.quantity!=null?' · '+m.quantity+' '+(m.quantityUnit||'шт.'):'')+(m.effect?' · '+m.effect:'')+(m.afterPain!=null?' · боль после '+m.afterPain+'/10':'')+(m.afterMinutes!=null?' через '+m.afterMinutes+' мин':'');}
+function eventTime(e){return e.time||'время не указано';}
+function val(id){return document.getElementById(id).value;}
+function setVal(id,v){document.getElementById(id).value=v??'';}
+function optionalNumber(id,min,max,integer=false){const raw=val(id);if(raw==='')return null;const n=Number(raw);if(!Number.isFinite(n)||n<min||n>max||(integer&&!Number.isInteger(n)))throw Error('Проверь поле «'+({ 'temp-val':'Температура','sleep-h':'Часы сна','sleep-m':'Минуты сна','sleep-wakes':'Пробуждения','act-duration':'Длительность занятия','med-dose':'Доза','med-quantity':'Количество препарата','med-after-min':'Минуты после приёма','med-after-pain':'Боль после приёма' }[id]||id)+'»');return n;}
+function checkDate(date){if(!validDate(date)||date>localDate())throw Error('Укажи корректную дату не позднее сегодня');}
+function checkTime(time){if(time&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))throw Error('Проверь время');return time||null;}
+function getList(coll){return coll==='events'?events:coll==='sleeps'?sleeps:coll==='acts'?acts:cycleEvts;}
+function setList(coll,arr){if(coll==='events')events=arr;else if(coll==='sleeps')sleeps=arr;else if(coll==='acts')acts=arr;else cycleEvts=arr;}
+async function saveRecord(coll,rec,id){
+  const owner=uid,list=getList(coll),existing=id?list.find(e=>e.id===id):null;
+  if(id&&!existing)throw Error('Запись для изменения не найдена. Обнови дневник.');
+  const saved={...(existing||{}),...rec,ts:existing?.ts||new Date().toISOString(),updatedAt:new Date().toISOString()};delete saved.id;
+  let target=id;
+  if(target)await setDoc(doc(db,'users',owner,coll,target),saved);else target=(await addDoc(collection(db,'users',owner,coll),saved)).id;
+  if(uid!==owner||auth.currentUser?.uid!==owner)throw Error('Аккаунт изменился. Обнови данные.');
+  setList(coll,[...getList(coll).filter(e=>e.id!==target),{...saved,id:target}].sort((a,b)=>b.date.localeCompare(a.date)));
+  return target;
 }
-
-function renderCharts(){
-  const period=window._period,now=new Date(),cutoff=new Date(now-period*86400000);
-  const days=[];
-  for(let i=period-1;i>=0;i--){days.push(localDate(new Date(now-i*86400000)));}
-  const pBD={},mBD={},sBD={},aBD={},tBD={};
-  days.forEach(d=>{pBD[d]=[];mBD[d]=0;sBD[d]=null;aBD[d]=0;tBD[d]=null;});
-  events.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{
-    const d=e.date;
-    if(pBD[d]!==undefined){if(e.pain?.level!=null)pBD[d].push(e.pain.level);if(e.med)mBD[d]++;if(e.temp?.value)tBD[d]=e.temp.value;}
-  });
-  sleeps.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(sBD[e.date]!==undefined)sBD[e.date]=e.hours+(e.minutes||0)/60;});
-  acts.filter(e=>new Date(e.date)>=cutoff).forEach(e=>{if(aBD[e.date]!==undefined)aBD[e.date]++;});
-  const avgPain=days.map(d=>pBD[d].length?pBD[d].reduce((a,b)=>a+b,0)/pBD[d].length:null);
-  const medC=days.map(d=>mBD[d]),sleepH=days.map(d=>sBD[d]),actC=days.map(d=>aBD[d]>0?1:0),tempV=days.map(d=>tBD[d]);
-  const pE=events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.level!=null),mE=events.filter(e=>new Date(e.date)>=cutoff&&e.med);
-  const avgP=pE.length?(pE.reduce((s,e)=>s+e.pain.level,0)/pE.length).toFixed(1):'—',maxP=pE.length?Math.max(...pE.map(e=>e.pain.level)):'—';
-  document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum lav">${mE.length}</div><div class="sdesc">приёмов препарата</div></div><div class="spill"><div class="snum sage">${avgP}</div><div class="sdesc">ср. боль</div></div><div class="spill"><div class="snum rose">${maxP}</div><div class="sdesc">макс. боль</div></div>`;
-  drawMain(days,avgPain,medC,sleepH,actC,tempV);
-  renderHeatmap(period);
-  const step=Math.ceil(days.length/6),lblEl=document.getElementById('canvas-xlabels');
-  lblEl.innerHTML='';
-  days.forEach((d,i)=>{if(i%step===0||i===days.length-1){const s=document.createElement('span');s.style.cssText='font-size:9px;color:var(--g40)';s.textContent=new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'numeric'});lblEl.appendChild(s);}});
+function setEdit(coll,id){
+  editIds[coll]=id;const prefix=formNames[coll],hint=document.getElementById(prefix+'-edit-hint');hint.hidden=!id;hint.textContent=id?'Редактирование существующей записи':'';
+  const button=document.getElementById(prefix+'-save');if(button)button.textContent=id?'Сохранить изменения':({events:'Сохранить',sleeps:'Сохранить сон',acts:'Сохранить активность',cycle:'Сохранить период',bleeding:'Сохранить отметку'})[coll];
+  document.querySelectorAll(`[data-cancel="${coll}"]`).forEach(e=>e.hidden=!id);
 }
-
-function drawMain(days,avgPain,medC,sleepH,actC,tempV){
-  const canvas=document.getElementById('main-canvas');if(!canvas)return;
-  if(canvas.parentElement.clientWidth<40)return;
-  const W=canvas.parentElement.clientWidth-32;canvas.width=W;canvas.height=150;
-  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,W,150);
-  const L=window._layers,pad={l:6,r:6,t:14,b:14},cW=W-pad.l-pad.r,cH=150-pad.t-pad.b,n=days.length;
-  const x=i=>pad.l+(i/(n-1||1))*cW;
-  if(L.cycle&&cycleEvts.length){
-    days.forEach((d,i)=>{const start=cycleEvts.find(e=>e.date<=d);if(!start)return;const dc=Math.round((new Date(d)-new Date(start.date))/86400000);if(dc>=cycleSettings.days)return;ctx.fillStyle='rgba(184,85,85,0.20)';ctx.fillRect(pad.l+i*(cW/n),pad.t,cW/n+1,cH);});
+function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+window.resetLoad=function(){
+  window._selPain=null;window._selZones=[];window._zoneLevels={};window._editingLegacyPain=null;
+  document.querySelectorAll('.pb,.body-zone,#reason-tags .tag,#char-tags .tag').forEach(e=>{e.classList.remove('sel');e.classList.remove('active');});
+  for(const id of ['med-name','med-dose','med-quantity','med-effect','med-after-min','med-after-pain','temp-val','load-note'])setVal(id,'');
+  setVal('med-unit','мг');setVal('med-quantity-unit','табл.');setVal('load-time',nowTime());
+  document.getElementById('temp-high').checked=false;togMed(false);setEdit('events',null);renderZoneEditors();
+};
+window.resetSleep=function(){document.querySelectorAll('.sq').forEach(e=>e.classList.remove('sel'));for(const id of ['sleep-h','sleep-m','sleep-wakes'])setVal(id,'');setEdit('sleeps',null);};
+window.resetAct=function(){window._selAct=null;document.querySelectorAll('#act-tags .tag,#sub-tags .tag').forEach(e=>e.classList.remove('sel'));document.getElementById('sub-wrap').style.display='none';for(const id of ['act-duration','act-effect','act-note'])setVal(id,'');setVal('act-time',nowTime());setEdit('acts',null);};
+function resetCycle(){setEdit('cycle',null);setVal('cycle-end','');}
+function resetBleeding(){setEdit('bleeding',null);setVal('bleeding-flow','');setVal('bleeding-note','');}
+window.cancelEdit=function(coll,internal=false){if(!internal&&(pendingWrites||importBusy))return;({events:resetLoad,sleeps:resetSleep,acts:resetAct,cycle:resetCycle,bleeding:resetBleeding})[coll]?.();};
+const originalTogMed=window.togMed;window.togMed=function(yes){originalTogMed(yes);document.getElementById('med-followup').hidden=!yes;};
+function selectZone(zone){if(window._selZones.includes(zone))return;window._selZones.push(zone);window._zoneLevels[zone]=window._selPain;renderZoneEditors();}
+window.togZone=function(el){const z=el.dataset.zone;if(window._selZones.includes(z))window.removeZone(z);else selectZone(z);};
+window.removeZone=function(zone){window._selZones=window._selZones.filter(z=>z!==zone);delete window._zoneLevels[zone];renderZoneEditors();};
+window.selPain=function(level){window._selPain=level;for(const zone of window._selZones)window._zoneLevels[zone]=level;document.querySelectorAll('.pb').forEach(b=>b.classList.toggle('sel',Number(b.dataset.l)===level));renderZoneEditors();};
+window.renderZoneEditors=function(){
+  const container=document.getElementById('selected-zones-display');container.innerHTML='';
+  document.querySelectorAll('#body-front .body-zone,#body-back .body-zone').forEach(e=>e.classList.toggle('active',window._selZones.some(z=>parentZone(z)===e.dataset.zone)));
+  if(!window._selZones.length){container.textContent='Зоны пока не выбраны';return;}
+  for(const zone of window._selZones){
+    const row=document.createElement('div');row.className='zone-editor';const label=document.createElement('label');label.textContent=zone;label.style.flex='1';
+    const select=document.createElement('select');select.className='ifield';select.setAttribute('aria-label','Боль: '+zone);select.innerHTML='<option value="">1–10</option>'+Array.from({length:10},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');select.value=window._zoneLevels[zone]??'';select.onchange=()=>{window._zoneLevels[zone]=select.value===''?null:Number(select.value);};
+    const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Убрать '+zone);remove.onclick=()=>window.removeZone(zone);row.append(label,select,remove);container.appendChild(row);
   }
-  ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;[0.25,0.5,0.75].forEach(v=>{ctx.beginPath();ctx.moveTo(pad.l,pad.t+cH*v);ctx.lineTo(W-pad.r,pad.t+cH*v);ctx.stroke();});
-  if(L.sleep){const bw=Math.max(3,cW/n-3);sleepH.forEach((v,i)=>{if(v===null)return;const bh=(Math.min(v,10)/10)*cH;ctx.fillStyle='rgba(46,138,140,0.35)';ctx.fillRect(x(i)-bw/2,pad.t+cH-bh,bw,bh);});}
-  if(L.act){actC.forEach((v,i)=>{if(!v)return;ctx.beginPath();ctx.arc(x(i),pad.t+6,5,0,Math.PI*2);ctx.fillStyle='#4E8C5F';ctx.fill();});}
-  if(L.med){medC.forEach((v,i)=>{if(!v)return;ctx.beginPath();ctx.arc(x(i),pad.t+cH-6,5,0,Math.PI*2);ctx.fillStyle='#7B6BB0';ctx.fill();if(v>1){ctx.fillStyle='#7B6BB0';ctx.font='bold 9px Manrope';ctx.textAlign='center';ctx.fillText(v,x(i),pad.t+cH-13);}});}
-  if(L.temp){const tPts=tempV.map((v,i)=>v!==null?{x:x(i),y:pad.t+cH-((v-35)/7)*cH}:null).filter(Boolean);if(tPts.length>=2){ctx.beginPath();ctx.moveTo(tPts[0].x,tPts[0].y);tPts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.strokeStyle='#E07A3A';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.stroke();ctx.setLineDash([]);tPts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#E07A3A';ctx.fill();});}}
-  if(L.pain){const pts=avgPain.map((v,i)=>v!==null?{x:x(i),y:pad.t+cH-(v/10)*cH}:null).filter(Boolean);if(pts.length>=2){ctx.beginPath();ctx.moveTo(pts[0].x,pad.t+cH);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.lineTo(pts[pts.length-1].x,pad.t+cH);ctx.closePath();const g=ctx.createLinearGradient(0,0,0,150);g.addColorStop(0,'rgba(184,85,85,0.45)');g.addColorStop(1,'rgba(184,85,85,0.05)');ctx.fillStyle=g;ctx.fill();ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);pts.forEach(p=>ctx.lineTo(p.x,p.y));ctx.strokeStyle='#B85555';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fillStyle='#B85555';ctx.fill();});}}
+  document.querySelectorAll('#body-front .body-zone,#body-back .body-zone').forEach(e=>e.classList.toggle('active',window._selZones.some(z=>parentZone(z)===e.dataset.zone)));
+};
+window.updateZoneDisplay=window.renderZoneEditors;
+window.addDetailedZone=function(){const z=val('detail-zone');if(z)selectZone(z);};
+window.renderDigitPicker=function(){
+  const side=val('digit-side'),hand=val('digit-part')==='hand',digits=hand?['Большой','Указательный','Средний','Безымянный','Мизинец']:['Большой палец','2-й палец','3-й палец','4-й палец','5-й палец'];
+  const nodes=digits.map((name,i)=>{const x=hand?[12,64,110,156,202][i]:[20,66,112,158,204][i],y=hand?[100,36,16,38,75][i]:[40,46,56,66,80][i],height=hand?[68,100,120,98,62][i]:[95,86,76,66,52][i];return `<g role="button" tabindex="0" data-digit="${i}" aria-label="${esc(side+' '+(hand?'кисть':'стопа')+' · '+name)}"><rect x="${x}" y="${y}" width="34" height="${height}" rx="17" fill="#e8e4f5" stroke="#7B6BB0"/><text x="${x+17}" y="${y+28}" text-anchor="middle" fill="#272522" font-size="15">${i+1}</text></g>`;}).join('');
+  document.getElementById('digit-picker').innerHTML=`<svg viewBox="0 0 255 225" aria-label="Схема выбора пальцев"><rect x="48" y="127" width="184" height="83" rx="28" fill="#f2efeb" stroke="#b9b3ac"/>${nodes}</svg><p class="help">${esc(side)} ${hand?'кисть':'стопа'} · схема выбора, не анатомический рисунок</p><div class="digit-list">${digits.map((n,i)=>`<button class="tag" data-digit="${i}">${i+1}. ${esc(n)}</button>`).join('')}</div>`;
+  document.querySelectorAll('#digit-picker [data-digit]').forEach(el=>{const select=()=>selectZone(`${side} ${hand?'кисть':'стопа'} · ${digits[Number(el.dataset.digit)]}`);el.onclick=select;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}};});
+};
+function setTags(id,values){const parent=document.getElementById(id);parent.querySelectorAll('.tag').forEach(e=>e.classList.remove('sel'));for(const value of values||[]){let b=[...parent.querySelectorAll('.tag:not(.add)')].find(e=>e.textContent===value);if(!b){b=document.createElement('button');b.className='tag';b.textContent=value;b.onclick=()=>togTag(b);parent.insertBefore(b,parent.querySelector('.add'));}b.classList.add('sel');}}
+window.saveLoad=async function(){try{
+  const date=val('load-date');checkDate(date);const time=checkTime(val('load-time')),sites=window._selZones.map(zone=>({zone,level:window._zoneLevels[zone]}));
+  if(sites.some(s=>!Number.isInteger(s.level)||s.level<1||s.level>10))throw Error('Укажи боль от 1 до 10 для каждой выбранной зоны');
+  const level=sites.length?Math.max(...sites.map(s=>s.level)):window._selPain;
+  const medY=document.getElementById('med-y').classList.contains('sel'),name=val('med-name').trim(),note=val('load-note').trim(),temperature=optionalNumber('temp-val',30,45);
+  if(medY&&!name)throw Error('Укажи название препарата');
+  if(level==null&&!medY&&temperature==null&&!note)throw Error('Добавь боль, препарат, температуру или заметку');
+  let pain=level==null?null:{level,zones:sites.map(s=>s.zone),sites,reasons:[...document.querySelectorAll('#reason-tags .tag.sel')].map(e=>e.textContent),character:[...document.querySelectorAll('#char-tags .tag.sel')].map(e=>e.textContent),aggregation:sites.length?'max-sites':'overall'};
+  const oldPain=editIds.events?events.find(e=>e.id===editIds.events)?.pain:null;
+  if(pain&&oldPain&&!oldPain.sites?.length&&sites.length===(oldPain.zones||[]).length&&sites.every(site=>(oldPain.zones||[]).includes(site.zone)&&site.level===oldPain.level))pain={...oldPain,reasons:pain.reasons,character:pain.character};
+  const med=medY?{name,dose:optionalNumber('med-dose',0.000001,1000000),unit:val('med-unit'),quantity:optionalNumber('med-quantity',0.000001,1000000),quantityUnit:val('med-quantity-unit'),effect:val('med-effect')||null,afterMinutes:optionalNumber('med-after-min',0,10080,true),afterPain:optionalNumber('med-after-pain',0,10,true)}:null;
+  await saveRecord('events',{type:'pain',date,time,pain,med,temp:temperature==null?null:{value:temperature,high:document.getElementById('temp-high').checked},note:note||null},editIds.events);resetLoad();renderAll();toast('Запись сохранена');
+}catch(e){toast(e.message||'Не удалось сохранить запись',true);}};
+window.saveSleep=async function(){try{
+  const date=val('sleep-date');checkDate(date);const hours=optionalNumber('sleep-h',0,24,true),minutes=optionalNumber('sleep-m',0,59,true)??0,awakenings=optionalNumber('sleep-wakes',0,1000,true);
+  if(hours==null||hours*60+minutes>1440)throw Error('Проверь длительность сна');
+  const existing=sleeps.find(e=>e.date===date&&e.id!==editIds.sleeps);let target=editIds.sleeps;
+  if(existing){if(target)throw Error('За эту дату уже есть другая запись сна');if(!confirm('За эту дату уже есть запись сна. Заменить её введёнными значениями?'))return;target=existing.id;}
+  await saveRecord('sleeps',{date,hours,minutes,awakenings,quality:document.querySelector('.sq.sel')?.dataset.q||null},target);resetSleep();renderAll();toast('Сон сохранён');
+}catch(e){toast(e.message||'Не удалось сохранить сон',true);}};
+window.saveAct=async function(){try{const date=val('act-date');checkDate(date);if(!window._selAct)throw Error('Выбери занятие');await saveRecord('acts',{type:'act',date,time:checkTime(val('act-time')),kind:window._selAct,sub:[...document.querySelectorAll('#sub-tags .tag.sel')].map(e=>e.textContent),durationMinutes:optionalNumber('act-duration',1,1440,true),effect:val('act-effect')||null,note:val('act-note').trim()||null},editIds.acts);resetAct();renderAll();toast('Активность сохранена');}catch(e){toast(e.message||'Не удалось сохранить активность',true);}};
+window.saveCycleStart=async function(){try{const date=val('cycle-date'),endDate=val('cycle-end')||null;checkDate(date);if(endDate){checkDate(endDate);if(endDate<date)throw Error('Окончание не может быть раньше начала');}if(cycleStarts().some(e=>e.date===date&&e.id!==editIds.cycle))throw Error('Такое начало уже отмечено');await saveRecord('cycle',{kind:'start',date,endDate},editIds.cycle);resetCycle();renderAll();toast('Период сохранён');}catch(e){toast(e.message||'Не удалось сохранить период',true);}};
+window.saveBleeding=async function(){try{const date=val('bleeding-date');checkDate(date);const flow=val('bleeding-flow');if(!flow)throw Error('Выбери интенсивность');const existing=cycleEvts.find(e=>e.kind==='bleeding'&&e.date===date&&e.id!==editIds.bleeding);let id=editIds.bleeding;if(existing){if(id)throw Error('За эту дату уже есть другая отметка');if(!confirm('Заменить отметку выделений за эту дату?'))return;id=existing.id;}await saveRecord('cycle',{kind:'bleeding',date,flow,note:val('bleeding-note').trim()||null},id);resetBleeding();renderAll();toast('Отметка сохранена');}catch(e){toast(e.message||'Не удалось сохранить отметку',true);}};
+window.saveCycleSettings=async function(){try{const next={len:Number(val('cyc-len')),days:Number(val('cyc-days'))};if(!Number.isInteger(next.len)||next.len<1||next.len>365||!Number.isInteger(next.days)||next.days<1||next.days>next.len)throw Error('Проверь длительности');await setDoc(doc(db,'users',uid,'meta','settings'),next);cycleSettings=next;renderAll();toast('Настройки сохранены');}catch(e){toast(e.message||'Не удалось сохранить настройки',true);}};
+window.editEntry=function(id,coll){
+  if(!requireData()||pendingWrites||importBusy)return;const e=getList(coll).find(r=>r.id===id);if(!e)return;const kind=coll==='cycle'&&e.kind==='bleeding'?'bleeding':coll;window.cancelEdit(kind);setEdit(kind,id);
+  if(coll==='events'){
+    setVal('load-date',e.date);setVal('load-time',e.time);window._selPain=e.pain?.level??null;window._selZones=[...(e.pain?.zones||[])];window._zoneLevels=Object.fromEntries(painSites(e).map(s=>[s.zone,s.level]));
+    // Legacy records retain their shared assessment unless the user changes zones/levels.
+    window._editingLegacyPain=e.pain&&!e.pain.sites?.length?JSON.stringify(e.pain):null;
+    setTags('reason-tags',e.pain?.reasons);setTags('char-tags',e.pain?.character);togMed(!!e.med);
+    for(const [id,v] of Object.entries({'med-name':e.med?.name,'med-dose':e.med?.dose,'med-unit':e.med?.unit||'мг','med-quantity':e.med?.quantity,'med-quantity-unit':e.med?.quantityUnit||'табл.','med-effect':e.med?.effect,'med-after-min':e.med?.afterMinutes,'med-after-pain':e.med?.afterPain,'temp-val':e.temp?.value,'load-note':e.note}))setVal(id,v);
+    document.getElementById('temp-high').checked=!!e.temp?.high;renderZoneEditors();showS('load');
+  }else if(coll==='sleeps'){setVal('sleep-date',e.date);setVal('sleep-h',e.hours);setVal('sleep-m',e.minutes);setVal('sleep-wakes',e.awakenings);document.querySelectorAll('.sq').forEach(b=>b.classList.toggle('sel',b.dataset.q===e.quality));showS('rec');}
+  else if(coll==='acts'){setVal('act-date',e.date);setVal('act-time',e.time);let button=[...document.querySelectorAll('#act-tags .tag:not(.add)')].find(b=>b.textContent===e.kind);if(!button){button=document.createElement('button');button.className='tag';button.textContent=e.kind;button.onclick=()=>selAct(button,e.kind);document.getElementById('act-tags').appendChild(button);}selAct(button,e.kind);setTags('sub-tags',e.sub);setVal('act-duration',e.durationMinutes);setVal('act-effect',e.effect);setVal('act-note',e.note);showS('rec');}
+  else if(kind==='bleeding'){setVal('bleeding-date',e.date);setVal('bleeding-flow',e.flow);setVal('bleeding-note',e.note);showS('cycle');}
+  else{setVal('cycle-date',e.date);setVal('cycle-end',e.endDate);showS('cycle');}
+  document.getElementById(formNames[kind]+'-edit-hint').scrollIntoView({behavior:'smooth',block:'center'});
+};
+window.delEntry=async function(id,coll){if(!confirm('Удалить эту запись?'))return;try{await deleteDoc(doc(db,'users',uid,coll,id));setList(coll,getList(coll).filter(e=>e.id!==id));for(const k of Object.keys(editIds))if(editIds[k]===id)window.cancelEdit(k,true);renderAll();toast('Запись удалена');}catch(e){toast('Не удалось удалить запись',true);}};
+function entrySummary(e,coll){if(coll==='events')return [painText(e),medText(e.med),e.temp?e.temp.value+' °C':'',e.note].filter(Boolean).join('\n');if(coll==='sleeps')return `${e.hours} ч ${e.minutes||0} мин · пробуждений: ${e.awakenings??'не указано'}${e.quality?' · '+e.quality:''}`;if(coll==='acts')return `${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}${e.durationMinutes!=null?' · '+e.durationMinutes+' мин':''}${e.effect?' · '+e.effect:''}${e.note?'\n'+e.note:''}`;return e.kind==='bleeding'?`Выделения: ${e.flow}${e.note?'\n'+e.note:''}`:`Начало менструации${e.endDate?' · последний день '+reportDate(e.endDate):' · окончание не отмечено'}`;}
+function allEntries(){return [...events.map(e=>({...e,_c:'events'})),...sleeps.map(e=>({...e,_c:'sleeps'})),...acts.map(e=>({...e,_c:'acts'})),...cycleEvts.map(e=>({...e,_c:'cycle'}))].sort((a,b)=>b.date.localeCompare(a.date)||String(b.time||'').localeCompare(String(a.time||'')));}
+function actionButtons(e){return `<div class="hist-actions"><button data-edit-id="${esc(e.id)}" data-coll="${e._c}">Изменить</button><button data-delete-id="${esc(e.id)}" data-coll="${e._c}">Удалить</button></div>`;}
+function renderHistory(){
+  const search=(val('history-search')||'').toLocaleLowerCase('ru'),type=val('history-type');const rows=allEntries().filter(e=>(!type||type===e._c)&&(!search||[e.date,entrySummary(e,e._c)].join(' ').toLocaleLowerCase('ru').includes(search)));
+  document.getElementById('hist-list').innerHTML=rows.length?rows.map(e=>`<div class="card"><div class="cl">${reportDate(e.date)} · ${({events:'Нагрузка',sleeps:'Сон',acts:'Восстановление',cycle:'Цикл'})[e._c]}${['events','acts'].includes(e._c)?' · '+esc(eventTime(e)):''}</div><div class="hist-note">${esc(entrySummary(e,e._c))}</div>${actionButtons(e)}</div>`).join(''):'<div class="empty">Нет записей по выбранным условиям</div>';
 }
-
-// HEATMAP - clone body SVG and color by frequency
-function renderHeatmap(period){
-  const cutoff=new Date(Date.now()-period*86400000);
-  const zoneCounts={};
-  events.filter(e=>new Date(e.date)>=cutoff&&e.pain?.zones?.length).forEach(e=>{e.pain.zones.forEach(z=>{zoneCounts[z]=(zoneCounts[z]||0)+1;});});
-  const maxCount=Math.max(...Object.values(zoneCounts),1);
-  ['front','back'].forEach(side=>{
-    const src=document.getElementById('body-'+side);
-    const hm=document.getElementById('hm-'+side);
-    if(!src||!hm)return;
-    hm.innerHTML=src.innerHTML;
-    hm.querySelectorAll('.body-zone').forEach(zone=>{
-      zone.style.cursor='default';
-      zone.onclick=null;
-      const z=zone.dataset.zone;
-      const count=zoneCounts[z]||0;
-      if(count===0){zone.style.fill='var(--g15)';zone.style.stroke='var(--g40)';}
-      else{const intensity=count/maxCount;zone.style.fill=`rgba(184,85,85,${0.15+intensity*0.75})`;zone.style.stroke=`rgba(184,85,85,${0.5+intensity*0.5})`;}
-    });
-  });
+window.renderNewHistory=renderHistory;
+function renderCycle(){
+  const starts=cycleStarts(),last=starts.find(e=>e.date<=localDate());let status='Отметь начало менструации';
+  if(last){const day=Math.round((new Date(localDate())-new Date(last.date))/86400000)+1,next=new Date(Date.parse(last.date+'T12:00:00Z')+cycleSettings.len*86400000).toISOString().slice(0,10);status=`<div class="cstatus"><div class="cdaynum">${day}</div><div class="cdaylabel">день от последнего отмеченного начала</div><p>${last.endDate?'Последний день выделений: '+reportDate(last.endDate):'Окончание менструации не отмечено'}</p><p class="help">Расчётное следующее начало: ${reportDate(next)}. Ориентир по настройке ${cycleSettings.len} дней; фактические даты могут отличаться.</p></div>`;}
+  if(last){const day=Math.round((new Date(localDate())-new Date(last.date))/86400000)+1;let phase=day<=cycleSettings.days?'Менструация':day<cycleSettings.len-15?'Фолликулярная фаза':day<=cycleSettings.len-12?'Овуляция':'Лютеиновая фаза';if(day>cycleSettings.len)phase='За пределами заданной длительности';status+=`<details class="card"><summary>Календарная оценка фазы</summary><p>${phase}</p><p class="help">Расчёт по указанной длительности цикла, а не подтверждение овуляции или уровня гормонов.</p></details>`;}document.getElementById('cycle-status').innerHTML=status;const rows=allEntries().filter(e=>e._c==='cycle');document.getElementById('cycle-hist-card').style.display=rows.length?'block':'none';document.getElementById('cycle-hist').innerHTML=rows.map(e=>`<div class="day-item"><b>${reportDate(e.date)}</b><br>${esc(entrySummary(e,'cycle'))}${actionButtons(e)}</div>`).join('');
 }
+function selectedChartDays(){const last=localDate(),days=[];for(let i=window._period-1;i>=0;i--)days.push(new Date(Date.parse(last+'T12:00:00Z')-i*86400000).toISOString().slice(0,10));return days;}
+function dayValues(day,zone=''){
+  const ev=events.filter(e=>e.date===day),pain=ev.map(e=>painValue(e,zone)).filter(v=>v!==null),sleep=sleeps.filter(e=>e.date===day),activity=acts.filter(e=>e.date===day),bleeding=cycleEvts.filter(e=>e.date===day&&e.kind==='bleeding'),start=cycleStarts().some(e=>e.date===day),period=cycleStarts().find(e=>e.endDate&&e.date<=day&&e.endDate>=day);
+  return {pain:pain.length?Math.max(...pain):null,meds:ev.filter(e=>e.med).length,sleep:sleep.length?sleep.reduce((n,e)=>n+e.hours+(e.minutes||0)/60,0):null,wakes:sleep.some(e=>e.awakenings!=null)?sleep.filter(e=>e.awakenings!=null).reduce((n,e)=>n+e.awakenings,0):null,activity:activity.length,duration:activity.some(e=>e.durationMinutes!=null)?activity.reduce((n,e)=>n+(e.durationMinutes||0),0):null,cycle:bleeding.length?bleeding.map(e=>e.flow).join(', '):start?'Начало':period?'Период':'',temperature:ev.filter(e=>e.temp).length?Math.max(...ev.filter(e=>e.temp).map(e=>e.temp.value)):null};
+}
+function renderCharts(){
+  const select=document.getElementById('chart-zone'),selected=select.value;select.innerHTML='<option value="">Все зоны · максимум за день</option>'+[...new Set(events.flatMap(e=>e.pain?.zones||[]))].sort().map(z=>`<option value="${esc(z)}">${esc(z)}</option>`).join('');select.value=selected;
+  const zone=select.value,days=selectedChartDays(),values=days.map(d=>dayValues(d,zone)),nonempty=values.filter(v=>v.pain!=null),medCount=values.reduce((n,v)=>n+v.meds,0);
+  document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum rose">${nonempty.length?Math.max(...nonempty.map(v=>v.pain)):'—'}</div><div class="sdesc">макс. боль</div></div><div class="spill"><div class="snum lav">${medCount}</div><div class="sdesc">записей приёма</div></div><div class="spill"><div class="snum sage">${nonempty.length}</div><div class="sdesc">дней с оценкой боли</div></div>`;
+  const row=(label,cells)=>`<div class="track-row"><div class="track-label">${label}</div><div class="track-cells">${cells}</div></div>`,cell=(content)=>`<div class="track-cell">${content||'<span class="track-none">—</span>'}</div>`;
+  let html=row('Дата',days.map(d=>cell(`<button data-chart-date="${d}">${reportDate(d).slice(0,5)}</button>`)).join(''));
+  const width=days.length*44,py=v=>116-v*10;let path='',last=null,points='';values.forEach((v,i)=>{if(v.pain===null){last=null;return;}const x=i*44+22;if(last!==null)path+=` L ${x} ${py(v.pain)}`;else path+=` M ${x} ${py(v.pain)}`;last=v.pain;points+=`<circle cx="${x}" cy="${py(v.pain)}" r="4" fill="#a44045"/><text x="${x}" y="${py(v.pain)-8}" text-anchor="middle" font-size="12" fill="#722d31">${v.pain}</text>`;});
+  html+=row('Боль, 0–10<br><small>макс. за день</small>',`<svg width="${width}" height="140" viewBox="0 0 ${width} 140" role="img" aria-label="Дневной максимум боли. Пропуски не соединены.">${[0,5,10].map(v=>`<line x1="0" x2="${width}" y1="${py(v)}" y2="${py(v)}" stroke="#ddd" stroke-dasharray="3 3"/>`).join('')}<path d="${path}" fill="none" stroke="#a44045" stroke-width="2"/>${points}</svg>`);
+  html+=row('Приём<br>препаратов',values.map(v=>cell(v.meds?`${v.meds}<small>записей</small>`:'')).join(''));
+  html+=row('Активность',values.map(v=>cell(v.activity?`${v.activity}<small>занятий${v.duration!=null?' · '+v.duration+' мин':''}</small>`:'')).join(''));
+  html+=row('Сон, часы',values.map(v=>cell(v.sleep!=null?String(Number(v.sleep.toFixed(1))):'')).join(''));
+  html+=row('Пробуждения',values.map(v=>cell(v.wakes!=null?String(v.wakes):'')).join(''));
+  html+=row('Цикл',values.map(v=>cell(v.cycle?`<small>${esc(v.cycle)}</small>`:'')).join(''));
+  html+=row('Температура<br>°C, макс.',values.map(v=>cell(v.temperature!=null?String(v.temperature):'')).join(''));
+  document.getElementById('timeline-tracks').innerHTML=html+'<p class="help">— нет записи. «Период» — отмечены начало и окончание; интенсивность за эти дни не предполагается. Боль — максимум из оценок дня, а не среднее.</p>';
+  const scroll=document.getElementById('timeline-scroll');if(!scroll.dataset.initialized){scroll.scrollLeft=scroll.scrollWidth;scroll.dataset.initialized='yes';}
+}
+window.renderNewCharts=renderCharts;
+window.showChartDay=function(date){const rows=allEntries().filter(e=>e.date===date);document.getElementById('chart-day').innerHTML=`<b>${reportDate(date)}</b>`+(rows.length?rows.map(e=>`<div class="day-item">${esc(entrySummary(e,e._c))}${actionButtons(e)}</div>`).join(''):'<p class="help">За этот день нет записей</p>');};
+document.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;if(button.dataset.editId)window.editEntry(button.dataset.editId,button.dataset.coll);if(button.dataset.deleteId)window.delEntry(button.dataset.deleteId,button.dataset.coll);if(button.dataset.cancel)window.cancelEdit(button.dataset.cancel);if(button.dataset.chartDate)window.showChartDay(button.dataset.chartDate);});
+for(const group of [...new Set(fineZones.map(z=>z.group))]){const g=document.createElement('optgroup');g.label=group;for(const item of fineZones.filter(z=>z.group===group)){const o=document.createElement('option');o.value=item.zone;o.textContent=item.zone;g.appendChild(o);}document.getElementById('detail-zone').appendChild(g);}
+setVal('bleeding-date',localDate());setVal('load-time',nowTime());setVal('act-time',nowTime());document.getElementById('med-followup').hidden=true;renderDigitPicker();
 
 function reportDate(d){return String(d||'').split('-').reverse().join('.');}
 function reportBody(side,counts){
   const original=document.getElementById('body-'+side);if(!original)return '';
-  const svg=original.cloneNode(true);const max=Math.max(1,...Object.values(counts));
+  const svg=original.cloneNode(true);const aggregate={};for(const [zone,count] of Object.entries(counts))aggregate[parentZone(zone)]=(aggregate[parentZone(zone)]||0)+count;const max=Math.max(1,...Object.values(aggregate));
   svg.removeAttribute('id');svg.removeAttribute('style');svg.setAttribute('width','150');svg.setAttribute('height','290');
   for(const el of [svg,...svg.querySelectorAll('*')]){for(const a of [...el.attributes])if(a.name.startsWith('on')||a.name==='id')el.removeAttribute(a.name);}
-  svg.querySelectorAll('.body-zone').forEach(el=>{const n=counts[el.dataset.zone]||0;el.removeAttribute('class');el.setAttribute('fill',n?`rgb(${Math.round(220-90*n/max)},${Math.round(210-150*n/max)},${Math.round(210-140*n/max)})`:'#f0f0f0');el.setAttribute('stroke','#666');el.setAttribute('stroke-width','0.7');});
+  svg.querySelectorAll('.body-zone').forEach(el=>{const n=Object.entries(counts).filter(([zone])=>parentZone(zone)===el.dataset.zone).reduce((sum,[,count])=>sum+count,0);el.removeAttribute('class');el.setAttribute('fill',n?`rgb(${Math.round(220-90*n/max)},${Math.round(210-150*n/max)},${Math.round(210-140*n/max)})`:'#f0f0f0');el.setAttribute('stroke','#666');el.setAttribute('stroke-width','0.7');});
   return svg.outerHTML;
 }
 function reportChart(days,ev,ac,cy){
@@ -906,7 +863,7 @@ function reportChart(days,ev,ac,cy){
     let marks='',previous=null;
     for(const level of [0,5,10])marks+=`<line x1="${left}" x2="${w-right}" y1="${y(level)}" y2="${y(level)}" stroke="#ccc"/><text x="24" y="${y(level)+4}" text-anchor="end">${level}</text>`;
     chunk.forEach((d,i)=>{
-      const items=ev.filter(e=>e.date===d&&Number.isFinite(e.pain?.level)),mean=items.length?items.reduce((sum,e)=>sum+e.pain.level,0)/items.length:null;
+      const items=ev.filter(e=>e.date===d&&Number.isFinite(e.pain?.level)),mean=items.length?Math.max(...items.map(e=>e.pain.level)):null;
       if(mean!==null){if(previous!==null)marks+=`<line x1="${x(i-1)}" y1="${y(previous)}" x2="${x(i)}" y2="${y(mean)}" stroke="#222" stroke-width="1.5"/>`;marks+=`<circle cx="${x(i)}" cy="${y(mean)}" r="3" fill="#111"/><text x="${x(i)}" y="${y(mean)-6}" text-anchor="middle" font-size="8">${Number(mean.toFixed(1))}</text>`;}
       previous=mean;
       const meds=ev.filter(e=>e.date===d&&e.med).length,sport=ac.filter(e=>e.date===d).length,cycle=cy.some(e=>e.date===d);
@@ -915,7 +872,7 @@ function reportChart(days,ev,ac,cy){
       if(cycle)marks+=`<text x="${x(i)}" y="193" text-anchor="middle">●</text>`;
       marks+=`<text transform="translate(${x(i)},207) rotate(-40)" text-anchor="end" font-size="8">${reportDate(d).slice(0,5)}</text>`;
     });
-    result+=`<div class="chart"><h3>${reportDate(chunk[0])} — ${reportDate(chunk.at(-1))}</h3><svg role="img" aria-label="Дневные средние оценки боли и число записей о препаратах и активности" viewBox="0 0 ${w} ${h+16}"><g font-family="Arial" font-size="10">${marks}<text x="0" y="157">П</text><text x="0" y="175">А</text><text x="0" y="193">Ц</text></g></svg></div>`;
+    result+=`<div class="chart"><h3>${reportDate(chunk[0])} — ${reportDate(chunk.at(-1))}</h3><svg role="img" aria-label="Дневные максимальные оценки боли и число записей о препаратах и активности" viewBox="0 0 ${w} ${h+16}"><g font-family="Arial" font-size="10">${marks}<text x="0" y="157">П</text><text x="0" y="175">А</text><text x="0" y="193">Ц</text></g></svg></div>`;
   }
   return result;
 }
@@ -923,16 +880,16 @@ function buildDoctorReport({from,to,name='',question=''}){
   if(!validDate(from)||!validDate(to)||from>to)throw Error('Проверь начало и конец периода');
   const length=Math.round((new Date(to)-new Date(from))/86400000)+1;
   if(length>366)throw Error('Выбери период не более 366 дней');
-  const inside=e=>e.date>=from&&e.date<=to,ev=events.filter(inside).sort((a,b)=>a.date.localeCompare(b.date)||String(a.ts||'').localeCompare(String(b.ts||''))),sl=sleeps.filter(inside),ac=acts.filter(inside),cy=cycleEvts.filter(inside).sort((a,b)=>a.date.localeCompare(b.date));
+  const inside=e=>e.date>=from&&e.date<=to,ev=events.filter(inside).sort((a,b)=>a.date.localeCompare(b.date)||String(a.ts||'').localeCompare(String(b.ts||''))),sl=sleeps.filter(inside),ac=acts.filter(inside),cy=cycleEvts.filter(isStart).filter(inside).sort((a,b)=>a.date.localeCompare(b.date));
   const days=Array.from({length},(_,i)=>new Date(Date.parse(from+'T12:00:00Z')+i*86400000).toISOString().slice(0,10));
-  const pain=ev.filter(e=>Number.isFinite(e.pain?.level)),meds=ev.filter(e=>e.med),recordedDays=new Set([...ev,...sl,...ac,...cy].map(e=>e.date)).size;
+  const pain=ev.filter(e=>Number.isFinite(e.pain?.level)),meds=ev.filter(e=>e.med),recordedDays=new Set([...ev,...sl,...ac,...cycleEvts.filter(inside)].map(e=>e.date)).size;
   const counts={},zoneDays={},zoneLevels={};
-  for(const e of pain)for(const z of new Set(e.pain.zones||[])){counts[z]=(counts[z]||0)+1;(zoneDays[z]??=new Set()).add(e.date);(zoneLevels[z]??=[]).push(e.pain.level);}
+  for(const e of pain)for(const site of painSites(e)){const z=site.zone;counts[z]=(counts[z]||0)+1;(zoneDays[z]??=new Set()).add(e.date);(zoneLevels[z]??=[]).push(site.level);}
   const mean=values=>values.length?(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1):'—';
   const table=(heads,rows)=>`<table><thead><tr>${heads.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join(''):`<tr><td colspan="${heads.length}">Нет записей за выбранный период</td></tr>`}</tbody></table>`;
-  const drugGroups=new Map();for(const e of meds){const key=e.med.name+'\u0000'+String(e.med.dose??'');if(!drugGroups.has(key))drugGroups.set(key,{name:e.med.name,dose:e.med.dose,count:0,dates:new Set()});const g=drugGroups.get(key);g.count++;g.dates.add(e.date);}
-  const time=e=>e.ts?new Date(e.ts).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}):'—';
-  const allCycle=[...new Set(cycleEvts.map(e=>e.date).filter(d=>d<=to))].sort(),cycleRows=cy.map(e=>{const i=allCycle.indexOf(e.date);return [reportDate(e.date),i>0?Math.round((new Date(e.date)-new Date(allCycle[i-1]))/86400000)+' дн.':'—'];});
+  const drugGroups=new Map();for(const e of meds){const key=e.med.name+'\u0000'+String(e.med.dose??'')+' '+(e.med.unit||'мг');if(!drugGroups.has(key))drugGroups.set(key,{name:e.med.name,dose:e.med.dose,unit:e.med.unit||'мг',count:0,dates:new Set()});const g=drugGroups.get(key);g.count++;g.dates.add(e.date);}
+  const time=e=>e.time||'время не указано';
+  const allCycle=[...new Set(cycleEvts.filter(isStart).map(e=>e.date).filter(d=>d<=to))].sort(),cycleRows=cy.map(e=>{const i=allCycle.indexOf(e.date);return [reportDate(e.date),e.endDate?reportDate(e.endDate):'не отмечено',i>0?Math.round((new Date(e.date)-new Date(allCycle[i-1]))/86400000)+' дн.':'—'];});
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Дневник самочувствия — ${reportDate(from)}–${reportDate(to)}</title><style>
   *{box-sizing:border-box}body{font:12px/1.45 Arial,sans-serif;color:#151515;background:#eee;margin:0}main{max-width:900px;margin:24px auto;padding:36px;background:#fff}h1{font-size:25px;line-height:1.15;margin:8px 0 14px}h2{font-size:17px;margin:26px 0 9px;border-bottom:1px solid #777;padding-bottom:5px}h3{font-size:12px;margin:10px 0}p{margin:8px 0}.meta{color:#444}.kicker{text-transform:uppercase;letter-spacing:1.5px;font-size:10px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;border-top:2px solid #222;border-bottom:1px solid #aaa;padding:14px 0;margin:20px 0}.summary strong{display:block;font-size:22px}.small{font-size:10px;color:#555}.maps{display:flex;gap:20px;align-items:flex-start}.figures{display:flex;flex-shrink:0}.figures figure{margin:0;text-align:center}.maps table{flex:1}svg{max-width:100%}.chart{break-inside:avoid;margin-bottom:12px}.chart>svg{width:100%;height:auto}table{border-collapse:collapse;width:100%;font-size:10px;margin:9px 0 16px;table-layout:fixed}th,td{border:1px solid #bbb;padding:6px;vertical-align:top;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere}th{background:#eee;font-weight:bold}thead{display:table-header-group}tr{break-inside:avoid}h2,h3{break-after:avoid}.toolbar{padding:14px;text-align:center;background:#222;color:white}.toolbar button{padding:10px 20px;cursor:pointer}footer{margin-top:24px;border-top:1px solid #aaa;padding-top:10px;font-size:10px;color:#555}
   @page{size:A4;margin:14mm}@media print{body{background:white}main{margin:0;padding:0;max-width:none}.toolbar{display:none}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.details{break-before:page}}@media(max-width:650px){main{padding:18px;margin:0}.summary{grid-template-columns:repeat(2,1fr)}.maps{flex-direction:column}}
@@ -941,16 +898,17 @@ function buildDoctorReport({from,to,name='',question=''}){
   <p><b>Пациент:</b> ${esc(name.trim()||'не указан')}<br><b>Период:</b> ${reportDate(from)} — ${reportDate(to)} (${length} дн.)<br><b>Сформировано:</b> ${esc(new Date().toLocaleString('ru-RU'))}</p>
   ${question.trim()?`<p><b>Вопрос к врачу:</b> ${esc(question)}</p>`:''}
   <p class="meta">Самостоятельные записи пациента. Документ не содержит диагноза, оценки эффективности лечения или установленных причин симптомов.</p>
-  <div class="summary"><div><strong>${recordedDays} / ${length}</strong>дней с любыми записями</div><div><strong>${mean(pain.map(e=>e.pain.level))} / 10</strong>средняя оценка боли</div><div><strong>${pain.length?Math.max(...pain.map(e=>e.pain.level)):'—'} / 10</strong>максимальная оценка</div><div><strong>${meds.length}</strong>записей о приёме препаратов</div></div>
-  <p class="small">Средняя боль рассчитана по ${pain.length} отдельным оценкам в ${new Set(pain.map(e=>e.date)).size} днях. Число записей о препаратах — не число таблеток. Отсутствие записи не означает отсутствие боли, приёма препарата или активности.</p>
+  <div class="summary"><div><strong>${recordedDays} / ${length}</strong>дней с любыми записями</div><div><strong>${mean(pain.map(e=>e.pain.level))} / 10</strong>средняя оценка записей*</div><div><strong>${pain.length?Math.max(...pain.map(e=>e.pain.level)):'—'} / 10</strong>максимальная оценка</div><div><strong>${meds.length}</strong>записей о приёме препаратов</div></div>
+  <p class="small">* Для новых записей с несколькими зонами берётся максимум по зонам; для старых — общая оценка записи. Средняя рассчитана по ${pain.length} отдельным оценкам в ${new Set(pain.map(e=>e.date)).size} днях. Число записей о препаратах — не число таблеток. Отсутствие записи не означает отсутствие боли, приёма препарата или активности.</p>
   <h2>1. Локализация боли</h2><div class="maps"><div class="figures"><figure>${reportBody('front',counts)}<figcaption>Спереди</figcaption></figure><figure>${reportBody('back',counts)}<figcaption>Сзади</figcaption></figure></div>${table(['Зона','Записей / дней','Ср. / макс. оценка'],Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(z=>[z,counts[z]+' / '+zoneDays[z].size,mean(zoneLevels[z])+' / '+Math.max(...zoneLevels[z])]))}</div>
-  <p class="small">Чем темнее зона, тем чаще она отмечена в выбранном периоде. Серая зона — нет отметок. Одна оценка боли в приложении относится ко всей записи; при нескольких зонах она показана для каждой, отдельная интенсивность по зонам не измерялась.</p>
-  <h2>2. Динамика по дням</h2><p class="small">Линия — средняя боль за день (0–10); разрыв — нет оценки. П — число записей о приёме препаратов; А — число записей активности; Ц — отмеченное начало цикла. Пустые ячейки — нет записей. Прогнозные фазы не показаны.</p>${reportChart(days,ev,ac,cy)}
-  <h2>3. Препараты</h2>${table(['Название со слов пациента','Доза в одной записи, мг','Записей / дней'],[...drugGroups.values()].map(g=>[g.name,g.dose??'не указана',g.count+' / '+g.dates.size]))}
-  <h2>4. Физическая активность</h2>${table(['Дата','Занятие','Подвид'],[...ac].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.kind,(e.sub||[]).join(', ')]))}
-  <h2>5. Менструальный цикл</h2>${table(['Отмеченное начало','Интервал с предыдущим отмеченным началом'],cycleRows)}<p class="small">Приложение хранит даты начала, но не фактические даты окончания кровотечения. В настройках на момент формирования: цикл ${esc(cycleSettings.len)} дн., менструация ${esc(cycleSettings.days)} дн.; это введённые значения, а не измеренные длительности. Интервал может учитывать отметку до начала выбранного периода.</p>
-  <section class="details"><h2>6. Подробные записи самочувствия</h2>${table(['Дата / время записи','Боль / зоны','Характер / предполагаемая причина','Препарат / температура','Заметка'],ev.map(e=>[reportDate(e.date)+' '+time(e),(e.pain?e.pain.level+'/10':'не оценена')+'\n'+(e.pain?.zones||[]).join(', '),(e.pain?.character||[]).join(', ')+'\n'+(e.pain?.reasons||[]).join(', '),(e.med?e.med.name+(e.med.dose?' · '+e.med.dose+' мг':' · доза не указана'):'')+(e.temp?'\n'+e.temp.value+' °C':''),e.note||'']))}<p class="small">Время — момент создания записи, а не подтверждённое время появления симптома или приёма лекарства. «Причина» — предположение пациента.</p>
-  <h2>7. Сон</h2>${table(['Дата','Длительность','Качество со слов пациента','Отметка «до 23:00»'],[...sl].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.hours+' ч '+(e.minutes??0)+' мин',e.quality||'не указано',e.before23?'да':'не отмечено']))}</section>
+  <p class="small">Чем темнее зона, тем чаще она отмечена в выбранном периоде. Серая зона — нет отметок. В новых записях интенсивность задаётся отдельно по зонам. В старых записях общая оценка показана для каждой выбранной зоны — отдельных измерений там не было. Подробные зоны на силуэте объединены в родительскую область; точные названия — в таблице.</p>
+  <h2>2. Динамика по дням</h2><p class="small">Линия — максимальная оценка боли за день (0–10); разрыв — нет оценки. П — число записей о приёме препаратов; А — число записей активности; Ц — отмеченное начало цикла. Пустые ячейки — нет записей. Прогнозные фазы не показаны.</p>${reportChart(days,ev,ac,cy)}
+  <h2>3. Препараты</h2>${table(['Название со слов пациента','Доза, как указана','Записей / дней'],[...drugGroups.values()].map(g=>[g.name,g.dose!=null&&g.dose!==''?g.dose+' '+g.unit:'не указана',g.count+' / '+g.dates.size]))}
+  <h2>4. Физическая активность</h2>${table(['Дата / время','Занятие / подвид','Длительность, мин','После занятия / заметка'],[...ac].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date)+' '+time(e),e.kind+' '+(e.sub||[]).join(', '),e.durationMinutes??'не указана',[e.effect,e.note].filter(Boolean).join('; ')]))}
+  <h2>5. Менструальный цикл</h2>${table(['Начало','Последний день выделений','Интервал между началами'],cycleRows)}<p class="small">Окончание показано только для периодов, где оно отмечено пользователем. В настройках на момент формирования: цикл ${esc(cycleSettings.len)} дн., менструация ${esc(cycleSettings.days)} дн.; это введённые значения, а не измеренные длительности. Интервал может учитывать отметку до начала выбранного периода.</p>
+  <h3>Ежедневные отметки выделений</h3>${table(['Дата','Интенсивность','Заметка'],cycleEvts.filter(e=>e.kind==='bleeding'&&inside(e)).sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.flow,e.note||'']))}
+  <section class="details"><h2>6. Подробные записи самочувствия</h2>${table(['Дата / время события','Боль / зоны','Характер / предполагаемая причина','Препарат / температура','Заметка'],ev.map(e=>[reportDate(e.date)+' '+time(e),painText(e)||'не оценена',(e.pain?.character||[]).join(', ')+'\n'+(e.pain?.reasons||[]).join(', '),medText(e.med)+(e.temp?'\n'+e.temp.value+' °C':''),e.note||'']))}<p class="small">Время события указано пользователем. В старых записях время события может отсутствовать; время создания не подставляется вместо него. «Причина» — предположение пациента.</p>
+  <h2>7. Сон</h2>${table(['Дата','Длительность','Качество со слов пациента','Количество пробуждений'],[...sl].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.hours+' ч '+(e.minutes??0)+' мин',e.quality||'не указано',e.awakenings??'не указано']))}</section>
   <footer>Источник: личный дневник «Фон». В отчёт включены загруженные записи выбранного периода. Пустые дни не заполнены нулями. Документ содержит личные данные.</footer></main></body></html>`;
 }
 window.openDoctorReport=function(download=false){
@@ -965,7 +923,7 @@ window.openDoctorReport=function(download=false){
   }catch(e){toast(e.message||'Не удалось создать отчёт',true);}
 };
 
-function backupData(){return {version:5,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};}
+function backupData(){return {version:6,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};}
 function downloadText(text,extension,type){
   const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=`fon_${localDate()}.${extension}`;document.body.appendChild(a);
@@ -978,15 +936,11 @@ window.showBackupText=function(){if(!requireData())return;document.getElementByI
 window.copyBackupText=async function(){if(!requireData())return;window.showBackupText();const area=document.getElementById('backup-text');try{await navigator.clipboard.writeText(area.value);toast('Текст скопирован');}catch(e){area.focus();area.select();toast('Выделено: нажми «Копировать» или Ctrl/Cmd+C');}};
 function csvCell(value){let text=String(value??'');if(/^[\s]*[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}
 function buildCSV(){
-  const rows=[['Тип','Дата','Боль','Зоны','Причина','Характер','Препарат','Доза','Температура','Сон ч','Сон мин','До 23','Качество','Активность','Подвид','Заметка','Время записи','Температура повышена']];
-  const records=[];
-  events.forEach(e=>records.push(['самочувствие',e.date,e.pain?.level??'',(e.pain?.zones||[]).join('; '),(e.pain?.reasons||[]).join('; '),(e.pain?.character||[]).join('; '),e.med?.name??'',e.med?.dose??'',e.temp?.value??'','','','','','','',e.note??'',e.ts??'',e.temp?(e.temp.high?'да':'нет'):'']));
-  sleeps.forEach(e=>records.push(['сон',e.date,'','','','','','','',e.hours,e.minutes??0,e.before23?'да':'нет',e.quality??'','','','',e.ts??'','']));
-  acts.forEach(e=>records.push(['активность',e.date,'','','','','','','','','','','',e.kind,(e.sub||[]).join('; '),'',e.ts??'','']));
-  cycleEvts.forEach(e=>records.push(['начало цикла',e.date,'','','','','','','','','','','','','','',e.ts??'','']));
-  records.sort((a,b)=>String(a[1]).localeCompare(String(b[1])));rows.push(...records);
+  const rows=[['Тип','Дата','Время события','Боль по зонам','Общая / максимальная боль','Препарат и результат','Температура','Сон, часы','Сон, минуты','Пробуждения','Качество сна','Активность','Длительность, мин','Результат активности','Заметка','Конец менструации','Интенсивность выделений','Создано','Обновлено']];
+  for(const e of allEntries().reverse())rows.push([({events:'Нагрузка',sleeps:'Сон',acts:'Восстановление',cycle:e.kind==='bleeding'?'Выделения':'Начало цикла'})[e._c],e.date,e.time||'',painText(e),e.pain?.level??'',medText(e.med),e.temp?.value??'',e.hours??'',e.minutes??'',e.awakenings??'',e.quality||'',e._c==='acts'?e.kind+' '+(e.sub||[]).join('; '):'',e.durationMinutes??'',e.effect||'',e.note||'',e.endDate||'',e.flow||'',e.ts||'',e.updatedAt||'']);
   return '\uFEFF'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n');
 }
+
 window.expCSV=function(){if(!requireData())return;downloadText(buildCSV(),'csv','text/csv;charset=utf-8');};
 function validDate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;const d=new Date(value+'T12:00:00Z');return !isNaN(d)&&d.toISOString().slice(0,10)===value;}
 function validateBackup(data){
@@ -1008,6 +962,13 @@ function validateBackup(data){
         if(r.med!=null&&(typeof r.med!=='object'||typeof r.med.name!=='string'||(r.med.dose!=null&&!['string','number'].includes(typeof r.med.dose))))throw Error('Неверная запись препарата');
         if(r.temp!=null&&(typeof r.temp!=='object'||!Number.isFinite(r.temp.value)))throw Error('Неверная температура');
       }
+      if(r.time!=null&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(r.time))throw Error('Неверное время события');
+      if(r.awakenings!=null&&(!Number.isInteger(r.awakenings)||r.awakenings<0||r.awakenings>1000))throw Error('Неверное число пробуждений');
+      if(r.durationMinutes!=null&&(!Number.isInteger(r.durationMinutes)||r.durationMinutes<1||r.durationMinutes>1440))throw Error('Неверная длительность активности');
+      if(r.endDate!=null&&(!validDate(r.endDate)||r.endDate<r.date))throw Error('Неверная дата окончания менструации');
+      if(key==='cycleEvents'&&r.kind==='bleeding'&&!['Мажущие','Скудные','Умеренные','Обильные'].includes(r.flow))throw Error('Неверная интенсивность выделений');
+      if(r.pain?.sites!==undefined&&(!Array.isArray(r.pain.sites)||r.pain.sites.some(site=>!site||typeof site.zone!=='string'||!Number.isInteger(site.level)||site.level<1||site.level>10)))throw Error('Неверная боль по зонам');
+      if(r.med){for(const key of ['unit','quantityUnit','effect'])if(r.med[key]!=null&&typeof r.med[key]!=='string')throw Error('Неверное поле препарата');for(const key of ['quantity','afterMinutes','afterPain'])if(r.med[key]!=null&&(!Number.isFinite(r.med[key])||r.med[key]<0))throw Error('Неверное число в записи препарата');if(r.med.afterPain!=null&&r.med.afterPain>10)throw Error('Неверная боль после препарата');}
       if(key==='sleeps'&&(!Number.isInteger(r.hours)||r.hours<0||!Number.isInteger(r.minutes??0)||(r.minutes??0)<0||(r.minutes??0)>59||r.hours*60+(r.minutes??0)>1440))throw Error('Неверная длительность сна');
       if(key==='acts'&&(typeof r.kind!=='string'||(r.sub!==undefined&&(!Array.isArray(r.sub)||r.sub.some(v=>typeof v!=='string')))))throw Error('Неверная активность');
     }
@@ -1020,24 +981,24 @@ function canonical(value){if(Array.isArray(value))return '['+value.map(canonical
 function recordKey(item){const {id,...rest}=item;return canonical(rest);}
 async function stableImportId(key){const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(key));return 'import_'+Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('');}
 window.impJSON=async function(input){
-  const file=input.files[0];if(!file||importBusy||!requireData()){input.value='';return;}
+  const file=input.files[0];if(!file||importBusy||pendingWrites||!requireData()){input.value='';return;}
   const importUserId=uid;let added=0,skipped=0;importBusy=true;renderAccount();
   try{
     if(file.size>20*1024*1024)throw Error('Файл больше 20 МБ');
     const data=validateBackup(JSON.parse(await file.text()));
     const sections=[['events',events,'events'],['sleeps',sleeps,'sleeps'],['acts',acts,'acts'],['cycleEvents',cycleEvts,'cycle']];
-    const summary=sections.map(([key,,coll])=>`${({events:'Самочувствие',sleeps:'Сон',acts:'Активность',cycle:'Начало цикла'})[coll]}: ${(data[key]||[]).length}`).join('\n');
+    const summary=sections.map(([key,,coll])=>`${({events:'Самочувствие',sleeps:'Сон',acts:'Активность',cycle:'Записи цикла'})[coll]}: ${(data[key]||[]).length}`).join('\n');
     if(!confirm('Добавить данные из файла?\n'+summary+'\n'+(data.cycleSettings?'Настройки цикла будут заменены значениями из файла.':'Настройки цикла останутся прежними.')))return;
     syncStatus('Восстановление данных… Не закрывай страницу.');
     for(const [key,local,coll] of sections){
-      const ids=new Set(local.map(x=>x.id)),keys=new Set(local.map(recordKey)),dates=new Set(local.map(x=>x.date));
+      const ids=new Set(local.map(x=>x.id)),keys=new Set(local.map(recordKey)),dates=new Set(local.map(x=>x.date+'|'+(x.kind==='bleeding'?'bleeding':'start')));
       for(const item of data[key]||[]){
         if(auth.currentUser?.uid!==importUserId||uid!==importUserId)throw Error('Аккаунт изменился. Импорт остановлен.');
         const fingerprint=recordKey(item);
-        if((item.id&&ids.has(item.id))||keys.has(fingerprint)||(coll==='cycle'&&dates.has(item.date))){skipped++;continue;}
+        if((item.id&&ids.has(item.id))||keys.has(fingerprint)||(coll==='cycle'&&dates.has(item.date+'|'+(item.kind==='bleeding'?'bleeding':'start')))){skipped++;continue;}
         const {id,...rest}=item,targetId=await stableImportId(fingerprint);
         await setDoc(doc(db,'users',importUserId,coll,targetId),rest);
-        local.push({...rest,id:targetId});keys.add(fingerprint);if(id)ids.add(id);ids.add(targetId);dates.add(item.date);added++;
+        local.push({...rest,id:targetId});keys.add(fingerprint);if(id)ids.add(id);ids.add(targetId);dates.add(item.date+'|'+(item.kind==='bleeding'?'bleeding':'start'));added++;
       }
       local.sort((a,b)=>b.date.localeCompare(a.date));
     }
@@ -1047,11 +1008,11 @@ window.impJSON=async function(input){
   finally{importBusy=false;input.value='';if(uid!==importUserId){clearUserData();await loadAll();}renderAccount();}
 };
 
-function updateDataStats(){const all=[...events,...sleeps,...acts,...cycleEvts],sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date)),fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});document.getElementById('data-stats').innerHTML=`<div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div><div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div><div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div><div class="drow"><span>Начал цикла</span><span class="dval">${cycleEvts.length}</span></div><div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div><div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>`;}
+function updateDataStats(){const all=[...events,...sleeps,...acts,...cycleEvts],sorted=[...all].sort((a,b)=>a.date.localeCompare(b.date)),fmt=d=>new Date(d).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});document.getElementById('data-stats').innerHTML=`<div class="drow"><span>Записей о боли</span><span class="dval rose">${events.length}</span></div><div class="drow"><span>Записей о сне</span><span class="dval lav">${sleeps.length}</span></div><div class="drow"><span>Активностей</span><span class="dval">${acts.length}</span></div><div class="drow"><span>Начал цикла</span><span class="dval">${cycleStarts().length}</span></div><div class="drow"><span>Первая запись</span><span class="dval">${sorted[0]?fmt(sorted[0].date):'—'}</span></div><div class="drow"><span>Последняя запись</span><span class="dval">${sorted[sorted.length-1]?fmt(sorted[sorted.length-1].date):'—'}</span></div>`;}
 
-for(const name of ['saveLoad','saveSleep','saveAct','saveCycleStart','saveCycleSettings','delEntry']){
+for(const name of ['saveLoad','saveSleep','saveAct','saveCycleStart','saveBleeding','saveCycleSettings','delEntry']){
   const original=window[name];let busy=false;
-  window[name]=async function(...args){if(busy||importBusy||!requireData())return;const writeUid=uid;busy=true;pendingWrites++;renderAccount();try{return await original(...args);}finally{busy=false;pendingWrites--;if(uid!==writeUid){clearUserData();await loadAll();}renderAccount();}};
+  window[name]=async function(...args){if(busy||importBusy||pendingWrites||!requireData())return;const writeUid=uid;busy=true;pendingWrites++;renderAccount();try{return await original(...args);}finally{busy=false;pendingWrites--;if(uid!==writeUid){clearUserData();await loadAll();}renderAccount();}};
 }
 window._renderCharts=renderCharts;window._renderCycle=renderCycle;
 </script>
@@ -1129,7 +1090,7 @@ function resetLoad(){
   document.getElementById('load-note').value='';
   updateZoneDisplay();
 }
-function resetSleep(){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));document.getElementById('sleep-h').value='';document.getElementById('sleep-m').value='';document.getElementById('sleep-23').checked=false;}
+function resetSleep(){document.querySelectorAll('.sq').forEach(b=>b.classList.remove('sel'));document.getElementById('sleep-h').value='';document.getElementById('sleep-m').value='';document.getElementById('sleep-wakes').value='';}
 function resetAct(){window._selAct=null;document.querySelectorAll('#act-tags .tag:not(.add)').forEach(b=>b.classList.remove('sel'));document.querySelectorAll('#sub-tags .tag').forEach(b=>b.classList.remove('sel'));document.getElementById('sub-wrap').style.display='none';}
 
 const today=localDate();
