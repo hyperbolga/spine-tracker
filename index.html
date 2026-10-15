@@ -1,164 +1,36 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
+<html lang="ru"><head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Фон</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#F4F2EF;--surface:#FAFAF8;--g:#272522;--g40:#A09D99;--g15:#ECEAE7;
-  --lav:#7B6BB0;--lav-l:#E8E4F5;
-  --sage:#4E8C5F;--sage-l:#D6EBD9;
-  --rose:#B85555;--rose-l:#F5DADA;
-  --amb:#B8882A;--amb-l:#F5E8C8;
-  --teal:#2E8A8C;--teal-l:#C8E8E8;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);font-family:'Manrope',sans-serif;color:var(--g);font-size:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-#loader{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px}
-.loader-name{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;letter-spacing:0.1em}
-.loader-sub{font-size:11px;color:var(--g40);letter-spacing:0.12em;text-transform:uppercase}
-#app{display:none}
-.screen{display:none;padding:20px 16px 96px;animation:fu .22s ease}
-.screen.active{display:block}
-@keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-.nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--g15);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0 7px;gap:3px;cursor:pointer;color:var(--g40);font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;border:none;background:none;transition:color .18s}
-.ni.active{color:var(--lav)}
-.ni svg{width:19px;height:19px}
-.pt{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;letter-spacing:0.02em;margin-bottom:2px}
-.ps{font-size:10px;color:var(--g40);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:20px}
-.card{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:16px;margin-bottom:10px}
-.cl{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin-bottom:11px;font-weight:600}
-.pain-row{display:flex;gap:5px;flex-wrap:wrap}
-.pb{width:33px;height:33px;border-radius:50%;border:1.5px solid var(--g15);background:none;font-family:'Manrope',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .14s;color:var(--g)}
-.pb.sel{background:var(--lav);border-color:var(--lav);color:#fff}
-.pb[data-l="8"],.pb[data-l="9"],.pb[data-l="10"]{border-color:#ddb0b0;color:var(--rose)}
-.pb[data-l="8"].sel,.pb[data-l="9"].sel,.pb[data-l="10"].sel{background:var(--rose);border-color:var(--rose);color:#fff}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{padding:6px 12px;border-radius:100px;border:1.5px solid var(--g15);font-size:12px;cursor:pointer;transition:all .14s;background:none;color:var(--g);font-family:'Manrope',sans-serif}
-.tag.sel{background:var(--sage-l);border-color:var(--sage);color:var(--sage)}
-.tag.add{border-style:dashed;color:var(--lav);border-color:var(--lav-l)}
-.sq-row{display:flex;gap:6px}
-.sq{flex:1;padding:8px 4px;border-radius:8px;border:1.5px solid var(--g15);background:none;font-size:11px;font-family:'Manrope',sans-serif;cursor:pointer;text-align:center;transition:all .14s;color:var(--g);font-weight:500}
-.sq.sel{background:var(--lav-l);border-color:var(--lav);color:var(--lav);font-weight:600}
-.ifield{width:100%;border:1.5px solid var(--g15);border-radius:10px;padding:10px 12px;font-family:'Manrope',sans-serif;font-size:13px;color:var(--g);background:var(--surface);outline:none;transition:border-color .14s}
-.ifield:focus{border-color:var(--lav)}
-.ifield::placeholder{color:var(--g40)}
-.irow{display:flex;gap:8px}
-.irow .ifield{flex:1}
-.ilabel{font-size:10px;color:var(--g40);margin-bottom:4px;font-weight:500;letter-spacing:0.04em}
-.btn{width:100%;padding:13px;background:var(--g);color:#fff;border:none;border-radius:11px;font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;cursor:pointer;transition:background .18s;font-weight:600}
-.btn:hover{background:var(--lav)}
-.btn:disabled{background:var(--g40);cursor:not-allowed}
-.btn.sage{background:var(--sage)}.btn.lav{background:var(--lav)}.btn.rose{background:var(--rose)}
-.bsm{padding:8px 14px;background:var(--g);color:#fff;border:none;border-radius:8px;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .14s}
-.bsm:hover{background:var(--lav)}
-.mt8{margin-top:8px}.mt12{margin-top:12px}
-.divider{height:1px;background:var(--g15);margin:12px 0}
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--g);color:#fff;padding:10px 20px;border-radius:100px;font-size:12px;letter-spacing:0.04em;transition:transform .28s ease;z-index:200;white-space:nowrap;font-weight:500}
-#toast.show{transform:translateX(-50%) translateY(0)}
-.empty{text-align:center;color:var(--g40);font-size:13px;padding:28px 16px;line-height:1.7}
-/* BODY MAP */
-.body-map-wrap{display:flex;gap:12px;justify-content:center;align-items:flex-start}
-.body-view{flex:1;text-align:center}
-.body-view-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--g40);font-weight:600;margin-bottom:6px}
-.body-zone{cursor:pointer;transition:all .18s;fill:var(--g15);stroke:var(--g40);stroke-width:0.5}
-.body-zone:hover{fill:#d4cfe8}
-.body-zone.active{fill:var(--rose);stroke:var(--rose);fill-opacity:0.7}
-.body-zone.heatmap-1{fill:rgba(184,85,85,0.2)}
-.body-zone.heatmap-2{fill:rgba(184,85,85,0.4)}
-.body-zone.heatmap-3{fill:rgba(184,85,85,0.6)}
-.body-zone.heatmap-4{fill:rgba(184,85,85,0.8)}
-.selected-zones{margin-top:10px;min-height:28px}
-.zone-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:100px;background:var(--rose-l);border:1px solid var(--rose);color:var(--rose);font-size:11px;margin:2px;font-weight:500}
-.zone-badge button{background:none;border:none;color:var(--rose);cursor:pointer;font-size:13px;padding:0;line-height:1}
-/* HISTORY */
-.hdlabel{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin:14px 0 6px;font-weight:600}
-.hitem{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--g15);border-radius:12px;padding:12px;margin-bottom:6px}
-.hbadge{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:500;flex-shrink:0}
-.hbadge.rose{background:var(--rose-l);color:var(--rose)}.hbadge.amb{background:var(--amb-l);color:var(--amb)}.hbadge.sage{background:var(--sage-l);color:var(--sage)}.hbadge.none{background:var(--g15);color:var(--g40);font-size:13px}.hbadge.sleep{background:var(--lav-l);color:var(--lav);font-size:12px}.hbadge.act{background:var(--teal-l);color:var(--teal);font-size:12px}
-.hbody{flex:1;display:flex;flex-direction:column;gap:3px}
-.hrow{font-size:12px;color:var(--g);line-height:1.4}
-.htime{font-size:11px;color:var(--g40);flex-shrink:0;text-align:right}
-.hdel{background:none;border:none;color:var(--g40);cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;transition:color .14s;line-height:1}
-.hdel:hover{color:var(--rose)}
-/* CYCLE */
-.cstatus{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:20px 16px;margin-bottom:10px}
-.cdaynum{font-family:'Cormorant Garamond',serif;font-size:60px;font-weight:300;line-height:1;text-align:center}
-.cdaylabel{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);font-weight:600;text-align:center;margin-bottom:6px}
-.cphase{font-size:15px;font-weight:600;text-align:center;margin-bottom:4px}
-.cnext{font-size:12px;color:var(--g40);text-align:center;margin-bottom:16px;line-height:1.6}
-.phase-card{border-radius:12px;padding:14px}
-.phase-row{margin-bottom:10px}
-.phase-row:last-child{margin-bottom:0}
-.phase-row-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;opacity:0.7;margin-bottom:3px}
-.phase-row-text{font-size:12px;line-height:1.65}
-.cevlist{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:16px}
-.cev{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--g15);font-size:13px}
-.cev:last-child{border-bottom:none}
-.cdot{width:8px;height:8px;border-radius:50%;background:var(--rose);flex-shrink:0}
-/* CHARTS */
-.period-row{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
-.pbtn{padding:6px 13px;border-radius:100px;border:1.5px solid var(--g15);background:none;font-family:'Manrope',sans-serif;font-size:11px;color:var(--g40);cursor:pointer;transition:all .14s;font-weight:500}
-.pbtn.active{background:var(--g);border-color:var(--g);color:#fff}
-.spills{display:flex;gap:8px;margin-bottom:14px}
-.spill{flex:1;background:var(--surface);border:1px solid var(--g15);border-radius:12px;padding:12px 6px;text-align:center}
-.snum{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;line-height:1;margin-bottom:2px}
-.snum.lav{color:var(--lav)}.snum.sage{color:var(--sage)}.snum.rose{color:var(--rose)}
-.sdesc{font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--g40);font-weight:600}
-.cwrap{background:var(--surface);border:1px solid var(--g15);border-radius:14px;padding:16px;margin-bottom:10px}
-.ctitle{font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--g40);margin-bottom:10px;font-weight:600}
-.layers{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.lt{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:5px 10px;border-radius:100px;border:1.5px solid var(--g15);background:none;font-family:'Manrope',sans-serif;transition:all .14s;color:var(--g40);font-weight:500}
-.lt.on{border-color:currentColor;font-weight:600}
-.lt .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-canvas{width:100%!important;display:block}
-/* HEATMAP screen */
-.heatmap-wrap{display:flex;gap:16px;justify-content:center;align-items:flex-start;margin-bottom:12px}
-.heatmap-view{flex:1;text-align:center}
-.hm-label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--g40);font-weight:600;margin-bottom:6px}
-.hm-legend{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:10px;font-size:10px;color:var(--g40)}
-.hm-grad{width:80px;height:8px;border-radius:4px;background:linear-gradient(to right,rgba(184,85,85,0.1),rgba(184,85,85,0.9))}
-/* DATA */
-.drow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--g15);font-size:13px}
-.drow:last-child{border-bottom:none}
-.dval{font-weight:600}
-.dval.lav{color:var(--lav)}.dval.rose{color:var(--rose)}
-/* TEMP field */
-.temp-row{display:flex;align-items:center;gap:10px}
-.temp-row .ifield{max-width:100px}
-.temp-chip{display:flex;align-items:center;gap:6px;font-size:12px}
 
-@media(min-width:800px){.screen{max-width:900px;margin:auto}.nav{max-width:900px;margin:auto}}
-.ni{min-height:52px;font-size:9px}.btn:disabled{opacity:.5;cursor:wait}
-:focus-visible{outline:3px solid var(--teal);outline-offset:3px}
-#backup-text{width:100%;min-height:180px;font-family:monospace;font-size:12px}
-#sync-status{padding:10px 16px;font-size:12px;white-space:pre-wrap}
-
-[hidden]{display:none!important}.help{font-size:12px;line-height:1.5;color:#69645f;margin:8px 0 12px}.field-label{display:block;font-size:12px;margin-top:10px}.edit-hint{background:var(--amb-l);padding:12px;border-radius:9px;margin-bottom:12px;font-size:13px}.cancel-edit{display:block;width:100%;padding:12px;background:none;border:1px solid var(--g40);border-radius:9px;margin:8px 0 16px;cursor:pointer}.zone-editor{display:flex;align-items:center;gap:8px;justify-content:space-between;width:100%;padding:9px 0;border-bottom:1px solid var(--g15)}.zone-editor select{width:78px;padding:8px}.zone-editor button{border:0;background:none;padding:8px;cursor:pointer}.detail-picker summary{cursor:pointer;padding:12px 0;color:var(--lav)}.digit-picker svg{width:100%;max-width:320px;display:block;margin:auto}.digit-picker [role=button]{cursor:pointer}.digit-picker [role=button]:focus{outline:2px solid var(--lav)}.hist-actions{display:flex;gap:8px;margin-top:8px}.hist-actions button{padding:7px 10px;border:1px solid var(--g15);border-radius:7px;background:white;cursor:pointer;font-size:12px}.timeline-scroll{overflow-x:auto;overscroll-behavior-x:contain}.track-row{display:flex;border-bottom:1px solid var(--g15);width:max-content;min-width:100%}.track-label{position:sticky;left:0;width:100px;flex-shrink:0;background:var(--surface);z-index:2;padding:12px 6px;font-size:11px;font-weight:600;border-right:1px solid var(--g15)}.track-cells{display:flex;align-items:stretch}.track-cell{width:44px;flex-shrink:0;min-height:47px;border-right:1px solid #eee;text-align:center;padding:8px 2px;font-size:11px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px}.track-cell button{font:inherit;background:none;border:0;cursor:pointer;min-height:32px;color:var(--lav);text-decoration:underline}.track-cell small{font-size:9px;color:#625f5b}.track-none{color:#b7b2ac}.chart-day{margin-top:16px}.day-item{padding:9px 0;border-bottom:1px solid var(--g15);font-size:12px;white-space:pre-wrap}.hist-note{white-space:pre-wrap;overflow-wrap:anywhere}.digit-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+<style>:root{--bg:#f2f2f7;--surface:#fff;--g:#1c1c1e;--g40:#6e6e73;--g15:#e5e5ea;--lav:#007aff;--lav-l:#e8f2ff;--sage:#248a3d;--sage-l:#e7f4ea;--rose:#d94352;--rose-l:#fcebed;--amb:#b06c00;--amb-l:#fff3dc;--teal:#16858c;--teal-l:#e4f4f5;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color-scheme:light}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:84px}body{margin:0;color:var(--g);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.45;overflow-x:clip}button,input,select,textarea{font:inherit}button{touch-action:manipulation;cursor:pointer}input,select,textarea{font-size:16px!important;min-width:0;max-width:100%;width:100%;color:var(--g);border-radius:12px;-webkit-appearance:none;appearance:none}input[type=checkbox]{appearance:auto;-webkit-appearance:checkbox;width:20px;min-width:20px;height:20px;accent-color:var(--lav)}input[type=date],input[type=time]{min-height:48px}input::-webkit-date-and-time-value{min-height:24px;text-align:left}select{padding-right:30px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='m1 1 5 5 5-5' stroke='%236e6e73' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-position:right 12px center;background-repeat:no-repeat}textarea{resize:vertical;min-height:84px}[hidden]{display:none!important}:focus-visible{outline:3px solid #89baff;outline-offset:3px}
+#loader{min-height:100svh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}.loader-name{font-size:36px;font-weight:700}.loader-sub{color:var(--g40);font-size:13px}#app{display:none}.topbar{height:calc(62px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 20px 0;position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;background:rgba(242,242,247,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(0,0,0,.04)}.brand{font-size:23px;font-weight:750;letter-spacing:-.8px}.topbar button{width:44px;height:44px;border:0;border-radius:50%;background:#e5e5ea;color:#3a3a3c;display:grid;place-items:center}.topbar svg{width:22px;height:22px}.screen{display:none;max-width:760px;margin:0 auto;padding:18px 16px calc(108px + env(safe-area-inset-bottom));overflow-anchor:none}.screen.active{display:block}.pt{font-size:30px;line-height:1.15;font-weight:750;letter-spacing:-.8px;margin:4px 0 6px}.ps{font-size:14px;color:var(--g40);margin:0 0 23px;text-transform:none;letter-spacing:0}.card{background:var(--surface);border:0;border-radius:20px;padding:18px;margin:0 0 16px;box-shadow:0 2px 10px #00000003}.cl{font-size:18px;font-weight:650;margin-bottom:16px;letter-spacing:-.3px;color:var(--g)}.ifield{border:1px solid transparent;background-color:#f2f2f7;padding:12px;min-height:48px;line-height:1.4}.ifield:focus{border-color:#007aff;outline:none}.irow{display:flex;gap:12px;align-items:flex-end}.irow>*{flex:1;min-width:0}.irow .bsm{flex:0 0 44px}.ilabel,.field-label,label{font-size:14px;color:#515158}.field-label{display:block;margin:12px 0 0}.field-label .ifield,label .ifield{margin-top:6px}.btn,.bsm{border:0;border-radius:13px;background:var(--lav);color:#fff;min-height:48px;padding:12px 16px;font-size:16px;font-weight:600;text-transform:none;letter-spacing:0}.btn{width:100%}.btn.sage,.btn.lav{background:#e8f2ff;color:#0064d6}.btn.rose{background:var(--rose-l);color:var(--rose)}.btn:disabled{opacity:.45;cursor:wait}.bsm{padding:10px;min-width:44px}.help{font-size:13px;line-height:1.5;color:var(--g40);margin:10px 0 14px}.mt8{margin-top:8px}.mt12{margin-top:12px}.tags,.pain-row,.sq-row{display:flex;gap:8px;flex-wrap:wrap}.tag,.sq,.pb{border:1px solid transparent;border-radius:11px;padding:10px 12px;min-height:44px;background:#f2f2f7;color:#3a3a3c;font-size:15px}.tag.sel,.sq.sel,.pb.sel{background:var(--lav-l);border-color:#7ab7ff;color:#005fc7}.tag.add{background:transparent;color:var(--lav);border:1px dashed #c7c7cc}.pb{flex:1 0 14%;max-width:54px;min-width:40px;padding:9px}.sq{flex:1 0 40%}.body-zone{fill:#e8e8ed;stroke:#8e8e93;stroke-width:.7;cursor:pointer}.body-zone.active{fill:#ef8c98;stroke:#b42c40}.body-map-wrap{display:flex;gap:14px;justify-content:center}.body-view{flex:1;min-width:0;text-align:center}.body-view-label{font-size:13px;color:var(--g40);margin-bottom:8px}.body-view svg{display:block;width:100%;max-width:150px!important;margin:auto}.selected-zones{margin-top:16px}.zone-editor{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--g15)}.zone-editor label{font-size:15px}.zone-editor select{width:80px;flex:0 0 80px}.zone-editor button{border:0;background:#f2f2f7;border-radius:50%;width:36px;height:36px;color:var(--g40)}.detail-picker{border-top:1px solid var(--g15);margin-top:14px}.detail-picker summary,details>summary{min-height:44px;padding:12px 0;font-size:15px;cursor:pointer;color:var(--lav)}.digit-picker svg{max-width:240px;display:block;margin:auto}.digit-picker [role=button]{cursor:pointer}.digit-list{display:flex;flex-wrap:wrap;gap:8px}.edit-hint{background:var(--amb-l);padding:12px;border-radius:12px;font-size:14px;margin-bottom:16px;scroll-margin-top:80px}.cancel-edit{width:100%;min-height:44px;background:transparent;color:var(--lav);border:0;margin:6px 0 16px}.nav{position:fixed;bottom:0;left:0;right:0;display:flex;align-items:stretch;justify-content:center;z-index:60;padding:7px 5px calc(7px + env(safe-area-inset-bottom));background:rgba(250,250,252,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid #dddde3}.ni{flex:1;max-width:150px;min-width:0;min-height:50px;border:0;background:none;color:#77777e;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:550;letter-spacing:0;padding:3px 0;text-transform:none}.ni.active{color:var(--lav)}.ni svg{width:23px;height:23px}.keyboard-open .nav{visibility:hidden;pointer-events:none}#toast{position:fixed;left:18px;right:18px;bottom:calc(90px + env(safe-area-inset-bottom));margin:auto;max-width:540px;z-index:100;background:#29292e;color:white;border-radius:14px;padding:13px 16px;font-size:14px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s}#toast.show{opacity:1;transform:none}.empty{text-align:center;color:var(--g40);padding:25px 12px;font-size:15px}.drow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--g15);font-size:14px}.dval{font-weight:650}.rose{color:var(--rose)}.lav{color:var(--lav)}.sage{color:var(--sage)}#sync-status{font-size:13px;color:var(--g40);padding:0 0 14px;white-space:pre-wrap}#account-banner{display:none!important}#backup-text{font:16px ui-monospace,monospace!important;width:100%;min-height:180px;border:1px solid #ddd}.settings-back{border:0;background:none;color:var(--lav);padding:0 0 14px;min-height:44px}.settings-detail{background:#fff;border-radius:18px;padding:0 16px;margin-bottom:14px}.settings-detail>summary{color:var(--g);font-weight:600}.settings-detail .card{padding:8px 0;box-shadow:none}.phase-hero{background:linear-gradient(140deg,#e9edff,#f9eafa);border-radius:24px;padding:24px 22px;margin-bottom:16px}.phase-kicker{font-size:13px;color:#655985}.phase-title{font-size:27px;font-weight:700;letter-spacing:-.6px;line-height:1.15;margin:8px 0}.phase-day{font-size:16px;color:#5d517a}.phase-progress{height:5px;background:#ffffff9c;border-radius:4px;margin:20px 0 12px;overflow:hidden}.phase-progress span{display:block;height:100%;background:#8c73d5;border-radius:4px}.phase-hero p{font-size:13px;margin:0;color:#62576e}.phase-tip{border-left:3px solid #e3d9f5;padding-left:14px;margin:16px 0}.phase-tip b{font-size:15px}.phase-tip p{margin:5px 0 0;font-size:14px;line-height:1.55;color:#515158}.phase-sources{font-size:12px;color:#74747b}.phase-sources a{color:var(--lav)}.period-row{display:flex;gap:4px;background:#e5e5ea;border-radius:12px;padding:4px;margin:18px 0 12px}.pbtn{flex:1;border:0;background:transparent;border-radius:9px;min-height:36px;padding:5px;font-size:13px;color:#63636a}.pbtn.active{background:white;color:#1c1c1e;box-shadow:0 2px 4px #00000012}.spills{display:flex;gap:10px;margin-bottom:16px}.spill{flex:1;min-width:0;background:white;border-radius:16px;padding:14px 10px}.snum{font-size:25px;font-weight:700;letter-spacing:-.6px}.sdesc{font-size:11px;line-height:1.3;color:var(--g40);margin-top:4px}.chart-layers{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}.chart-chip{min-height:36px;padding:7px 11px;border:1px solid #e5e5ea;border-radius:18px;background:white;font-size:13px;color:#63636a}.chart-chip.on{color:var(--metric);background:color-mix(in srgb,var(--metric) 9%,white);border-color:var(--metric)}.chart-chip i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--metric);margin-right:6px}.chart-shell{width:100%;min-width:0;min-height:270px;position:relative}.chart-shell svg{width:100%;display:block;overflow:visible}.chart-legend{font-size:12px;display:flex;justify-content:space-between;gap:8px;margin:8px 0;color:#63636a}.chart-legend span{min-width:0;overflow-wrap:anywhere}.chart-help{font-size:12px;color:var(--g40);margin:10px 0}.heat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.heat-grid figure{margin:0;text-align:center;font-size:12px;color:var(--g40)}.heat-grid svg{width:100%;max-width:145px;height:auto;display:block;margin:auto}.heat-key{display:flex;align-items:center;gap:8px;margin:18px 0;font-size:11px;color:var(--g40)}.heat-gradient{height:8px;border-radius:5px;background:linear-gradient(90deg,#fcebec,#d94352);flex:1}.heat-item{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border:0;border-bottom:1px solid #eee;background:white;text-align:left;font-size:14px}.heat-item span:last-child{color:var(--g40);font-size:12px;flex-shrink:0}.chart-day{border-top:1px solid var(--g15);padding-top:14px;margin-top:12px}.day-group{background:white;border-radius:20px;margin-bottom:14px;overflow:hidden}.day-group>summary{color:var(--g);list-style:none;padding:17px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}.day-group>summary::-webkit-details-marker{display:none}.day-group>summary:after{content:'⌄';color:#8e8e93;font-size:18px}.day-group[open]>summary:after{transform:rotate(180deg)}.day-date{font-size:18px;font-weight:650;letter-spacing:-.3px}.day-summary{font-size:12px;color:var(--g40);margin-top:5px}.day-records{padding:0 18px 8px}.day-item{padding:15px 0;border-top:1px solid #eee;font-size:14px;line-height:1.5;overflow-wrap:anywhere;white-space:normal}.record-title{font-size:13px;font-weight:650;color:var(--g40);margin-bottom:5px}.hist-note{white-space:pre-wrap;overflow-wrap:anywhere}.hist-actions{display:flex;gap:14px;margin-top:8px}.hist-actions button{border:0;background:none;color:var(--lav);padding:7px 0;min-height:36px;font-size:13px}.hist-actions button[data-delete-id]{color:var(--rose)}.save-status{font-size:13px;color:var(--g40)}
+@media(min-width:800px){.topbar{padding-left:max(24px,calc((100% - 728px)/2));padding-right:max(24px,calc((100% - 728px)/2))}.screen{padding-top:28px}.nav{left:50%;transform:translateX(-50%);width:760px;border-radius:20px 20px 0 0}.card{padding:24px}}
+@media(max-width:359px){.screen{padding-left:12px;padding-right:12px}.card{padding:14px}.irow{gap:8px}.ni{font-size:9px}.pt{font-size:28px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="loader"><div class="loader-name">Фон</div><div class="loader-sub">загрузка</div></div>
 <div id="toast"></div>
-<div id="app"><button id="account-banner" type="button" onclick="showS('data')" style="display:block;width:100%;border:0;padding:12px 16px;background:var(--lav-l);color:var(--g);text-align:left;cursor:pointer">Подключение к дневнику…</button><div id="sync-status" role="status" aria-live="polite"></div>
+<div id="app"><header class="topbar"><div class="brand">Фон<span style="font-weight:400;color:#8e8e93">.</span></div><button onclick="showS('data')" aria-label="Настройки" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m9 3-1 3-3 1v4l-2 1 2 2v3l3 1 1 3h5l1-3 3-1v-3l2-2-2-1V7l-3-1-1-3z"></path><circle cx="11.5" cy="12" r="3"></circle></svg></button></header><button id="account-banner" type="button" onclick="showS('data')" style="display:block;width:100%;border:0;padding:12px 16px;background:var(--lav-l);color:var(--g);text-align:left;cursor:pointer">Подключение к дневнику…</button>
 
 <!-- ВОССТАНОВЛЕНИЕ (главный экран) -->
 <div class="screen active" id="s-rec">
   <p class="pt">Восстановление</p>
   <p class="ps">Сон и активность</p>
   <div class="card">
-    <div class="cl">Сон</div><div id="sleep-edit-hint" class="edit-hint" hidden></div>
+    <div class="cl">Сон</div><div id="sleep-edit-hint" class="edit-hint" hidden=""></div>
 <p class="help">Дата — день, когда проснулась. Пробуждения можно не указывать.</p>
     <div class="irow" style="margin-bottom:10px">
       <div style="flex:1"><div class="ilabel">Дата</div><input class="ifield" type="date" id="sleep-date"></div>
     </div>
     <div class="irow" style="margin-bottom:10px">
-      <div style="flex:1"><div class="ilabel">Часы</div><input class="ifield" id="sleep-h" type="number" min="0" max="24" placeholder="7"></div>
-      <div style="flex:1"><div class="ilabel">Минуты</div><input class="ifield" id="sleep-m" type="number" min="0" max="59" placeholder="30"></div>
-      <div style="flex:1"><label class="ilabel" for="sleep-wakes">Пробуждений</label><input class="ifield" id="sleep-wakes" type="number" min="0" step="1" placeholder="Не указано"></div>
+      <div style="flex:1"><div class="ilabel">Часы</div><input class="ifield" id="sleep-h" type="number" min="0" max="24" placeholder="7" inputmode="numeric"></div>
+      <div style="flex:1"><div class="ilabel">Минуты</div><input class="ifield" id="sleep-m" type="number" min="0" max="59" placeholder="30" inputmode="numeric"></div>
+      <div style="flex:1"><label class="ilabel" for="sleep-wakes">Пробуждений</label><input class="ifield" id="sleep-wakes" type="number" min="0" step="1" placeholder="Не указано" inputmode="numeric"></div>
     </div>
     <div class="sq-row">
       <button class="sq" data-q="отлично" onclick="selQ(this)">Отлично</button>
@@ -166,10 +38,10 @@ canvas{width:100%!important;display:block}
       <button class="sq" data-q="средне" onclick="selQ(this)">Средне</button>
       <button class="sq" data-q="плохо" onclick="selQ(this)">Плохо</button>
     </div>
-    <button class="btn mt12" id="sleep-save" onclick="saveSleep()">Сохранить сон</button><button class="cancel-edit" data-cancel="sleeps" hidden>Отменить редактирование</button>
+    <button class="btn mt12" id="sleep-save" onclick="saveSleep()">Сохранить сон</button><button class="cancel-edit" data-cancel="sleeps" hidden="">Отменить редактирование</button>
   </div>
   <div class="card">
-    <div class="cl">Активность</div><div id="act-edit-hint" class="edit-hint" hidden></div>
+    <div class="cl">Активность</div><div id="act-edit-hint" class="edit-hint" hidden=""></div>
     <div class="irow" style="margin-bottom:10px">
       <div style="flex:1"><div class="ilabel">Дата</div><input class="ifield" type="date" id="act-date"></div>
     </div>
@@ -196,17 +68,17 @@ canvas{width:100%!important;display:block}
         </div>
       </div>
     </div>
-    <div class="irow mt12"><label style="flex:1">Время<input id="act-time" class="ifield" type="time"></label><label style="flex:1">Длительность, мин<input id="act-duration" class="ifield" type="number" min="1" max="1440" placeholder="Не указано"></label></div>
-<label class="field-label">Самочувствие после<select class="ifield" id="act-effect"><option value="">Не отмечено</option><option>Лучше</option><option>Без изменений</option><option>Хуже</option></select></label>
+    <div class="irow mt12"><input id="act-time" class="ifield" type="hidden"><label style="flex:1">Длительность, мин<input id="act-duration" class="ifield" type="number" min="1" max="1440" placeholder="Не указано" inputmode="numeric"></label></div>
+<input type="hidden" id="act-effect"><label class="field-label">Как далось занятие<select class="ifield" id="act-effort"><option value="">Не отмечено</option><option>Было легко</option><option>Средне</option><option>Тяжело</option><option>Очень тяжело</option></select></label>
 <textarea class="ifield mt8" id="act-note" placeholder="Заметка о занятии"></textarea>
-<button class="btn mt12" id="act-save" onclick="saveAct()">Сохранить активность</button><button class="cancel-edit" data-cancel="acts" hidden>Отменить редактирование</button>
+<button class="btn mt12" id="act-save" onclick="saveAct()">Сохранить активность</button><button class="cancel-edit" data-cancel="acts" hidden="">Отменить редактирование</button>
   </div>
 </div>
 
 <!-- НАГРУЗКА -->
 <div class="screen" id="s-load">
   <p class="pt">Нагрузка</p>
-  <p class="ps">Боль и препараты</p><div id="load-edit-hint" class="edit-hint" hidden></div>
+  <p class="ps">Боль и препараты</p><div id="load-edit-hint" class="edit-hint" hidden=""></div>
 
   <!-- ДАТА И ТЕМПЕРАТУРА -->
   <div class="card">
@@ -214,8 +86,8 @@ canvas{width:100%!important;display:block}
     <div class="irow" style="margin-bottom:12px"><input aria-label="Дата события" class="ifield" type="date" id="load-date"><input aria-label="Время события" class="ifield" type="time" id="load-time"></div><p class="help">Время события можно изменить или оставить пустым.</p>
     <div class="cl">Температура °C</div>
     <div class="irow" style="align-items:center">
-      <input class="ifield" id="temp-val" type="number" step="0.1" min="35" max="42" placeholder="36.6" style="max-width:120px">
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;white-space:nowrap">
+      <input class="ifield" id="temp-val" type="number" step="0.1" min="35" max="42" placeholder="36.6" style="" inputmode="decimal">
+      <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;">
         <input type="checkbox" id="temp-high" style="width:15px;height:15px;accent-color:var(--rose)"> Выше нормы
       </label>
     </div>
@@ -227,96 +99,96 @@ canvas{width:100%!important;display:block}
     <div class="body-map-wrap">
       <div class="body-view">
         <div class="body-view-label">Спереди</div>
-        <svg id="body-front" viewBox="0 0 120 280" width="100%" style="max-width:130px">
+        <svg id="body-front" viewBox="0 0 120 280" width="100%" style="">
           <!-- Голова -->
-          <ellipse class="body-zone" data-zone="Голова" cx="60" cy="22" rx="18" ry="20" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Голова" cx="60" cy="22" rx="18" ry="20" onclick="togZone(this)"></ellipse>
           <!-- Шея -->
-          <rect class="body-zone" data-zone="Шея" x="52" y="41" width="16" height="14" rx="4" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Шея" x="52" y="41" width="16" height="14" rx="4" onclick="togZone(this)"></rect>
           <!-- Левое плечо -->
-          <ellipse class="body-zone" data-zone="Левое плечо" cx="28" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левое плечо" cx="28" cy="65" rx="14" ry="10" onclick="togZone(this)"></ellipse>
           <!-- Правое плечо -->
-          <ellipse class="body-zone" data-zone="Правое плечо" cx="92" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правое плечо" cx="92" cy="65" rx="14" ry="10" onclick="togZone(this)"></ellipse>
           <!-- Грудь/корпус -->
-          <rect class="body-zone" data-zone="Грудь" x="38" y="54" width="44" height="38" rx="6" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Грудь" x="38" y="54" width="44" height="38" rx="6" onclick="togZone(this)"></rect>
           <!-- Левая рука верх -->
-          <rect class="body-zone" data-zone="Левая рука" x="12" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левая рука" x="12" y="74" width="14" height="40" rx="5" onclick="togZone(this)"></rect>
           <!-- Правая рука верх -->
-          <rect class="body-zone" data-zone="Правая рука" x="94" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правая рука" x="94" y="74" width="14" height="40" rx="5" onclick="togZone(this)"></rect>
           <!-- Живот -->
-          <rect class="body-zone" data-zone="Живот" x="38" y="92" width="44" height="34" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Живот" x="38" y="92" width="44" height="34" rx="5" onclick="togZone(this)"></rect>
           <!-- Левое запястье -->
-          <rect class="body-zone" data-zone="Левое запястье" x="10" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левое запястье" x="10" y="114" width="14" height="12" rx="3" onclick="togZone(this)"></rect>
           <!-- Правое запястье -->
-          <rect class="body-zone" data-zone="Правое запястье" x="96" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правое запястье" x="96" y="114" width="14" height="12" rx="3" onclick="togZone(this)"></rect>
           <!-- Левая кисть -->
-          <ellipse class="body-zone" data-zone="Левая кисть" cx="17" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левая кисть" cx="17" cy="136" rx="9" ry="11" onclick="togZone(this)"></ellipse>
           <!-- Правая кисть -->
-          <ellipse class="body-zone" data-zone="Правая кисть" cx="103" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правая кисть" cx="103" cy="136" rx="9" ry="11" onclick="togZone(this)"></ellipse>
           <!-- Таз/низ живота -->
-          <rect class="body-zone" data-zone="Низ живота" x="38" y="126" width="44" height="26" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Низ живота" x="38" y="126" width="44" height="26" rx="5" onclick="togZone(this)"></rect>
           <!-- Левое бедро -->
-          <rect class="body-zone" data-zone="Левое бедро" x="36" y="152" width="22" height="48" rx="6" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левое бедро" x="36" y="152" width="22" height="48" rx="6" onclick="togZone(this)"></rect>
           <!-- Правое бедро -->
-          <rect class="body-zone" data-zone="Правое бедро" x="62" y="152" width="22" height="48" rx="6" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правое бедро" x="62" y="152" width="22" height="48" rx="6" onclick="togZone(this)"></rect>
           <!-- Левое колено -->
-          <ellipse class="body-zone" data-zone="Левое колено" cx="47" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левое колено" cx="47" cy="206" rx="11" ry="9" onclick="togZone(this)"></ellipse>
           <!-- Правое колено -->
-          <ellipse class="body-zone" data-zone="Правое колено" cx="73" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правое колено" cx="73" cy="206" rx="11" ry="9" onclick="togZone(this)"></ellipse>
           <!-- Левая голень -->
-          <rect class="body-zone" data-zone="Левая голень" x="37" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левая голень" x="37" y="215" width="18" height="38" rx="5" onclick="togZone(this)"></rect>
           <!-- Правая голень -->
-          <rect class="body-zone" data-zone="Правая голень" x="65" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правая голень" x="65" y="215" width="18" height="38" rx="5" onclick="togZone(this)"></rect>
           <!-- Левая стопа -->
-          <ellipse class="body-zone" data-zone="Левая стопа" cx="46" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левая стопа" cx="46" cy="261" rx="12" ry="8" onclick="togZone(this)"></ellipse>
           <!-- Правая стопа -->
-          <ellipse class="body-zone" data-zone="Правая стопа" cx="74" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правая стопа" cx="74" cy="261" rx="12" ry="8" onclick="togZone(this)"></ellipse>
         </svg>
       </div>
       <div class="body-view">
         <div class="body-view-label">Сзади</div>
-        <svg id="body-back" viewBox="0 0 120 280" width="100%" style="max-width:130px">
+        <svg id="body-back" viewBox="0 0 120 280" width="100%" style="">
           <!-- Голова -->
-          <ellipse class="body-zone" data-zone="Голова (затылок)" cx="60" cy="22" rx="18" ry="20" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Голова (затылок)" cx="60" cy="22" rx="18" ry="20" onclick="togZone(this)"></ellipse>
           <!-- Шея сзади -->
-          <rect class="body-zone" data-zone="Шея (сзади)" x="52" y="41" width="16" height="14" rx="4" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Шея (сзади)" x="52" y="41" width="16" height="14" rx="4" onclick="togZone(this)"></rect>
           <!-- Лопатки -->
-          <rect class="body-zone" data-zone="Лопатки" x="38" y="54" width="44" height="30" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Лопатки" x="38" y="54" width="44" height="30" rx="5" onclick="togZone(this)"></rect>
           <!-- Левое плечо сзади -->
-          <ellipse class="body-zone" data-zone="Левое плечо" cx="28" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левое плечо" cx="28" cy="65" rx="14" ry="10" onclick="togZone(this)"></ellipse>
           <!-- Правое плечо сзади -->
-          <ellipse class="body-zone" data-zone="Правое плечо" cx="92" cy="65" rx="14" ry="10" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правое плечо" cx="92" cy="65" rx="14" ry="10" onclick="togZone(this)"></ellipse>
           <!-- Левая рука сзади -->
-          <rect class="body-zone" data-zone="Левая рука" x="12" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левая рука" x="12" y="74" width="14" height="40" rx="5" onclick="togZone(this)"></rect>
           <!-- Правая рука сзади -->
-          <rect class="body-zone" data-zone="Правая рука" x="94" y="74" width="14" height="40" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правая рука" x="94" y="74" width="14" height="40" rx="5" onclick="togZone(this)"></rect>
           <!-- Поясница -->
-          <rect class="body-zone" data-zone="Поясница" x="38" y="84" width="44" height="30" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Поясница" x="38" y="84" width="44" height="30" rx="5" onclick="togZone(this)"></rect>
           <!-- Крестец -->
-          <rect class="body-zone" data-zone="Крестец/ягодицы" x="38" y="114" width="44" height="36" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Крестец/ягодицы" x="38" y="114" width="44" height="36" rx="5" onclick="togZone(this)"></rect>
           <!-- Левое запястье сзади -->
-          <rect class="body-zone" data-zone="Левое запястье" x="10" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левое запястье" x="10" y="114" width="14" height="12" rx="3" onclick="togZone(this)"></rect>
           <!-- Правое запястье сзади -->
-          <rect class="body-zone" data-zone="Правое запястье" x="96" y="114" width="14" height="12" rx="3" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правое запястье" x="96" y="114" width="14" height="12" rx="3" onclick="togZone(this)"></rect>
           <!-- Левая кисть сзади -->
-          <ellipse class="body-zone" data-zone="Левая кисть" cx="17" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левая кисть" cx="17" cy="136" rx="9" ry="11" onclick="togZone(this)"></ellipse>
           <!-- Правая кисть сзади -->
-          <ellipse class="body-zone" data-zone="Правая кисть" cx="103" cy="136" rx="9" ry="11" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правая кисть" cx="103" cy="136" rx="9" ry="11" onclick="togZone(this)"></ellipse>
           <!-- Левое бедро сзади -->
-          <rect class="body-zone" data-zone="Левое бедро" x="36" y="150" width="22" height="50" rx="6" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левое бедро" x="36" y="150" width="22" height="50" rx="6" onclick="togZone(this)"></rect>
           <!-- Правое бедро сзади -->
-          <rect class="body-zone" data-zone="Правое бедро" x="62" y="150" width="22" height="50" rx="6" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правое бедро" x="62" y="150" width="22" height="50" rx="6" onclick="togZone(this)"></rect>
           <!-- Левое колено сзади -->
-          <ellipse class="body-zone" data-zone="Левое колено" cx="47" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левое колено" cx="47" cy="206" rx="11" ry="9" onclick="togZone(this)"></ellipse>
           <!-- Правое колено сзади -->
-          <ellipse class="body-zone" data-zone="Правое колено" cx="73" cy="206" rx="11" ry="9" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правое колено" cx="73" cy="206" rx="11" ry="9" onclick="togZone(this)"></ellipse>
           <!-- Левая голень сзади -->
-          <rect class="body-zone" data-zone="Левая голень" x="37" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Левая голень" x="37" y="215" width="18" height="38" rx="5" onclick="togZone(this)"></rect>
           <!-- Правая голень сзади -->
-          <rect class="body-zone" data-zone="Правая голень" x="65" y="215" width="18" height="38" rx="5" onclick="togZone(this)"/>
+          <rect class="body-zone" data-zone="Правая голень" x="65" y="215" width="18" height="38" rx="5" onclick="togZone(this)"></rect>
           <!-- Левая стопа сзади -->
-          <ellipse class="body-zone" data-zone="Левая стопа" cx="46" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Левая стопа" cx="46" cy="261" rx="12" ry="8" onclick="togZone(this)"></ellipse>
           <!-- Правая стопа сзади -->
-          <ellipse class="body-zone" data-zone="Правая стопа" cx="74" cy="261" rx="12" ry="8" onclick="togZone(this)"/>
+          <ellipse class="body-zone" data-zone="Правая стопа" cx="74" cy="261" rx="12" ry="8" onclick="togZone(this)"></ellipse>
         </svg>
       </div>
     </div>
@@ -395,24 +267,18 @@ canvas{width:100%!important;display:block}
     <div id="med-sec" style="display:none">
       <div class="irow">
         <input class="ifield" id="med-name" placeholder="Препарат...">
-        <input class="ifield" id="med-dose" type="number" min="0" step="any" placeholder="Доза" aria-label="Доза">
+        <input class="ifield" id="med-dose" type="number" min="0" step="any" placeholder="Доза" aria-label="Доза" inputmode="decimal">
         <select class="ifield" id="med-unit" aria-label="Единица дозы"><option>мг</option><option>мкг</option><option>г</option><option>мл</option><option>МЕ</option><option>капли</option><option>табл.</option></select>
       </div>
-    </div>
+    <div class="irow mt12"><label style="flex:1">Количество<input class="ifield" id="med-quantity" type="number" min="0" step="any" placeholder="Например, 1" inputmode="decimal"></label><label style="flex:1">Единица<select class="ifield" id="med-quantity-unit"><option>табл.</option><option>капс.</option><option>доз</option><option>капель</option><option>мл</option></select></label></div><label class="field-label">Время приёма<input class="ifield" id="med-time" type="time"></label><input type="hidden" id="med-effect"><input type="hidden" id="med-after-min"><input type="hidden" id="med-after-pain"><span id="med-followup" hidden=""></span></div>
   </div>
-  <div class="card" id="med-followup">
-    <div class="cl">Подробности приёма — необязательно</div>
-    <div class="irow"><label style="flex:1">Количество<input class="ifield" id="med-quantity" type="number" min="0" step="any" placeholder="Например, 1"></label><label style="flex:1">Единица<select class="ifield" id="med-quantity-unit"><option>табл.</option><option>капс.</option><option>доз</option><option>капель</option><option>мл</option></select></label></div>
-    <p class="help">Например: доза 200 мг, количество 1 табл. Автоматический пересчёт дозы не выполняется.</p>
-    <label class="field-label">Результат после приёма<select id="med-effect" class="ifield"><option value="">Ещё не отмечен</option><option>Лучше</option><option>Без изменений</option><option>Хуже</option></select></label>
-    <div class="irow mt8"><label style="flex:1">Через сколько минут<input class="ifield" id="med-after-min" type="number" min="0" max="10080" placeholder="Не указано"></label><label style="flex:1">Боль после, 0–10<input class="ifield" id="med-after-pain" type="number" min="0" max="10" placeholder="Не указано"></label></div>
-    <p class="help">Результат можно добавить позже через редактирование записи.</p>
-  </div>
+  
   <div class="card">
     <div class="cl">Заметка</div>
-    <textarea class="ifield" id="load-note" rows="3" placeholder="Контекст, детали, что предшествовало...&#10;Любое наблюдение которое может быть важным."></textarea>
+    <textarea class="ifield" id="load-note" rows="3" placeholder="Контекст, детали, что предшествовало...
+Любое наблюдение которое может быть важным."></textarea>
   </div>
-  <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button><button class="cancel-edit" data-cancel="events" hidden>Отменить редактирование</button>
+  <button class="btn" id="load-save" onclick="saveLoad()">Сохранить</button><button class="cancel-edit" data-cancel="events" hidden="">Отменить редактирование</button>
 </div>
 
 <!-- ЦИКЛ -->
@@ -421,23 +287,18 @@ canvas{width:100%!important;display:block}
   <p class="ps">Менструальный календарь</p>
   <div id="cycle-status"></div>
   <div class="card mt12">
-    <div class="cl">Начало и окончание менструации</div><div id="cycle-edit-hint" class="edit-hint" hidden></div>
+    <div class="cl">Начало и окончание менструации</div><div id="cycle-edit-hint" class="edit-hint" hidden=""></div>
     <div class="irow">
       <label style="flex:1">Начало<input class="ifield" type="date" id="cycle-date"></label><label style="flex:1">Последний день выделений<input class="ifield" type="date" id="cycle-end"></label>
     </div>
   </div>
-  <button class="btn" id="cycle-save" onclick="saveCycleStart()">Сохранить период</button><button class="cancel-edit" data-cancel="cycle" hidden>Отменить редактирование</button>
-  <div class="card mt12"><div class="cl">Выделения за день</div><div id="bleeding-edit-hint" class="edit-hint" hidden></div>
+  <button class="btn" id="cycle-save" onclick="saveCycleStart()">Сохранить период</button><button class="cancel-edit" data-cancel="cycle" hidden="">Отменить редактирование</button>
+  <div class="card mt12" id="legacy-bleeding-editor" hidden=""><div class="cl">Изменить прежнюю отметку</div><div id="bleeding-edit-hint" class="edit-hint" hidden=""></div>
     <div class="irow"><label style="flex:1">Дата<input class="ifield" type="date" id="bleeding-date"></label><label style="flex:1">Интенсивность<select class="ifield" id="bleeding-flow"><option value="">Выбери</option><option>Мажущие</option><option>Скудные</option><option>Умеренные</option><option>Обильные</option></select></label></div>
     <textarea class="ifield mt8" id="bleeding-note" placeholder="Необязательная заметка"></textarea>
-    <button class="btn mt8" id="bleeding-save" onclick="saveBleeding()">Сохранить отметку</button><button class="cancel-edit" data-cancel="bleeding" hidden>Отменить редактирование</button>
+    <button class="btn mt8" id="bleeding-save" onclick="saveBleeding()">Сохранить отметку</button><button class="cancel-edit" data-cancel="bleeding" hidden="">Отменить редактирование</button>
   </div>
-  <div class="card">
-    <div class="cl">Настройки цикла</div>
-    <div style="margin-bottom:10px"><div class="ilabel">Длина цикла (дней)</div><input class="ifield" id="cyc-len" type="number" min="21" max="45" value="28"></div>
-    <div style="margin-bottom:12px"><div class="ilabel">Ориентир длительности менструации, дней</div><input class="ifield" id="cyc-days" type="number" min="1" max="10" value="5"></div>
-    <button class="btn" onclick="saveCycleSettings()">Сохранить настройки</button>
-  </div>
+  
   <div class="card" id="cycle-hist-card" style="display:none">
     <div class="cl">История циклов</div>
     <div id="cycle-hist"></div>
@@ -448,20 +309,17 @@ canvas{width:100%!important;display:block}
 <div class="screen" id="s-charts">
   <p class="pt">Графики</p>
   <div class="period-row">
-    <button class="pbtn active" onclick="setPeriod(this,14)">2 нед</button>
+    <button class="pbtn active" onclick="setPeriod(this,7)">7 дней</button>
     <button class="pbtn" onclick="setPeriod(this,30)">Месяц</button>
     <button class="pbtn" onclick="setPeriod(this,90)">3 мес</button>
     <button class="pbtn" onclick="setPeriod(this,180)">6 мес</button>
     <button class="pbtn" onclick="setPeriod(this,365)">Год</button>
   </div>
-  <p class="ps" id="period-lbl" style="margin-top:6px">2 недели</p>
+  <p class="ps" id="period-lbl" style="margin-top: 6px;">Неделя</p>
   <div id="stat-pills" class="spills"></div>
-  <div class="card"><label class="field-label">Зона боли<select class="ifield" id="chart-zone" onchange="renderNewCharts()"><option value="">Все зоны · максимум за день</option></select></label>
-    <p class="help">Прокручивай дорожки вправо. Даты совпадают для всех показателей. Нажми дату, чтобы открыть записи дня.</p>
-    <div id="timeline-scroll" class="timeline-scroll"><div id="timeline-tracks"></div></div>
-    <div id="chart-day" class="chart-day" aria-live="polite"></div>
-  </div>
-  <canvas id="main-canvas" hidden></canvas><div id="hm-front" hidden></div><div id="hm-back" hidden></div><div id="canvas-xlabels" hidden></div>
+  <div class="card"><div class="cl">Динамика самочувствия</div><div id="chart-layers" class="chart-layers"></div><div class="chart-legend" id="overlay-legend"></div><div class="chart-shell" id="overlay-chart"></div><p class="chart-help" id="overlay-help">Нажми точку или дату — записи дня откроются ниже.</p><label class="field-label">Конкретный день<input class="ifield" id="chart-date" type="date" onchange="showChartDay(this.value)"></label><div id="chart-day" class="chart-day" aria-live="polite"></div></div>
+<div class="card"><div class="cl">Где болело</div><p class="help">Карта тела за выбранный период. Нажми зону, чтобы отфильтровать график боли.</p><div class="irow"><label>Показатель<select class="ifield" id="heat-mode" onchange="renderNewCharts()"><option value="days">Дни с болью</option><option value="max">Максимальная боль</option></select></label><label>Зона<select class="ifield" id="chart-zone" onchange="renderNewCharts()"><option value="">Все зоны</option></select></label></div><div class="heat-grid"><figure><div id="heat-front"></div><figcaption>Спереди</figcaption></figure><figure><div id="heat-back"></div><figcaption>Сзади</figcaption></figure></div><div class="heat-key"><span>Меньше</span><span class="heat-gradient"></span><span>Больше</span></div><p class="chart-help">Серый — нет записей. Пальцы и другие точные зоны объединены на силуэте; названия и значения — ниже.</p><div id="heat-list"></div></div><div id="timeline-tracks" hidden=""></div>
+  <canvas id="main-canvas" hidden=""></canvas><div id="hm-front" hidden=""></div><div id="hm-back" hidden=""></div><div id="canvas-xlabels" hidden=""></div>
 </div>
 
 <!-- ИСТОРИЯ -->
@@ -472,74 +330,77 @@ canvas{width:100%!important;display:block}
 </div>
 
 <!-- ДАННЫЕ -->
-<div class="screen" id="s-data">
-  <p class="pt">Данные</p>
-  <p class="ps">Аккаунт · отчёт · резервная копия</p>
-  <div class="card">
+<div class="screen" id="s-data"><button class="settings-back" onclick="leaveSettings()">‹ Назад</button>
+  <p class="pt">Настройки</p>
+  <p class="ps">Аккаунт, цикл и твои данные</p><div id="sync-status" role="status" aria-live="polite"></div>
+  
+  
+  
+  
+  
+<details class="settings-detail"><summary>Аккаунт и синхронизация</summary><div class="card">
     <div class="cl">Один дневник на всех устройствах</div>
     <p id="account-status" style="font-weight:600;overflow-wrap:anywhere">Подключение…</p>
-    <div id="account-guest-help" style="font-size:12px;line-height:1.6;margin-top:10px">
+    <div id="account-guest-help" style="line-height: 1.6; margin-top: 10px;">
       <b>Сначала на телефоне, где видны записи:</b> нажми «Привязать этот дневник к Google». Затем на компьютере войди в тот же Google-аккаунт.
       <br>Перед первой привязкой можно сохранить JSON-копию ниже. Привязка сохраняет текущий дневник.
     </div>
-    <button class="btn mt8" id="account-link" onclick="linkGoogle()" disabled>Привязать этот дневник к Google</button>
-    <button class="btn sage mt8" id="account-signin" onclick="signInGoogle()" disabled>Войти в уже привязанный дневник</button>
-    <button class="btn mt8" id="account-refresh" onclick="refreshDiary()" disabled>Обновить данные</button>
-    <button class="btn mt8" id="account-signout" onclick="signOutGoogle()" hidden disabled>Выйти из аккаунта</button>
-    <p id="account-message" role="status" aria-live="polite" style="font-size:12px;white-space:pre-wrap;margin-top:10px"></p>
-    <p style="font-size:12px;margin-top:10px">После сохранения на другом устройстве нажми «Обновить данные», чтобы получить последние записи.</p>
-  </div>
-  <div class="card"><div id="data-stats"></div></div>
-  <div class="card">
+    <button class="btn mt8" id="account-link" onclick="linkGoogle()" disabled="">Привязать этот дневник к Google</button>
+    <button class="btn sage mt8" id="account-signin" onclick="signInGoogle()" disabled="">Войти в уже привязанный дневник</button>
+    <button class="btn mt8" id="account-refresh" onclick="refreshDiary()" disabled="">Обновить данные</button>
+    <button class="btn mt8" id="account-signout" onclick="signOutGoogle()" hidden="" disabled="">Выйти из аккаунта</button>
+    <p id="account-message" role="status" aria-live="polite" style="white-space: pre-wrap; margin-top: 10px;"></p>
+    <p style="margin-top: 10px;">После сохранения на другом устройстве нажми «Обновить данные», чтобы получить последние записи.</p>
+  </div></details><details class="settings-detail"><summary>Длительность цикла</summary><div class="card">
+    <div class="cl">Настройки цикла</div>
+    <div style="margin-bottom:10px"><div class="ilabel">Длина цикла (дней)</div><input class="ifield" id="cyc-len" type="number" min="21" max="45" value="28" inputmode="numeric"></div>
+    <div style="margin-bottom:12px"><div class="ilabel">Ориентир длительности менструации, дней</div><input class="ifield" id="cyc-days" type="number" min="1" max="10" value="5" inputmode="numeric"></div>
+    <button class="btn" onclick="saveCycleSettings()">Сохранить настройки</button>
+  </div></details><details class="settings-detail"><summary>Отчёт для врача</summary><div class="card">
     <div class="cl">Отчёт для врача</div>
-    <p style="font-size:12px;margin-bottom:12px">Отдельный печатный документ: карта тела, график боли, препараты, активность, цикл и подробные записи.</p>
+    <p style="margin-bottom: 12px;">Отдельный печатный документ: карта тела, график боли, препараты, активность, цикл и подробные записи.</p>
     <label>Пациент (необязательно)<input class="ifield" id="report-name" maxlength="200" placeholder="Имя или инициалы"></label>
     <div class="irow mt8"><label>С<input class="ifield" type="date" id="report-from"></label><label>По<input class="ifield" type="date" id="report-to"></label></div>
     <label>Вопрос к врачу (необязательно)<textarea class="ifield mt8" id="report-question" maxlength="2000" placeholder="Что хочешь обсудить на приёме"></textarea></label>
     <button class="btn mt8" onclick="openDoctorReport()">Открыть отчёт / сохранить PDF</button>
     <button class="btn sage mt8" onclick="openDoctorReport(true)">Скачать отчёт HTML</button>
-    <p class="mt8" style="font-size:12px">Для PDF: открой отчёт → «Печать / сохранить в PDF». Имя и вопрос используются только для отчёта и не записываются в Firebase.</p>
-  </div>
-  <div class="card">
+    <p class="mt8" style="">Для PDF: открой отчёт → «Печать / сохранить в PDF». Имя и вопрос используются только для отчёта и не записываются в Firebase.</p>
+  </div></details><details class="settings-detail"><summary>Данные и резервная копия</summary><div class="card"><div id="data-stats"></div></div><div class="card">
     <div class="cl">Скачать</div>
     <button class="btn mt8" onclick="expJSON()">↓ JSON — полная резервная копия</button>
     <button class="btn sage mt8" onclick="expCSV()">↓ CSV — для таблиц и врача</button>
     <button class="btn mt8" onclick="showBackupText()">Показать JSON текстом</button>
-    <div id="backup-panel" hidden><p class="mt8">Если файл не скачивается, скопируй весь текст и сохрани его в файл с расширением .json.</p>
-    <textarea id="backup-text" readonly aria-label="Резервная копия JSON"></textarea>
+    <div id="backup-panel" hidden=""><p class="mt8">Если файл не скачивается, скопируй весь текст и сохрани его в файл с расширением .json.</p>
+    <textarea id="backup-text" readonly="" aria-label="Резервная копия JSON"></textarea>
     <button class="btn mt8" onclick="copyBackupText()">Копировать текст</button></div>
-    <p class="mt8" style="font-size:12px">JSON содержит все записи и настройки цикла. CSV содержит записи, включая цикл и заметки. Файлы содержат личные данные.</p>
-  </div>
-  <div class="card">
-    <div class="cl">Восстановить из JSON</div><p style="font-size:12px;margin-bottom:12px">Перед записью появится состав файла. Импорт добавляет отсутствующие записи, не удаляя существующие. Настройки цикла восстанавливаются из файла.</p>
-    <label class="btn lav" style="display:block;text-align:center;cursor:pointer;padding:13px;border-radius:11px;font-size:12px;letter-spacing:0.07em;text-transform:uppercase;font-weight:600">
+    <p class="mt8" style="">JSON содержит все записи и настройки цикла. CSV содержит записи, включая цикл и заметки. Файлы содержат личные данные.</p>
+  </div><div class="card">
+    <div class="cl">Восстановить из JSON</div><p style="margin-bottom: 12px;">Перед записью появится состав файла. Импорт добавляет отсутствующие записи, не удаляя существующие. Настройки цикла восстанавливаются из файла.</p>
+    <label class="btn lav" style="display: block; text-align: center; cursor: pointer; padding: 13px; border-radius: 11px; letter-spacing: 0.07em; text-transform: uppercase; font-weight: 600;">
       ↑ Выбрать файл
       <input type="file" accept=".json" style="display:none" onchange="impJSON(this)">
     </label>
-  </div>
-</div>
+  </div></details></div>
 
 <!-- NAV -->
 <nav class="nav" aria-label="Разделы приложения">
-  <button class="ni" onclick="showS('data')" id="n-data"><span style="font-size:20px" aria-hidden="true">↓</span>Данные</button>
+  
   <button class="ni active" onclick="showS('rec')" id="n-rec">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a6 6 0 0 0 9 5.2"/><path d="M12 3C6 3 2 7.5 2 12a10 10 0 0 0 20 0c0-1-.1-2-.4-3"/></svg>
-    Восст.
-  </button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3a6 6 0 0 0 9 5.2"></path><path d="M12 3C6 3 2 7.5 2 12a10 10 0 0 0 20 0c0-1-.1-2-.4-3"></path></svg>Восстановл.</button>
   <button class="ni" onclick="showS('load')" id="n-load">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L12 12M12 12L8 8M12 12L16 8"/><path d="M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L12 12M12 12L8 8M12 12L16 8"></path><path d="M5 17c0 2.2 3.1 4 7 4s7-1.8 7-4"></path></svg>
     Нагрузка
   </button>
   <button class="ni" onclick="showS('cycle')" id="n-cycle">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"></circle><path d="M12 6v6l4 2"></path></svg>
     Цикл
   </button>
   <button class="ni" onclick="showS('charts')" id="n-charts">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,17 8,12 13,14 21,7"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,17 8,12 13,14 21,7"></polyline><line x1="3" y1="20" x2="21" y2="20"></line></svg>
     Графики
   </button>
   <button class="ni" onclick="showS('hist')" id="n-hist">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="17" rx="2"></rect><line x1="8" y1="9" x2="16" y2="9"></line><line x1="8" y1="13" x2="14" y2="13"></line></svg>
     История
   </button>
 </nav>
@@ -554,7 +415,7 @@ const app=initializeApp({apiKey:"AIzaSyCWYyy19WDJf1Ki026fKHdrZQTIVKazMuI",authDo
 const db=getFirestore(app),auth=getAuth(app);
 let uid=null,events=[],sleeps=[],acts=[],cycleEvts=[];
 let cycleSettings={len:28,days:5};
-window._period=14;
+window._period=7;
 window._layers={pain:true,med:true,sleep:true,act:true,cycle:true,temp:true};
 
 let dataReady=false, importBusy=false, authBusy=false, pendingWrites=0, loadGeneration=0, anonymousStarting=false;
@@ -583,7 +444,7 @@ function clearUserData(){
   document.getElementById('backup-text').value='';document.getElementById('backup-panel').hidden=true;
   document.getElementById('report-name').value='';document.getElementById('report-question').value='';
   document.getElementById('cyc-len').value=28;document.getElementById('cyc-days').value=5;
-  resetLoad();resetSleep();resetAct();resetCycle();resetBleeding();document.getElementById('timeline-tracks').innerHTML='';document.getElementById('chart-day').innerHTML='';
+  resetLoad();resetSleep();resetAct();resetCycle();resetBleeding();document.getElementById('timeline-tracks').innerHTML='';document.getElementById('chart-day').innerHTML='';document.getElementById('overlay-chart').innerHTML='';document.getElementById('heat-front').innerHTML='';document.getElementById('heat-back').innerHTML='';document.getElementById('heat-list').innerHTML='';historyReady=false;
   const canvas=document.getElementById('main-canvas');canvas.getContext('2d')?.clearRect(0,0,canvas.width,canvas.height);
 }
 async function loadRecords(name,userId){
@@ -604,7 +465,7 @@ async function loadAll(){
     events=nextEvents;sleeps=nextSleeps;acts=nextActs;cycleEvts=nextCycle;
     document.getElementById('cyc-len').value=cycleSettings.len;document.getElementById('cyc-days').value=cycleSettings.days;
     dataReady=true;renderAll();
-    syncStatus(`Данные загружены · ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · Фон 5.0`);
+    syncStatus(`Данные загружены · ${new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · Фон 6.0`);
     return true;
   }catch(e){
     if(generation===loadGeneration&&uid===userId){dataReady=false;syncStatus('Не удалось загрузить дневник. Записи не удалены этим действием. Проверь интернет и нажми «Обновить данные». '+(e.code||''));}
@@ -701,9 +562,9 @@ function parentZone(zone){return fineZones.find(z=>z.zone===zone)?.parent||zone;
 function isStart(e){return e.kind!=='bleeding';}
 function cycleStarts(){return cycleEvts.filter(isStart).sort((a,b)=>b.date.localeCompare(a.date));}
 function painSites(e){if(Array.isArray(e.pain?.sites)&&e.pain.sites.length)return e.pain.sites;return (e.pain?.zones||[]).map(zone=>({zone,level:e.pain.level,legacy:true}));}
-function painValue(e,zone=''){if(!zone)return Number.isFinite(e.pain?.level)?e.pain.level:null;const site=painSites(e).find(s=>s.zone===zone);return Number.isFinite(site?.level)?site.level:null;}
+function painValue(e,zone=''){if(!zone)return Number.isFinite(e.pain?.level)?e.pain.level:null;const matches=painSites(e).filter(s=>s.zone===zone||parentZone(s.zone)===zone).map(s=>s.level).filter(Number.isFinite);return matches.length?Math.max(...matches):null;}
 function painText(e){if(!e.pain)return '';const sites=painSites(e);return sites.length?sites.map(s=>`${s.zone}: ${s.level}/10${s.legacy?' (общая оценка записи)':''}`).join('; '):`Общая оценка: ${e.pain.level}/10`;}
-function medText(m){if(!m)return '';return m.name+(m.dose!==''&&m.dose!=null?' · '+m.dose+' '+(m.unit||'мг'):'')+(m.quantity!=null?' · '+m.quantity+' '+(m.quantityUnit||'шт.'):'')+(m.effect?' · '+m.effect:'')+(m.afterPain!=null?' · боль после '+m.afterPain+'/10':'')+(m.afterMinutes!=null?' через '+m.afterMinutes+' мин':'');}
+function medText(m){if(!m)return '';return m.name+(m.time?' · '+m.time:'')+(m.dose!==''&&m.dose!=null?' · '+m.dose+' '+(m.unit||'мг'):'')+(m.quantity!=null?' · '+m.quantity+' '+(m.quantityUnit||'шт.'):'')+(m.effect?' · '+m.effect:'')+(m.afterPain!=null?' · боль после '+m.afterPain+'/10':'')+(m.afterMinutes!=null?' через '+m.afterMinutes+' мин':'');}
 function eventTime(e){return e.time||'время не указано';}
 function val(id){return document.getElementById(id).value;}
 function setVal(id,v){document.getElementById(id).value=v??'';}
@@ -732,13 +593,13 @@ window.resetLoad=function(){
   window._selPain=null;window._selZones=[];window._zoneLevels={};window._editingLegacyPain=null;
   document.querySelectorAll('.pb,.body-zone,#reason-tags .tag,#char-tags .tag').forEach(e=>{e.classList.remove('sel');e.classList.remove('active');});
   for(const id of ['med-name','med-dose','med-quantity','med-effect','med-after-min','med-after-pain','temp-val','load-note'])setVal(id,'');
-  setVal('med-unit','мг');setVal('med-quantity-unit','табл.');setVal('load-time',nowTime());
+  setVal('med-time',nowTime());setVal('med-unit','мг');setVal('med-quantity-unit','табл.');setVal('load-time',nowTime());
   document.getElementById('temp-high').checked=false;togMed(false);setEdit('events',null);renderZoneEditors();
 };
 window.resetSleep=function(){document.querySelectorAll('.sq').forEach(e=>e.classList.remove('sel'));for(const id of ['sleep-h','sleep-m','sleep-wakes'])setVal(id,'');setEdit('sleeps',null);};
-window.resetAct=function(){window._selAct=null;document.querySelectorAll('#act-tags .tag,#sub-tags .tag').forEach(e=>e.classList.remove('sel'));document.getElementById('sub-wrap').style.display='none';for(const id of ['act-duration','act-effect','act-note'])setVal(id,'');setVal('act-time',nowTime());setEdit('acts',null);};
+window.resetAct=function(){window._selAct=null;document.querySelectorAll('#act-tags .tag,#sub-tags .tag').forEach(e=>e.classList.remove('sel'));document.getElementById('sub-wrap').style.display='none';for(const id of ['act-duration','act-effect','act-effort','act-note'])setVal(id,'');setVal('act-time','');setEdit('acts',null);};
 function resetCycle(){setEdit('cycle',null);setVal('cycle-end','');}
-function resetBleeding(){setEdit('bleeding',null);setVal('bleeding-flow','');setVal('bleeding-note','');}
+function resetBleeding(){document.getElementById('legacy-bleeding-editor').hidden=true;setEdit('bleeding',null);setVal('bleeding-flow','');setVal('bleeding-note','');}
 window.cancelEdit=function(coll,internal=false){if(!internal&&(pendingWrites||importBusy))return;({events:resetLoad,sleeps:resetSleep,acts:resetAct,cycle:resetCycle,bleeding:resetBleeding})[coll]?.();};
 const originalTogMed=window.togMed;window.togMed=function(yes){originalTogMed(yes);document.getElementById('med-followup').hidden=!yes;};
 function selectZone(zone){if(window._selZones.includes(zone))return;window._selZones.push(zone);window._zoneLevels[zone]=window._selPain;renderZoneEditors();}
@@ -775,7 +636,7 @@ window.saveLoad=async function(){try{
   let pain=level==null?null:{level,zones:sites.map(s=>s.zone),sites,reasons:[...document.querySelectorAll('#reason-tags .tag.sel')].map(e=>e.textContent),character:[...document.querySelectorAll('#char-tags .tag.sel')].map(e=>e.textContent),aggregation:sites.length?'max-sites':'overall'};
   const oldPain=editIds.events?events.find(e=>e.id===editIds.events)?.pain:null;
   if(pain&&oldPain&&!oldPain.sites?.length&&sites.length===(oldPain.zones||[]).length&&sites.every(site=>(oldPain.zones||[]).includes(site.zone)&&site.level===oldPain.level))pain={...oldPain,reasons:pain.reasons,character:pain.character};
-  const med=medY?{name,dose:optionalNumber('med-dose',0.000001,1000000),unit:val('med-unit'),quantity:optionalNumber('med-quantity',0.000001,1000000),quantityUnit:val('med-quantity-unit'),effect:val('med-effect')||null,afterMinutes:optionalNumber('med-after-min',0,10080,true),afterPain:optionalNumber('med-after-pain',0,10,true)}:null;
+  const med=medY?{name,dose:optionalNumber('med-dose',0.000001,1000000),unit:val('med-unit'),quantity:optionalNumber('med-quantity',0.000001,1000000),quantityUnit:val('med-quantity-unit'),time:checkTime(val('med-time')),effect:val('med-effect')||null,afterMinutes:optionalNumber('med-after-min',0,10080,true),afterPain:optionalNumber('med-after-pain',0,10,true)}:null;
   await saveRecord('events',{type:'pain',date,time,pain,med,temp:temperature==null?null:{value:temperature,high:document.getElementById('temp-high').checked},note:note||null},editIds.events);resetLoad();renderAll();toast('Запись сохранена');
 }catch(e){toast(e.message||'Не удалось сохранить запись',true);}};
 window.saveSleep=async function(){try{
@@ -785,7 +646,7 @@ window.saveSleep=async function(){try{
   if(existing){if(target)throw Error('За эту дату уже есть другая запись сна');if(!confirm('За эту дату уже есть запись сна. Заменить её введёнными значениями?'))return;target=existing.id;}
   await saveRecord('sleeps',{date,hours,minutes,awakenings,quality:document.querySelector('.sq.sel')?.dataset.q||null},target);resetSleep();renderAll();toast('Сон сохранён');
 }catch(e){toast(e.message||'Не удалось сохранить сон',true);}};
-window.saveAct=async function(){try{const date=val('act-date');checkDate(date);if(!window._selAct)throw Error('Выбери занятие');await saveRecord('acts',{type:'act',date,time:checkTime(val('act-time')),kind:window._selAct,sub:[...document.querySelectorAll('#sub-tags .tag.sel')].map(e=>e.textContent),durationMinutes:optionalNumber('act-duration',1,1440,true),effect:val('act-effect')||null,note:val('act-note').trim()||null},editIds.acts);resetAct();renderAll();toast('Активность сохранена');}catch(e){toast(e.message||'Не удалось сохранить активность',true);}};
+window.saveAct=async function(){try{const date=val('act-date');checkDate(date);if(!window._selAct)throw Error('Выбери занятие');await saveRecord('acts',{type:'act',date,time:checkTime(val('act-time')),kind:window._selAct,sub:[...document.querySelectorAll('#sub-tags .tag.sel')].map(e=>e.textContent),durationMinutes:optionalNumber('act-duration',1,1440,true),effect:val('act-effect')||null,effort:val('act-effort')||null,note:val('act-note').trim()||null},editIds.acts);resetAct();renderAll();toast('Активность сохранена');}catch(e){toast(e.message||'Не удалось сохранить активность',true);}};
 window.saveCycleStart=async function(){try{const date=val('cycle-date'),endDate=val('cycle-end')||null;checkDate(date);if(endDate){checkDate(endDate);if(endDate<date)throw Error('Окончание не может быть раньше начала');}if(cycleStarts().some(e=>e.date===date&&e.id!==editIds.cycle))throw Error('Такое начало уже отмечено');await saveRecord('cycle',{kind:'start',date,endDate},editIds.cycle);resetCycle();renderAll();toast('Период сохранён');}catch(e){toast(e.message||'Не удалось сохранить период',true);}};
 window.saveBleeding=async function(){try{const date=val('bleeding-date');checkDate(date);const flow=val('bleeding-flow');if(!flow)throw Error('Выбери интенсивность');const existing=cycleEvts.find(e=>e.kind==='bleeding'&&e.date===date&&e.id!==editIds.bleeding);let id=editIds.bleeding;if(existing){if(id)throw Error('За эту дату уже есть другая отметка');if(!confirm('Заменить отметку выделений за эту дату?'))return;id=existing.id;}await saveRecord('cycle',{kind:'bleeding',date,flow,note:val('bleeding-note').trim()||null},id);resetBleeding();renderAll();toast('Отметка сохранена');}catch(e){toast(e.message||'Не удалось сохранить отметку',true);}};
 window.saveCycleSettings=async function(){try{const next={len:Number(val('cyc-len')),days:Number(val('cyc-days'))};if(!Number.isInteger(next.len)||next.len<1||next.len>365||!Number.isInteger(next.days)||next.days<1||next.days>next.len)throw Error('Проверь длительности');await setDoc(doc(db,'users',uid,'meta','settings'),next);cycleSettings=next;renderAll();toast('Настройки сохранены');}catch(e){toast(e.message||'Не удалось сохранить настройки',true);}};
@@ -796,55 +657,107 @@ window.editEntry=function(id,coll){
     // Legacy records retain their shared assessment unless the user changes zones/levels.
     window._editingLegacyPain=e.pain&&!e.pain.sites?.length?JSON.stringify(e.pain):null;
     setTags('reason-tags',e.pain?.reasons);setTags('char-tags',e.pain?.character);togMed(!!e.med);
-    for(const [id,v] of Object.entries({'med-name':e.med?.name,'med-dose':e.med?.dose,'med-unit':e.med?.unit||'мг','med-quantity':e.med?.quantity,'med-quantity-unit':e.med?.quantityUnit||'табл.','med-effect':e.med?.effect,'med-after-min':e.med?.afterMinutes,'med-after-pain':e.med?.afterPain,'temp-val':e.temp?.value,'load-note':e.note}))setVal(id,v);
+    for(const [id,v] of Object.entries({'med-time':e.med?.time,'med-name':e.med?.name,'med-dose':e.med?.dose,'med-unit':e.med?.unit||'мг','med-quantity':e.med?.quantity,'med-quantity-unit':e.med?.quantityUnit||'табл.','med-effect':e.med?.effect,'med-after-min':e.med?.afterMinutes,'med-after-pain':e.med?.afterPain,'temp-val':e.temp?.value,'load-note':e.note}))setVal(id,v);
     document.getElementById('temp-high').checked=!!e.temp?.high;renderZoneEditors();showS('load');
   }else if(coll==='sleeps'){setVal('sleep-date',e.date);setVal('sleep-h',e.hours);setVal('sleep-m',e.minutes);setVal('sleep-wakes',e.awakenings);document.querySelectorAll('.sq').forEach(b=>b.classList.toggle('sel',b.dataset.q===e.quality));showS('rec');}
-  else if(coll==='acts'){setVal('act-date',e.date);setVal('act-time',e.time);let button=[...document.querySelectorAll('#act-tags .tag:not(.add)')].find(b=>b.textContent===e.kind);if(!button){button=document.createElement('button');button.className='tag';button.textContent=e.kind;button.onclick=()=>selAct(button,e.kind);document.getElementById('act-tags').appendChild(button);}selAct(button,e.kind);setTags('sub-tags',e.sub);setVal('act-duration',e.durationMinutes);setVal('act-effect',e.effect);setVal('act-note',e.note);showS('rec');}
-  else if(kind==='bleeding'){setVal('bleeding-date',e.date);setVal('bleeding-flow',e.flow);setVal('bleeding-note',e.note);showS('cycle');}
+  else if(coll==='acts'){setVal('act-date',e.date);setVal('act-time',e.time);let button=[...document.querySelectorAll('#act-tags .tag:not(.add)')].find(b=>b.textContent===e.kind);if(!button){button=document.createElement('button');button.className='tag';button.textContent=e.kind;button.onclick=()=>selAct(button,e.kind);document.getElementById('act-tags').appendChild(button);}selAct(button,e.kind);setTags('sub-tags',e.sub);setVal('act-duration',e.durationMinutes);setVal('act-effect',e.effect);setVal('act-effort',e.effort);setVal('act-note',e.note);showS('rec');}
+  else if(kind==='bleeding'){document.getElementById('legacy-bleeding-editor').hidden=false;setVal('bleeding-date',e.date);setVal('bleeding-flow',e.flow);setVal('bleeding-note',e.note);showS('cycle');}
   else{setVal('cycle-date',e.date);setVal('cycle-end',e.endDate);showS('cycle');}
-  document.getElementById(formNames[kind]+'-edit-hint').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById(formNames[kind]+'-edit-hint').scrollIntoView({behavior:'instant',block:'start'});
 };
 window.delEntry=async function(id,coll){if(!confirm('Удалить эту запись?'))return;try{await deleteDoc(doc(db,'users',uid,coll,id));setList(coll,getList(coll).filter(e=>e.id!==id));for(const k of Object.keys(editIds))if(editIds[k]===id)window.cancelEdit(k,true);renderAll();toast('Запись удалена');}catch(e){toast('Не удалось удалить запись',true);}};
-function entrySummary(e,coll){if(coll==='events')return [painText(e),medText(e.med),e.temp?e.temp.value+' °C':'',e.note].filter(Boolean).join('\n');if(coll==='sleeps')return `${e.hours} ч ${e.minutes||0} мин · пробуждений: ${e.awakenings??'не указано'}${e.quality?' · '+e.quality:''}`;if(coll==='acts')return `${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}${e.durationMinutes!=null?' · '+e.durationMinutes+' мин':''}${e.effect?' · '+e.effect:''}${e.note?'\n'+e.note:''}`;return e.kind==='bleeding'?`Выделения: ${e.flow}${e.note?'\n'+e.note:''}`:`Начало менструации${e.endDate?' · последний день '+reportDate(e.endDate):' · окончание не отмечено'}`;}
+function entrySummary(e,coll){if(coll==='events')return [painText(e),medText(e.med),e.temp?e.temp.value+' °C':'',e.note].filter(Boolean).join('\n');if(coll==='sleeps')return `${e.hours} ч ${e.minutes||0} мин · пробуждений: ${e.awakenings??'не указано'}${e.quality?' · '+e.quality:''}`;if(coll==='acts')return `${e.kind}${e.sub?.length?' · '+e.sub.join(', '):''}${e.durationMinutes!=null?' · '+e.durationMinutes+' мин':''}${activityFeeling(e)?' · '+activityFeeling(e):''}${e.note?'\n'+e.note:''}`;return e.kind==='bleeding'?`Выделения: ${e.flow}${e.note?'\n'+e.note:''}`:`Начало менструации${e.endDate?' · последний день '+reportDate(e.endDate):' · окончание не отмечено'}`;}
 function allEntries(){return [...events.map(e=>({...e,_c:'events'})),...sleeps.map(e=>({...e,_c:'sleeps'})),...acts.map(e=>({...e,_c:'acts'})),...cycleEvts.map(e=>({...e,_c:'cycle'}))].sort((a,b)=>b.date.localeCompare(a.date)||String(b.time||'').localeCompare(String(a.time||'')));}
 function actionButtons(e){return `<div class="hist-actions"><button data-edit-id="${esc(e.id)}" data-coll="${e._c}">Изменить</button><button data-delete-id="${esc(e.id)}" data-coll="${e._c}">Удалить</button></div>`;}
-function renderHistory(){
-  const search=(val('history-search')||'').toLocaleLowerCase('ru'),type=val('history-type');const rows=allEntries().filter(e=>(!type||type===e._c)&&(!search||[e.date,entrySummary(e,e._c)].join(' ').toLocaleLowerCase('ru').includes(search)));
-  document.getElementById('hist-list').innerHTML=rows.length?rows.map(e=>`<div class="card"><div class="cl">${reportDate(e.date)} · ${({events:'Нагрузка',sleeps:'Сон',acts:'Восстановление',cycle:'Цикл'})[e._c]}${['events','acts'].includes(e._c)?' · '+esc(eventTime(e)):''}</div><div class="hist-note">${esc(entrySummary(e,e._c))}</div>${actionButtons(e)}</div>`).join(''):'<div class="empty">Нет записей по выбранным условиям</div>';
-}
-window.renderNewHistory=renderHistory;
-function renderCycle(){
-  const starts=cycleStarts(),last=starts.find(e=>e.date<=localDate());let status='Отметь начало менструации';
-  if(last){const day=Math.round((new Date(localDate())-new Date(last.date))/86400000)+1,next=new Date(Date.parse(last.date+'T12:00:00Z')+cycleSettings.len*86400000).toISOString().slice(0,10);status=`<div class="cstatus"><div class="cdaynum">${day}</div><div class="cdaylabel">день от последнего отмеченного начала</div><p>${last.endDate?'Последний день выделений: '+reportDate(last.endDate):'Окончание менструации не отмечено'}</p><p class="help">Расчётное следующее начало: ${reportDate(next)}. Ориентир по настройке ${cycleSettings.len} дней; фактические даты могут отличаться.</p></div>`;}
-  if(last){const day=Math.round((new Date(localDate())-new Date(last.date))/86400000)+1;let phase=day<=cycleSettings.days?'Менструация':day<cycleSettings.len-15?'Фолликулярная фаза':day<=cycleSettings.len-12?'Овуляция':'Лютеиновая фаза';if(day>cycleSettings.len)phase='За пределами заданной длительности';status+=`<details class="card"><summary>Календарная оценка фазы</summary><p>${phase}</p><p class="help">Расчёт по указанной длительности цикла, а не подтверждение овуляции или уровня гормонов.</p></details>`;}document.getElementById('cycle-status').innerHTML=status;const rows=allEntries().filter(e=>e._c==='cycle');document.getElementById('cycle-hist-card').style.display=rows.length?'block':'none';document.getElementById('cycle-hist').innerHTML=rows.map(e=>`<div class="day-item"><b>${reportDate(e.date)}</b><br>${esc(entrySummary(e,'cycle'))}${actionButtons(e)}</div>`).join('');
-}
 function selectedChartDays(){const last=localDate(),days=[];for(let i=window._period-1;i>=0;i--)days.push(new Date(Date.parse(last+'T12:00:00Z')-i*86400000).toISOString().slice(0,10));return days;}
 function dayValues(day,zone=''){
   const ev=events.filter(e=>e.date===day),pain=ev.map(e=>painValue(e,zone)).filter(v=>v!==null),sleep=sleeps.filter(e=>e.date===day),activity=acts.filter(e=>e.date===day),bleeding=cycleEvts.filter(e=>e.date===day&&e.kind==='bleeding'),start=cycleStarts().some(e=>e.date===day),period=cycleStarts().find(e=>e.endDate&&e.date<=day&&e.endDate>=day);
   return {pain:pain.length?Math.max(...pain):null,meds:ev.filter(e=>e.med).length,sleep:sleep.length?sleep.reduce((n,e)=>n+e.hours+(e.minutes||0)/60,0):null,wakes:sleep.some(e=>e.awakenings!=null)?sleep.filter(e=>e.awakenings!=null).reduce((n,e)=>n+e.awakenings,0):null,activity:activity.length,duration:activity.some(e=>e.durationMinutes!=null)?activity.reduce((n,e)=>n+(e.durationMinutes||0),0):null,cycle:bleeding.length?bleeding.map(e=>e.flow).join(', '):start?'Начало':period?'Период':'',temperature:ev.filter(e=>e.temp).length?Math.max(...ev.filter(e=>e.temp).map(e=>e.temp.value)):null};
 }
+const chartMetrics={
+ pain:{name:'Боль',unit:'из 10',color:'#d94352',fixed:10,kind:'line'},
+ sleep:{name:'Сон',unit:'часы',color:'#007aff',kind:'line'},
+ activity:{name:'Активность',unit:'минуты',color:'#248a3d',kind:'bar'},
+ meds:{name:'Препараты',unit:'записи приёма',color:'#af52de',kind:'bar'},
+ wakes:{name:'Пробуждения',unit:'количество',color:'#af7300',kind:'bar'},
+ temperature:{name:'Температура',unit:'°C',color:'#16858c',kind:'line'}
+};
+let overlayMetrics=['pain','sleep'],cycleOverlay=true,selectedPlotDay=null,historyReady=false;
+function activityFeeling(e){return e.effort||e.effect||'';}
+function prettyDay(day){return new Date(day+'T12:00:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',weekday:'short'});}
+function recordMarkup(e){const names={events:'Нагрузка',sleeps:'Сон',acts:'Восстановление',cycle:'Цикл'};return `<div class="day-item"><div class="record-title">${names[e._c]}${e._c==='events'&&e.time?' · '+esc(e.time):''}</div><div class="hist-note">${esc(entrySummary(e,e._c))}</div>${actionButtons(e)}</div>`;}
+function renderHistory(){
+  const container=document.getElementById('hist-list'),opened=new Set([...container.querySelectorAll('details[open]')].map(e=>e.dataset.day));
+  const search=(val('history-search')||'').toLocaleLowerCase('ru'),type=val('history-type'),all=allEntries();
+  const dates=[...new Set(all.filter(e=>(!type||type===e._c)&&(!search||[e.date,entrySummary(e,e._c)].join(' ').toLocaleLowerCase('ru').includes(search))).map(e=>e.date))];
+  if(!dates.length){container.innerHTML='<div class="empty">Нет записей по выбранным условиям</div>';return;}
+  container.innerHTML=dates.map((date,i)=>{const items=all.filter(e=>e.date===date);const maxPain=items.map(e=>e.pain?.level).filter(Number.isFinite),sleep=items.find(e=>e._c==='sleeps'),meds=items.filter(e=>e.med).length;const summary=[maxPain.length?'боль до '+Math.max(...maxPain)+'/10':'',sleep?'сон '+sleep.hours+' ч '+(sleep.minutes||0)+' мин':'',meds?'приёмов: '+meds:'',items.some(e=>e._c==='cycle')?'цикл':''].filter(Boolean).join(' · ');return `<details class="day-group" data-day="${date}" ${opened.has(date)||!historyReady&&i===0?'open':''}><summary><div><div class="day-date">${prettyDay(date)}</div><div class="day-summary">${esc(summary||items.length+' записей')}</div></div></summary><div class="day-records">${items.map(recordMarkup).join('')}</div></details>`;}).join('');historyReady=true;
+}
+window.renderNewHistory=renderHistory;
+function phaseAt(date){
+  const start=cycleStarts().find(e=>e.date<=date);if(!start)return null;
+  const day=Math.round((new Date(date)-new Date(start.date))/86400000)+1,len=Number(cycleSettings.len),bleedDays=start.endDate?Math.round((new Date(start.endDate)-new Date(start.date))/86400000)+1:Number(cycleSettings.days);
+  if(day>len||len<18||bleedDays>=len-14)return {key:'unknown',day,start,len,title:'Фаза не определена',phaseDay:null};
+  const ovulationDay=len-14;
+  if(day<=bleedDays)return {key:'menstrual',day,start,len,title:'Менструация',phaseDay:day};
+  if(day<ovulationDay)return {key:'follicular',day,start,len,title:'Фолликулярная фаза',phaseDay:day};
+  if(day===ovulationDay)return {key:'ovulation',day,start,len,title:'Предполагаемая овуляция',phaseDay:null};
+  return {key:'luteal',day,start,len,title:'Лютеиновая фаза',phaseDay:day-ovulationDay};
+}
+const phaseNotes={
+ menstrual:{body:'Слизистая оболочка матки отторгается — идёт менструация. Это одновременно начало нового цикла и фолликулярной фазы.',load:'При спазмах попробуй спокойную ходьбу, мягкую гимнастику или привычную лёгкую активность, если она комфортна.',rest:'При болезненности могут помочь тёплый душ и мягкое тепло. Ориентируйся на ощущения, а не на обязательный план.'},
+ follicular:{body:'В яичнике развивается яйцеклетка. Эстроген участвует в её созревании и утолщении слизистой матки.',load:'Продолжай привычную активность, если она комфортна. Повышать нагрузку только из-за названия фазы не требуется.',rest:'Сопоставляй сон, боль и то, насколько легко далось занятие. Эти наблюдения помогут выбрать подходящий объём следующей нагрузки.'},
+ ovulation:{body:'Овуляция — выход яйцеклетки из яичника. Приложение предполагает дату за 14 дней до следующей менструации; фактическая дата может отличаться.',load:'Выбирай нагрузку по текущему самочувствию. Расчётная овуляция не означает обязательный пик силы или необходимость тренироваться интенсивнее.',rest:'Отмечай необычные ощущения в дневнике. Здесь показан календарный ориентир, а не подтверждение овуляции.'},
+ luteal:{body:'После овуляции прогестерон помогает подготовить слизистую матки. Если беременность не наступает, уровни эстрогена и прогестерона снижаются перед следующей менструацией.',load:'При усталости выбери более комфортный объём. Если самочувствие обычное, сам календарный этап не требует отменять привычные занятия.',rest:'Сравни ощущение нагрузки и сон с предыдущими днями. Возможные колебания энергии индивидуальны; схема не определяет твоё состояние.'},
+ unknown:{body:'По этим датам нельзя надёжно выбрать календарную фазу. Проверь последнее отмеченное начало и длительность цикла в настройках.',load:'Выбирай привычную комфортную активность по самочувствию.',rest:'Продолжай фиксировать сон и симптомы; не подгоняй записи под расчётный календарь.'}
+};
+function renderCycle(){
+  const info=phaseAt(localDate()),el=document.getElementById('cycle-status');
+  if(!info){el.innerHTML='<div class="card"><div class="cl">Познакомимся с твоим циклом</div><p class="help">Отметь начало последней менструации ниже. Здесь появятся день цикла, календарная фаза и пояснения.</p></div>';}
+  else{const notes=phaseNotes[info.key],phaseDay=info.phaseDay!=null?`${info.phaseDay}-й день ${info.key==='menstrual'?'менструации':'фазы'} · оценка`:info.key==='ovulation'?'Ориентировочная дата':'Проверь даты цикла';el.innerHTML=`<div class="phase-hero"><div class="phase-kicker">${info.day}-й день цикла</div><div class="phase-title">${info.title}</div><div class="phase-day">${phaseDay}</div><div class="phase-progress"><span style="width:${Math.min(100,info.day/info.len*100)}%"></span></div><p>Начало отмечено ${reportDate(info.start.date)}</p></div><div class="card"><div class="phase-tip"><b>Что происходит в организме</b><p>${notes.body}</p></div><div class="phase-tip"><b>Нагрузка сегодня</b><p>${notes.load}</p></div><div class="phase-tip"><b>Восстановление</b><p>${notes.rest}</p></div><details><summary>Как понимать эти подсказки</summary><p class="help">День цикла считается от отмеченного начала. Фаза и её день — календарная оценка по настройке длительности, а не измерение гормонов. Фолликулярная фаза начинается с первого дня цикла и включает менструацию. Расчёт не учитывает гормональную контрацепцию и не подходит для выбора «безопасных дней».</p><p class="phase-sources">Физиология: <a href="https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/" target="_blank" rel="noopener">NHS</a>. Активность: <a href="https://womenshealth.gov/getting-active/physical-activity-menstrual-cycle" target="_blank" rel="noopener">Office on Women’s Health</a>. При менструальной боли: <a href="https://www.nhs.uk/symptoms/period-pain/" target="_blank" rel="noopener">NHS</a>. Подсказки об организации дневника — предложения приложения, а не индивидуальные назначения.</p></details></div>`;}
+  const rows=allEntries().filter(e=>e._c==='cycle'&&isStart(e));document.getElementById('cycle-hist-card').style.display=rows.length?'block':'none';document.getElementById('cycle-hist').innerHTML=rows.map(e=>`<div class="day-item"><b>${prettyDay(e.date)}</b><div>${esc(entrySummary(e,'cycle'))}</div>${actionButtons(e)}</div>`).join('');
+}
+function metricValues(key,days){return days.map(day=>{const v=dayValues(day,val('chart-zone'));if(key==='pain')return v.pain;if(key==='sleep')return v.sleep;if(key==='activity')return v.duration;if(key==='wakes')return v.wakes;if(key==='temperature')return v.temperature;return v.meds||null;});}
+function metricScale(key,values){const nums=values.filter(v=>v!=null),max=nums.length?Math.max(...nums):0,min=nums.length?Math.min(...nums):0;if(key==='pain')return [0,10];if(key==='temperature')return [Math.min(35,Math.floor(min||35)),Math.max(40,Math.ceil(max||40))];const step=key==='sleep'?2:key==='activity'?30:2;return [0,Math.max(step,Math.ceil(max/step)*step)];}
+window.toggleChartMetric=function(key){if(key==='cycle'){cycleOverlay=!cycleOverlay;}else if(overlayMetrics.includes(key)){overlayMetrics=overlayMetrics.filter(k=>k!==key);if(!overlayMetrics.length)overlayMetrics=[key];}else{if(overlayMetrics.length===2)overlayMetrics.pop();overlayMetrics.push(key);}renderCharts();};
 function renderCharts(){
-  const select=document.getElementById('chart-zone'),selected=select.value;select.innerHTML='<option value="">Все зоны · максимум за день</option>'+[...new Set(events.flatMap(e=>e.pain?.zones||[]))].sort().map(z=>`<option value="${esc(z)}">${esc(z)}</option>`).join('');select.value=selected;
-  const zone=select.value,days=selectedChartDays(),values=days.map(d=>dayValues(d,zone)),nonempty=values.filter(v=>v.pain!=null),medCount=values.reduce((n,v)=>n+v.meds,0);
-  document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum rose">${nonempty.length?Math.max(...nonempty.map(v=>v.pain)):'—'}</div><div class="sdesc">макс. боль</div></div><div class="spill"><div class="snum lav">${medCount}</div><div class="sdesc">записей приёма</div></div><div class="spill"><div class="snum sage">${nonempty.length}</div><div class="sdesc">дней с оценкой боли</div></div>`;
-  const row=(label,cells)=>`<div class="track-row"><div class="track-label">${label}</div><div class="track-cells">${cells}</div></div>`,cell=(content)=>`<div class="track-cell">${content||'<span class="track-none">—</span>'}</div>`;
-  let html=row('Дата',days.map(d=>cell(`<button data-chart-date="${d}">${reportDate(d).slice(0,5)}</button>`)).join(''));
-  const width=days.length*44,py=v=>116-v*10;let path='',last=null,points='';values.forEach((v,i)=>{if(v.pain===null){last=null;return;}const x=i*44+22;if(last!==null)path+=` L ${x} ${py(v.pain)}`;else path+=` M ${x} ${py(v.pain)}`;last=v.pain;points+=`<circle cx="${x}" cy="${py(v.pain)}" r="4" fill="#a44045"/><text x="${x}" y="${py(v.pain)-8}" text-anchor="middle" font-size="12" fill="#722d31">${v.pain}</text>`;});
-  html+=row('Боль, 0–10<br><small>макс. за день</small>',`<svg width="${width}" height="140" viewBox="0 0 ${width} 140" role="img" aria-label="Дневной максимум боли. Пропуски не соединены.">${[0,5,10].map(v=>`<line x1="0" x2="${width}" y1="${py(v)}" y2="${py(v)}" stroke="#ddd" stroke-dasharray="3 3"/>`).join('')}<path d="${path}" fill="none" stroke="#a44045" stroke-width="2"/>${points}</svg>`);
-  html+=row('Приём<br>препаратов',values.map(v=>cell(v.meds?`${v.meds}<small>записей</small>`:'')).join(''));
-  html+=row('Активность',values.map(v=>cell(v.activity?`${v.activity}<small>занятий${v.duration!=null?' · '+v.duration+' мин':''}</small>`:'')).join(''));
-  html+=row('Сон, часы',values.map(v=>cell(v.sleep!=null?String(Number(v.sleep.toFixed(1))):'')).join(''));
-  html+=row('Пробуждения',values.map(v=>cell(v.wakes!=null?String(v.wakes):'')).join(''));
-  html+=row('Цикл',values.map(v=>cell(v.cycle?`<small>${esc(v.cycle)}</small>`:'')).join(''));
-  html+=row('Температура<br>°C, макс.',values.map(v=>cell(v.temperature!=null?String(v.temperature):'')).join(''));
-  document.getElementById('timeline-tracks').innerHTML=html+'<p class="help">— нет записи. «Период» — отмечены начало и окончание; интенсивность за эти дни не предполагается. Боль — максимум из оценок дня, а не среднее.</p>';
-  const scroll=document.getElementById('timeline-scroll');if(!scroll.dataset.initialized){scroll.scrollLeft=scroll.scrollWidth;scroll.dataset.initialized='yes';}
+  const select=document.getElementById('chart-zone'),selected=select.value,zones=[...new Set(events.flatMap(e=>e.pain?.zones||[]))];const parents=[...new Set(zones.map(parentZone))];select.innerHTML='<option value="">Все зоны</option>'+[...new Set([...parents,...zones])].sort().map(z=>`<option value="${esc(z)}">${esc(z)}</option>`).join('');select.value=selected;
+  const days=selectedChartDays(),values=days.map(day=>dayValues(day,select.value)),pain=values.filter(v=>v.pain!=null);document.getElementById('stat-pills').innerHTML=`<div class="spill"><div class="snum rose">${pain.length?Math.max(...pain.map(v=>v.pain)):'—'}</div><div class="sdesc">макс. боль / 10</div></div><div class="spill"><div class="snum lav">${values.reduce((sum,v)=>sum+v.meds,0)}</div><div class="sdesc">записей приёма</div></div><div class="spill"><div class="snum sage">${pain.length}</div><div class="sdesc">дней с оценкой</div></div>`;
+  document.getElementById('chart-layers').innerHTML=Object.entries(chartMetrics).map(([key,m])=>`<button class="chart-chip ${overlayMetrics.includes(key)?'on':''}" style="--metric:${m.color}" onclick="toggleChartMetric('${key}')" aria-pressed="${overlayMetrics.includes(key)}"><i></i>${m.name}</button>`).join('')+`<button class="chart-chip ${cycleOverlay?'on':''}" style="--metric:#bd638f" onclick="toggleChartMetric('cycle')" aria-pressed="${cycleOverlay}"><i></i>Цикл</button>`;
+  const host=document.getElementById('overlay-chart'),width=Math.max(260,Math.round(host.clientWidth||340)),height=270,left=38,right=overlayMetrics.length>1?40:16,top=30,bottom=224,plot=width-left-right,x=i=>left+(i+.5)*plot/days.length;
+  const specs=overlayMetrics.map(key=>({key,meta:chartMetrics[key],values:metricValues(key,days)}));specs.forEach(s=>s.scale=metricScale(s.key,s.values));
+  let svg='';
+  if(cycleOverlay)for(let i=0;i<days.length;i++){const start=cycleStarts().find(e=>e.date<=days[i]);if(!start)continue;const n=Math.round((new Date(days[i])-new Date(start.date))/86400000);const included=start.endDate?days[i]<=start.endDate:n<cycleSettings.days;if(included)svg+=`<rect x="${left+i*plot/days.length}" y="${top}" width="${plot/days.length}" height="${bottom-top}" fill="#bd638f" opacity="${start.endDate?'.12':'.055'}"${start.endDate?'':' stroke="#bd638f" stroke-dasharray="2 3" stroke-width=".4"'}/>`;}
+  for(let i=0;i<=4;i++){const y=bottom-i*(bottom-top)/4;svg+=`<line x1="${left}" x2="${width-right}" y1="${y}" y2="${y}" stroke="#e5e5ea"/>`;for(let si=0;si<specs.length;si++){const s=specs[si],v=s.scale[0]+i*(s.scale[1]-s.scale[0])/4;svg+=`<text x="${si?width-right+7:left-7}" y="${y+4}" text-anchor="${si?'start':'end'}" font-size="11" fill="${s.meta.color}">${Number(v.toFixed(1))}</text>`;}}
+  specs.forEach((s,si)=>{const y=v=>bottom-(v-s.scale[0])/(s.scale[1]-s.scale[0])*(bottom-top);let path='',previous=false;
+    s.values.forEach((v,i)=>{if(v===null){previous=false;return;}const px=x(i),py=y(v);if(s.meta.kind==='bar'){const w=Math.min(18,plot/days.length*.6);svg+=`<rect x="${px-w/2+(specs.every(t=>t.meta.kind==='bar')?(si-.5)*w*.7:0)}" y="${py}" width="${w}" height="${Math.max(2,bottom-py)}" rx="3" fill="${s.meta.color}" opacity=".45"/>`;}else{path+=`${previous?'L':'M'}${px.toFixed(2)} ${py.toFixed(2)} `;previous=true;svg+=`<circle cx="${px}" cy="${py}" r="${days.length>60?2:3.5}" fill="${s.meta.color}" stroke="white" stroke-width="1"/>`;}});
+    if(path)svg+=`<path d="${path}" fill="none" stroke="${s.meta.color}" stroke-width="2.2" stroke-linejoin="round" ${si?'stroke-dasharray="5 3"':''}/>`;
+  });
+  const labelStep=Math.max(1,Math.ceil(days.length/5));days.forEach((date,i)=>{if(i%labelStep===0||i===days.length-1&&i%labelStep>labelStep/2)svg+=`<text x="${x(i)}" y="245" font-size="10" fill="#6e6e73" text-anchor="middle">${reportDate(date).slice(0,5)}</text>`;svg+=`<rect x="${left+i*plot/days.length}" y="${top}" width="${plot/days.length}" height="${bottom-top+28}" fill="transparent" data-plot-date="${date}" role="button" tabindex="0" aria-label="Записи ${reportDate(date)}"/>`;});
+  host.innerHTML=`<svg viewBox="0 0 ${width} ${height}" role="group" aria-label="Наложение графиков с отдельными шкалами">${svg}</svg>`;
+  host.querySelectorAll('[data-plot-date]').forEach(el=>{const show=()=>window.showChartDay(el.dataset.plotDate);el.onclick=show;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}};});
+  document.getElementById('overlay-legend').innerHTML=specs.map((s,i)=>`<span style="color:${s.meta.color}">${i?'Справа':'Слева'}: ${s.meta.name.toLowerCase()} · ${s.meta.unit}</span>`).join('');
+  document.getElementById('overlay-help').textContent='До двух показателей одновременно; новый выбор заменяет второй. Боль — максимум за день. Пропуски не соединены.'+(cycleOverlay?' Розовый фон — менструация: сплошной по отмеченному окончанию, пунктирный по настройке длительности.':'');
+  const input=document.getElementById('chart-date');input.min=days[0];input.max=days.at(-1);if(!selectedPlotDay||!days.includes(selectedPlotDay))selectedPlotDay=days.at(-1);input.value=selectedPlotDay;window.showChartDay(selectedPlotDay);renderHeatmapMobile(days);
 }
 window.renderNewCharts=renderCharts;
-window.showChartDay=function(date){const rows=allEntries().filter(e=>e.date===date);document.getElementById('chart-day').innerHTML=`<b>${reportDate(date)}</b>`+(rows.length?rows.map(e=>`<div class="day-item">${esc(entrySummary(e,e._c))}${actionButtons(e)}</div>`).join(''):'<p class="help">За этот день нет записей</p>');};
+window.showChartDay=function(date){if(!validDate(date))return;selectedPlotDay=date;setVal('chart-date',date);const rows=allEntries().filter(e=>e.date===date),v=dayValues(date,val('chart-zone'));const quick=overlayMetrics.map(key=>{const spec=chartMetrics[key],value=metricValues(key,[date])[0];return `${spec.name}: ${value===null?'нет записи':Number(value.toFixed(1))+' '+spec.unit}`;}).join(' · ');document.getElementById('chart-day').innerHTML=`<b>${prettyDay(date)}</b><p class="help">${esc(quick)}</p>`+(rows.length?rows.map(recordMarkup).join(''):'<p class="help">За этот день нет записей</p>');};
+function renderHeatmapMobile(days){
+  const eligible=events.filter(e=>days.includes(e.date)&&e.pain),regions={},fine={};
+  for(const e of eligible){const entryRegions={};for(const site of painSites(e)){const group=parentZone(site.zone);entryRegions[group]=Math.max(entryRegions[group]||0,site.level);const rec=fine[site.zone]??={dates:new Set(),max:0};rec.dates.add(e.date);rec.max=Math.max(rec.max,site.level);}for(const [name,level] of Object.entries(entryRegions)){const rec=regions[name]??={dates:new Set(),max:0};rec.dates.add(e.date);rec.max=Math.max(rec.max,level);}}
+  const mode=val('heat-mode'),measure=rec=>mode==='max'?rec.max:rec.dates.size,max=mode==='max'?10:Math.max(1,...Object.values(regions).map(measure));
+  for(const side of ['front','back']){const svg=document.getElementById('body-'+side).cloneNode(true);svg.removeAttribute('id');svg.removeAttribute('style');svg.setAttribute('width','150');for(const el of [svg,...svg.querySelectorAll('*')])for(const attr of [...el.attributes])if(attr.name.startsWith('on')||attr.name==='id')el.removeAttribute(attr.name);
+    svg.querySelectorAll('.body-zone').forEach(el=>{const name=el.dataset.zone,rec=regions[name],n=rec?measure(rec):0,t=n/max;el.classList.remove('active');el.style.fill=n?`rgb(${Math.round(253-36*t)},${Math.round(235-168*t)},${Math.round(237-155*t)})`:'#e8e8ed';el.style.stroke='#a5a5ad';el.setAttribute('role','button');el.setAttribute('tabindex','0');el.setAttribute('aria-label',name+': '+(rec?n+(mode==='max'?' из 10':' дней'):'нет записей'));const pick=()=>{if(!rec)return;setVal('chart-zone',name);if(!overlayMetrics.includes('pain'))overlayMetrics=['pain',overlayMetrics[0]];renderCharts();};el.onclick=pick;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick();}};});const target=document.getElementById('heat-'+side);target.replaceChildren(svg);}
+  const list=document.getElementById('heat-list');list.innerHTML=Object.entries(fine).sort((a,b)=>measure(b[1])-measure(a[1])).map(([zone,rec])=>`<button class="heat-item" data-heat-zone="${esc(zone)}"><span>${esc(zone)}</span><span>${rec.dates.size} дн. · до ${rec.max}/10</span></button>`).join('')||'<p class="help">Нет записей с указанной зоной боли за этот период.</p>';
+  list.querySelectorAll('[data-heat-zone]').forEach(b=>b.onclick=()=>{setVal('chart-zone',b.dataset.heatZone);if(!overlayMetrics.includes('pain'))overlayMetrics=['pain',overlayMetrics[0]];renderCharts();});
+}
+// Keep keyboard changes from covering the form; never disable the user's pinch zoom.
+if(window.visualViewport){const updateKeyboard=()=>{const active=document.activeElement,editing=active&&['INPUT','TEXTAREA','SELECT'].includes(active.tagName),reduced=window.innerHeight-window.visualViewport.height>120;document.body.classList.toggle('keyboard-open',editing&&reduced);};window.visualViewport.addEventListener('resize',updateKeyboard);document.addEventListener('focusin',updateKeyboard);document.addEventListener('focusout',()=>setTimeout(updateKeyboard,100));}
+if(typeof ResizeObserver!=='undefined'){let oldWidth=0;new ResizeObserver(entries=>{const width=Math.round(entries[0].contentRect.width);if(width&&width!==oldWidth){oldWidth=width;if(document.getElementById('s-charts').classList.contains('active'))renderCharts();}}).observe(document.getElementById('overlay-chart'));}
+
 document.addEventListener('click',event=>{const button=event.target.closest('button');if(!button)return;if(button.dataset.editId)window.editEntry(button.dataset.editId,button.dataset.coll);if(button.dataset.deleteId)window.delEntry(button.dataset.deleteId,button.dataset.coll);if(button.dataset.cancel)window.cancelEdit(button.dataset.cancel);if(button.dataset.chartDate)window.showChartDay(button.dataset.chartDate);});
 for(const group of [...new Set(fineZones.map(z=>z.group))]){const g=document.createElement('optgroup');g.label=group;for(const item of fineZones.filter(z=>z.group===group)){const o=document.createElement('option');o.value=item.zone;o.textContent=item.zone;g.appendChild(o);}document.getElementById('detail-zone').appendChild(g);}
-setVal('bleeding-date',localDate());setVal('load-time',nowTime());setVal('act-time',nowTime());document.getElementById('med-followup').hidden=true;renderDigitPicker();
+setVal('bleeding-date',localDate());setVal('load-time',nowTime());setVal('act-time','');document.getElementById('med-followup').hidden=true;renderDigitPicker();
 
 function reportDate(d){return String(d||'').split('-').reverse().join('.');}
 function reportBody(side,counts){
@@ -904,7 +817,7 @@ function buildDoctorReport({from,to,name='',question=''}){
   <p class="small">Чем темнее зона, тем чаще она отмечена в выбранном периоде. Серая зона — нет отметок. В новых записях интенсивность задаётся отдельно по зонам. В старых записях общая оценка показана для каждой выбранной зоны — отдельных измерений там не было. Подробные зоны на силуэте объединены в родительскую область; точные названия — в таблице.</p>
   <h2>2. Динамика по дням</h2><p class="small">Линия — максимальная оценка боли за день (0–10); разрыв — нет оценки. П — число записей о приёме препаратов; А — число записей активности; Ц — отмеченное начало цикла. Пустые ячейки — нет записей. Прогнозные фазы не показаны.</p>${reportChart(days,ev,ac,cy)}
   <h2>3. Препараты</h2>${table(['Название со слов пациента','Доза, как указана','Записей / дней'],[...drugGroups.values()].map(g=>[g.name,g.dose!=null&&g.dose!==''?g.dose+' '+g.unit:'не указана',g.count+' / '+g.dates.size]))}
-  <h2>4. Физическая активность</h2>${table(['Дата / время','Занятие / подвид','Длительность, мин','После занятия / заметка'],[...ac].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date)+' '+time(e),e.kind+' '+(e.sub||[]).join(', '),e.durationMinutes??'не указана',[e.effect,e.note].filter(Boolean).join('; ')]))}
+  <h2>4. Физическая активность</h2>${table(['Дата / время','Занятие / подвид','Длительность, мин','Сложность / прежняя отметка / заметка'],[...ac].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date)+' '+time(e),e.kind+' '+(e.sub||[]).join(', '),e.durationMinutes??'не указана',[e.effort,e.effect?'Прежняя отметка: '+e.effect:'',e.note].filter(Boolean).join('; ')]))}
   <h2>5. Менструальный цикл</h2>${table(['Начало','Последний день выделений','Интервал между началами'],cycleRows)}<p class="small">Окончание показано только для периодов, где оно отмечено пользователем. В настройках на момент формирования: цикл ${esc(cycleSettings.len)} дн., менструация ${esc(cycleSettings.days)} дн.; это введённые значения, а не измеренные длительности. Интервал может учитывать отметку до начала выбранного периода.</p>
   <h3>Ежедневные отметки выделений</h3>${table(['Дата','Интенсивность','Заметка'],cycleEvts.filter(e=>e.kind==='bleeding'&&inside(e)).sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[reportDate(e.date),e.flow,e.note||'']))}
   <section class="details"><h2>6. Подробные записи самочувствия</h2>${table(['Дата / время события','Боль / зоны','Характер / предполагаемая причина','Препарат / температура','Заметка'],ev.map(e=>[reportDate(e.date)+' '+time(e),painText(e)||'не оценена',(e.pain?.character||[]).join(', ')+'\n'+(e.pain?.reasons||[]).join(', '),medText(e.med)+(e.temp?'\n'+e.temp.value+' °C':''),e.note||'']))}<p class="small">Время события указано пользователем. В старых записях время события может отсутствовать; время создания не подставляется вместо него. «Причина» — предположение пациента.</p>
@@ -923,7 +836,7 @@ window.openDoctorReport=function(download=false){
   }catch(e){toast(e.message||'Не удалось создать отчёт',true);}
 };
 
-function backupData(){return {version:6,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};}
+function backupData(){return {version:7,exported:new Date().toISOString(),cycleSettings,cycleEvents:cycleEvts,events,sleeps,acts};}
 function downloadText(text,extension,type){
   const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download=`fon_${localDate()}.${extension}`;document.body.appendChild(a);
@@ -936,8 +849,8 @@ window.showBackupText=function(){if(!requireData())return;document.getElementByI
 window.copyBackupText=async function(){if(!requireData())return;window.showBackupText();const area=document.getElementById('backup-text');try{await navigator.clipboard.writeText(area.value);toast('Текст скопирован');}catch(e){area.focus();area.select();toast('Выделено: нажми «Копировать» или Ctrl/Cmd+C');}};
 function csvCell(value){let text=String(value??'');if(/^[\s]*[=+@-]/.test(text))text="'"+text;return '"'+text.replace(/"/g,'""')+'"';}
 function buildCSV(){
-  const rows=[['Тип','Дата','Время события','Боль по зонам','Общая / максимальная боль','Препарат и результат','Температура','Сон, часы','Сон, минуты','Пробуждения','Качество сна','Активность','Длительность, мин','Результат активности','Заметка','Конец менструации','Интенсивность выделений','Создано','Обновлено']];
-  for(const e of allEntries().reverse())rows.push([({events:'Нагрузка',sleeps:'Сон',acts:'Восстановление',cycle:e.kind==='bleeding'?'Выделения':'Начало цикла'})[e._c],e.date,e.time||'',painText(e),e.pain?.level??'',medText(e.med),e.temp?.value??'',e.hours??'',e.minutes??'',e.awakenings??'',e.quality||'',e._c==='acts'?e.kind+' '+(e.sub||[]).join('; '):'',e.durationMinutes??'',e.effect||'',e.note||'',e.endDate||'',e.flow||'',e.ts||'',e.updatedAt||'']);
+  const rows=[['Тип','Дата','Время события','Боль по зонам','Общая / максимальная боль','Препарат и результат','Температура','Сон, часы','Сон, минуты','Пробуждения','Качество сна','Активность','Длительность, мин','Сложность активности / прежняя отметка','Заметка','Конец менструации','Интенсивность выделений','Создано','Обновлено']];
+  for(const e of allEntries().reverse())rows.push([({events:'Нагрузка',sleeps:'Сон',acts:'Восстановление',cycle:e.kind==='bleeding'?'Выделения':'Начало цикла'})[e._c],e.date,e.time||'',painText(e),e.pain?.level??'',medText(e.med),e.temp?.value??'',e.hours??'',e.minutes??'',e.awakenings??'',e.quality||'',e._c==='acts'?e.kind+' '+(e.sub||[]).join('; '):'',e.durationMinutes??'',[e.effort,e.effect?'Прежняя отметка: '+e.effect:''].filter(Boolean).join('; '),e.note||'',e.endDate||'',e.flow||'',e.ts||'',e.updatedAt||'']);
   return '\uFEFF'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n');
 }
 
@@ -962,6 +875,8 @@ function validateBackup(data){
         if(r.med!=null&&(typeof r.med!=='object'||typeof r.med.name!=='string'||(r.med.dose!=null&&!['string','number'].includes(typeof r.med.dose))))throw Error('Неверная запись препарата');
         if(r.temp!=null&&(typeof r.temp!=='object'||!Number.isFinite(r.temp.value)))throw Error('Неверная температура');
       }
+      if(r.effort!=null&&!['Было легко','Средне','Тяжело','Очень тяжело'].includes(r.effort))throw Error('Неверная сложность занятия');
+      if(r.med?.time!=null&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(r.med.time))throw Error('Неверное время приёма');
       if(r.time!=null&&!/^([01]\d|2[0-3]):[0-5]\d$/.test(r.time))throw Error('Неверное время события');
       if(r.awakenings!=null&&(!Number.isInteger(r.awakenings)||r.awakenings<0||r.awakenings>1000))throw Error('Неверное число пробуждений');
       if(r.durationMinutes!=null&&(!Number.isInteger(r.durationMinutes)||r.durationMinutes<1||r.durationMinutes>1440))throw Error('Неверная длительность активности');
@@ -1024,14 +939,18 @@ window._selPain=null;window._selAct=null;window._selZones=[];
 
 function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=(err?'✗ ':'✓ ')+msg;t.style.background=err?'var(--rose)':'var(--g)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
+let lastMainScreen='rec';const screenScroll={};
 function showS(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  document.getElementById('s-'+name).classList.add('active');
-  document.getElementById('n-'+name)?.classList.add('active');
-  if(name==='charts')setTimeout(()=>{if(window._renderCharts)window._renderCharts();},50);
-  if(name==='cycle'){if(window._renderCycle)window._renderCycle();}
+  const old=document.querySelector('.screen.active')?.id.replace('s-','');if(old===name)return;
+  if(old)screenScroll[old]=window.scrollY;
+  if(name!=='data')lastMainScreen=name;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+name));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.toggle('active',n.id==='n-'+name));
+  if(name==='charts'&&window._renderCharts)window._renderCharts();
+  if(name==='cycle'&&window._renderCycle)window._renderCycle();
+  window.scrollTo({top:screenScroll[name]||0,behavior:'instant'});
 }
+function leaveSettings(){showS(lastMainScreen);}
 
 function togZone(el){
   const zone=el.dataset.zone;
@@ -1075,7 +994,7 @@ function showAddTag(cid,boxId){const box=document.getElementById(boxId);box.styl
 function addTag(cid,inpId,boxId){const val=document.getElementById(inpId).value.trim();if(!val)return;const tags=document.getElementById(cid);const btn=document.createElement('button');btn.className='tag sel';btn.textContent=val;btn.onclick=()=>togTag(btn);tags.insertBefore(btn,tags.querySelector('.add'));document.getElementById(inpId).value='';document.getElementById(boxId).style.display='none';}
 function addActTag(){const val=document.getElementById('act-inp').value.trim();if(!val)return;const tags=document.getElementById('act-tags');const btn=document.createElement('button');btn.className='tag';btn.textContent=val;if(!subOptions[val])subOptions[val]=[];btn.onclick=()=>selAct(btn,val);tags.insertBefore(btn,tags.querySelector('.add'));document.getElementById('act-inp').value='';document.getElementById('act-add').style.display='none';selAct(btn,val);}
 
-function setPeriod(btn,days){document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');window._period=days;const lm={14:'2 недели',30:'Месяц',90:'3 месяца',180:'6 месяцев',365:'Год'};document.getElementById('period-lbl').textContent=lm[days]||days+' дней';if(window._renderCharts)window._renderCharts();}
+function setPeriod(btn,days){document.querySelectorAll('.pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');window._period=days;const lm={7:'Неделя',14:'2 недели',30:'Месяц',90:'3 месяца',180:'6 месяцев',365:'Год'};document.getElementById('period-lbl').textContent=lm[days]||days+' дней';if(window._renderCharts)window._renderCharts();}
 function togLayer(btn){btn.classList.toggle('on');window._layers[btn.dataset.layer]=btn.classList.contains('on');if(window._renderCharts)window._renderCharts();}
 
 function resetLoad(){
@@ -1099,5 +1018,6 @@ document.getElementById('report-to').value=localDate();
 const reportStart=new Date();reportStart.setDate(reportStart.getDate()-29);document.getElementById('report-from').value=localDate(reportStart);
 updateZoneDisplay();
 </script>
-</body>
-</html>
+
+
+</body></html>
